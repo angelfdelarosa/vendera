@@ -10,7 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { MessageSquare, Settings, UserPlus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Star, MessageSquare, Settings } from "lucide-react";
 import { properties } from "@/lib/mock-data";
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import Link from "next/link";
@@ -29,27 +30,40 @@ export default function ProfilePage() {
           <CardHeader className="p-0">
              <div className="bg-primary/10 h-24" />
           </CardHeader>
-          <CardContent className="p-6 pt-0">
-            <div className="flex items-start -mt-12">
-                <Avatar className="h-24 w-24 border-4 border-background bg-background">
-                  <AvatarImage src="https://placehold.co/100x100.png" alt="User avatar" />
-                  <AvatarFallback>U</AvatarFallback>
-                </Avatar>
-                 <div className="ml-4 mt-12 flex-grow">
-                    <h1 className="text-2xl font-headline font-bold text-primary">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-start -mt-16">
+                 <div className="flex-grow pt-8">
+                    <Badge variant="secondary" className="mb-2">Seller</Badge>
+                    <h1 className="text-3xl font-headline font-bold text-primary">
                         John Doe
                     </h1>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-muted-foreground mt-2 max-w-md">
                         Real estate enthusiast and savvy investor. Helping you find the home of your dreams.
                     </p>
+                    <div className="flex items-center gap-2 mt-4">
+                        <div className="flex items-center text-amber-500">
+                           <Star className="w-5 h-5 fill-current" />
+                           <Star className="w-5 h-5 fill-current" />
+                           <Star className="w-5 h-5 fill-current" />
+                           <Star className="w-5 h-5 fill-current" />
+                           <Star className="w-5 h-5 text-muted-foreground fill-muted" />
+                        </div>
+                        <span className="text-muted-foreground text-sm">(123 ratings)</span>
+                    </div>
                 </div>
-                <div className="mt-12 space-x-2">
-                    <Button variant="outline" size="icon">
-                        <MessageSquare className="h-4 w-4" />
-                    </Button>
-                     <Button variant="outline" size="icon">
-                        <Settings className="h-4 w-4" />
-                    </Button>
+                 <div className="flex flex-col items-end space-y-2">
+                     <Avatar className="h-24 w-24 border-4 border-background bg-background">
+                      <AvatarImage src="https://placehold.co/100x100.png" alt="User avatar" data-ai-hint="person face" />
+                      <AvatarFallback>JD</AvatarFallback>
+                    </Avatar>
+                     <div className="space-x-2">
+                        <Button variant="outline" size="icon">
+                            <MessageSquare className="h-4 w-4" />
+                        </Button>
+                         <Button variant="outline" size="icon">
+                            <Settings className="h-4 w-4" />
+                        </Button>
+                    </div>
                 </div>
             </div>
           </CardContent>
