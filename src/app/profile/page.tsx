@@ -72,7 +72,7 @@ export default function ProfilePage() {
         {/* My Properties Section */}
         <section>
           <h2 className="text-2xl font-headline font-semibold text-primary mb-4">
-            My Properties
+            Featured Property
           </h2>
           {userProperties.length > 0 ? (
             <div className="flex justify-center">
