@@ -1,0 +1,141 @@
+import { notFound } from "next/navigation";
+import Image from "next/image";
+import { properties } from "@/lib/mock-data";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { BedDouble, Bath, Ruler, MapPin, Building, DollarSign } from "lucide-react";
+import { SimilarProperties } from "@/components/properties/SimilarProperties";
+import { FavoriteButton } from "@/components/properties/FavoriteButton";
+
+export default function PropertyDetailPage({ params }: { params: { id: string } }) {
+  const property = properties.find((p) => p.id === params.id);
+
+  if (!property) {
+    notFound();
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+          <Card className="overflow-hidden">
+            <CardContent className="p-0">
+              <Carousel className="w-full">
+                <CarouselContent>
+                  {property.images.map((src, index) => (
+                    <CarouselItem key={index}>
+                      <Image
+                        src={src}
+                        alt={`${property.title} image ${index + 1}`}
+                        width={800}
+                        height={500}
+                        className="w-full h-[500px] object-cover"
+                        data-ai-hint="house interior"
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="ml-16" />
+                <CarouselNext className="mr-16" />
+              </Carousel>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="lg:col-span-1 space-y-6">
+          <Card>
+            <CardHeader>
+              <Badge variant="secondary" className="w-fit mb-2">{property.type}</Badge>
+              <CardTitle className="font-headline text-3xl font-bold text-primary">
+                {property.title}
+              </CardTitle>
+              <p className="flex items-center text-muted-foreground pt-2">
+                <MapPin className="w-4 h-4 mr-2" />
+                {property.address}
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <p className="text-4xl font-bold text-accent">
+                    ${property.price.toLocaleString()}
+                </p>
+                <FavoriteButton property={property} className="h-10 w-10" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-headline text-xl">Realtor Information</CardTitle>
+            </CardHeader>
+            <CardContent className="flex items-center gap-4">
+              <Avatar className="h-16 w-16">
+                <AvatarImage src={property.realtor.avatar} alt={property.realtor.name} data-ai-hint="person face" />
+                <AvatarFallback>{property.realtor.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-semibold text-lg">{property.realtor.name}</p>
+                <p className="text-sm text-muted-foreground">Certified Realtor</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <Card className="mt-8">
+        <CardHeader>
+            <CardTitle className="font-headline text-2xl">Property Details</CardTitle>
+        </CardHeader>
+        <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center mb-6">
+                <div className="bg-secondary/50 p-4 rounded-lg">
+                    <BedDouble className="mx-auto mb-2 h-8 w-8 text-primary"/>
+                    <p className="font-semibold">{property.bedrooms} Bedrooms</p>
+                </div>
+                <div className="bg-secondary/50 p-4 rounded-lg">
+                    <Bath className="mx-auto mb-2 h-8 w-8 text-primary"/>
+                    <p className="font-semibold">{property.bathrooms} Bathrooms</p>
+                </div>
+                <div className="bg-secondary/50 p-4 rounded-lg">
+                    <Ruler className="mx-auto mb-2 h-8 w-8 text-primary"/>
+                    <p className="font-semibold">{property.area.toLocaleString()} sqft</p>
+                </div>
+                 <div className="bg-secondary/50 p-4 rounded-lg">
+                    <Building className="mx-auto mb-2 h-8 w-8 text-primary"/>
+                    <p className="font-semibold">{property.type}</p>
+                </div>
+            </div>
+            
+            <Separator className="my-6" />
+
+            <div>
+                <h3 className="font-headline text-xl font-semibold mb-4">Description</h3>
+                <p className="text-muted-foreground leading-relaxed">{property.description}</p>
+            </div>
+
+            <Separator className="my-6" />
+
+            <div>
+                <h3 className="font-headline text-xl font-semibold mb-4">Features</h3>
+                <div className="flex flex-wrap gap-2">
+                    {property.features.map((feature, index) => (
+                        <Badge key={index} variant="outline">{feature}</Badge>
+                    ))}
+                </div>
+            </div>
+        </CardContent>
+      </Card>
+
+      <SimilarProperties currentPropertyId={property.id} />
+    </div>
+  );
+}
