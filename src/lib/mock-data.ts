@@ -79,7 +79,7 @@ export const properties: Property[] = [
     description: "A trendy condo in a vibrant neighborhood, perfect for a young professional. Open-concept layout with modern finishes and a private balcony. The building offers a pool, gym, and secure parking.",
     features: ["Swimming Pool", "Gym", "Balcony", "Secure Parking"],
     images: [
-      "https://placehold.co/600x400.png",
+      "https://images.unsplash.com/photo-1580041065738-e72023775cdc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb25kb3xlbnwwfHx8fDE3NTMxMTk2MDV8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "https://placehold.co/600x400.png"
     ],
     realtor: {
