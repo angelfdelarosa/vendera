@@ -113,7 +113,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
       <Card className="mt-8">
         <CardHeader>
             <CardTitle className="font-headline text-2xl">Property Details</CardTitle>
-        </Header>
+        </CardHeader>
         <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center mb-6">
                 <div className="bg-secondary/50 p-4 rounded-lg">
