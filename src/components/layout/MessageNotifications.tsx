@@ -9,12 +9,13 @@ import {
 } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Bell, MessageSquare } from 'lucide-react';
-import { mockConversations } from '@/lib/mock-data';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
+import { useChatStore } from '../chat/use-chat-store';
 
 export function MessageNotifications() {
-  const unreadCount = mockConversations.filter((c) => c.unread).length;
+  const { conversations } = useChatStore();
+  const unreadCount = conversations.filter((c) => c.unread).length;
 
   return (
     <Popover>
@@ -35,27 +36,27 @@ export function MessageNotifications() {
           <h3>Inbox</h3>
         </div>
         <div className="space-y-1 p-2 max-h-[400px] overflow-y-auto">
-          {mockConversations.length > 0 ? (
-            mockConversations.map((convo) => (
+          {conversations.length > 0 ? (
+            conversations.map((convo) => (
               <Link
                 key={convo.id}
                 href={`/profile/${convo.user.id}?chat=true`}
                 className="block"
               >
-                <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-accent cursor-pointer">
+                <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer">
                   <Avatar>
                     <AvatarImage src={convo.user.avatar} />
                     <AvatarFallback>
                       {convo.user.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-grow">
+                  <div className="flex-grow overflow-hidden">
                     <div className="flex justify-between items-center">
                         <p className="font-semibold text-sm">{convo.user.name}</p>
                         <p className="text-xs text-muted-foreground">{convo.timestamp}</p>
                     </div>
                     <p className="text-sm text-muted-foreground truncate">
-                      {convo.lastMessage}
+                      {convo.messages[convo.messages.length - 1]?.text}
                     </p>
                   </div>
                   {convo.unread && (

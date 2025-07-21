@@ -23,6 +23,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { mockUsers } from '@/lib/mock-data';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ChatWindow } from '@/components/chat/ChatWindow';
+import { useChatStore } from '@/components/chat/use-chat-store';
+import type { Conversation } from '@/types';
 
 export default function ProfilePage() {
   const params = useParams();
@@ -31,14 +33,18 @@ export default function ProfilePage() {
   const router = useRouter();
   const profileId = params.id as string;
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const { getConversationByUserId, createConversation } = useChatStore();
 
   const isOwnProfile = currentUser?.uid === profileId;
   
   useEffect(() => {
     if (searchParams.get('chat') === 'true') {
-      setIsChatOpen(true);
+      const convo = getConversationByUserId(profileId);
+      if (convo) {
+        setIsChatOpen(true);
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, profileId, getConversationByUserId]);
 
   const displayUser = useMemo(() => {
     if (isOwnProfile && currentUser) {
@@ -68,6 +74,31 @@ export default function ProfilePage() {
     
     return null;
   }, [profileId, currentUser, isOwnProfile]);
+  
+  const conversation = getConversationByUserId(profileId) ||
+   (displayUser && displayUser.properties.length > 0
+    ? ({
+        id: 'temp',
+        user: displayUser,
+        property: displayUser.properties[0],
+        messages: [],
+        unread: false,
+        timestamp: ''
+      } as Conversation)
+    : null);
+
+  const handleContactSeller = () => {
+    if (!displayUser || !displayUser.properties.length) return;
+    let convo = getConversationByUserId(displayUser.id);
+    if (!convo) {
+       convo = createConversation({
+        user: displayUser,
+        property: displayUser.properties[0], // Default to first property
+      });
+    }
+    setIsChatOpen(true);
+  };
+
 
   useEffect(() => {
     if (!loading && !displayUser) {
@@ -133,8 +164,8 @@ export default function ProfilePage() {
                 </Avatar>
                 {isOwnProfile ? (
                   <div className="space-x-2">
-                    <Button variant="outline" size="icon">
-                      <MessageSquare className="h-4 w-4" />
+                    <Button variant="outline" size="icon" asChild>
+                      <Link href="/messages"><MessageSquare className="h-4 w-4" /></Link>
                     </Button>
                     <Button variant="outline" size="icon">
                       <Settings className="h-4 w-4" />
@@ -143,20 +174,19 @@ export default function ProfilePage() {
                 ) : (
                   <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
                     <DialogTrigger asChild>
-                      <Button>
+                      <Button onClick={handleContactSeller}>
                         <MessageSquare className="h-4 w-4 mr-2" />
                         Contact Seller
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
+                    <DialogContent className="sm:max-w-[425px] h-3/4 flex flex-col">
                       <DialogHeader>
                         <DialogTitle>Chat with {displayUser.name}</DialogTitle>
                       </DialogHeader>
-                      {currentUser && (
+                      {currentUser && conversation && (
                         <ChatWindow
                           buyer={currentUser}
-                          seller={displayUser}
-                          property={displayUser.properties[0]}
+                          conversation={conversation}
                         />
                       )}
                     </DialogContent>

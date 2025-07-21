@@ -26,3 +26,19 @@ export type UserProfile = {
   rating: number;
   properties: Property[];
 };
+
+export interface Message {
+  id: string;
+  text: string;
+  sender: 'buyer' | 'seller';
+  timestamp: string;
+}
+
+export interface Conversation {
+  id: string;
+  user: UserProfile;
+  property: Property;
+  messages: Message[];
+  timestamp: string;
+  unread: boolean;
+}

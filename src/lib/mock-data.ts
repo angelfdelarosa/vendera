@@ -1,4 +1,5 @@
-import type { Property, UserProfile } from "@/types";
+
+import type { Property, UserProfile, Conversation, Message } from "@/types";
 
 export const properties: Property[] = [
   {
@@ -179,7 +180,7 @@ export const mockUsers: Record<string, UserProfile> = {
   'jane-doe-realtor': {
     id: "jane-doe-realtor",
     name: "Jane Doe",
-    avatar: "https://placehold.co/100x100.png",
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop",
     bio: "Top-rated realtor with over 15 years of experience in the luxury market. Let me help you find your dream home.",
     isVerifiedSeller: true,
     rating: 5,
@@ -188,7 +189,7 @@ export const mockUsers: Record<string, UserProfile> = {
   'john-smith': {
     id: "john-smith",
     name: "John Smith",
-    avatar: "https://placehold.co/100x100.png",
+    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop",
     bio: "Specializing in downtown residential and commercial properties. Let's find your next investment.",
     isVerifiedSeller: true,
     rating: 4,
@@ -197,7 +198,7 @@ export const mockUsers: Record<string, UserProfile> = {
   'emily-white': {
     id: "emily-white",
     name: "Emily White",
-    avatar: "https://placehold.co/100x100.png",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=2574&auto=format&fit=crop",
     bio: "Your Santa Monica real estate expert. I live and breathe coastal properties.",
     isVerifiedSeller: true,
     rating: 5,
@@ -206,7 +207,7 @@ export const mockUsers: Record<string, UserProfile> = {
    'michael-brown': {
     id: "michael-brown",
     name: "Michael Brown",
-    avatar: "https://placehold.co/100x100.png",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop",
     bio: "Connecting clients with the vibrant lifestyle of West Hollywood. Your dream condo awaits.",
     isVerifiedSeller: false,
     rating: 4,
@@ -215,12 +216,15 @@ export const mockUsers: Record<string, UserProfile> = {
 };
 
 
-export const mockConversations = [
+export const mockConversations: Conversation[] = [
   {
     id: 'convo-1',
     user: mockUsers['jane-doe-realtor'],
     property: properties[0],
-    lastMessage: 'Sounds great! I can do tomorrow at 2 PM.',
+    messages: [
+        { id: 'msg-1-1', text: `Hi there, I'm Jane. I see you're interested in the property at ${properties[0].address}. How can I help you today?`, sender: 'seller', timestamp: '10:30 AM' },
+        { id: 'msg-1-2', text: 'Sounds great! I can do tomorrow at 2 PM.', sender: 'buyer', timestamp: '10:32 AM' }
+    ],
     timestamp: '2m ago',
     unread: true,
   },
@@ -228,7 +232,10 @@ export const mockConversations = [
     id: 'convo-2',
     user: mockUsers['john-smith'],
     property: properties[1],
-    lastMessage: 'Yes, the building is pet friendly.',
+    messages: [
+        { id: 'msg-2-1', text: 'Hello! I had a question about the parking situation.', sender: 'buyer', timestamp: '11:00 AM' },
+        { id: 'msg-2-2', text: 'Yes, the building is pet friendly.', sender: 'seller', timestamp: '11:05 AM' },
+    ],
     timestamp: '1h ago',
     unread: false,
   },
@@ -236,7 +243,10 @@ export const mockConversations = [
     id: 'convo-3',
     user: mockUsers['emily-white'],
     property: properties[2],
-    lastMessage: 'Of course, I can send you more photos.',
+    messages: [
+        { id: 'msg-3-1', text: 'Hi Emily, this house looks lovely. Could I see more photos of the backyard?', sender: 'buyer', timestamp: '1:00 PM' },
+        { id: 'msg-3-2', text: 'Of course, I can send you more photos.', sender: 'seller', timestamp: '1:05 PM' }
+    ],
     timestamp: '5h ago',
     unread: true,
   },

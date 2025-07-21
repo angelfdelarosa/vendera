@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import type { User } from 'firebase/auth';
-import type { Property, UserProfile } from '@/types';
+import type { Conversation, Message } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -11,29 +11,19 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Send, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { chatAssistant } from '@/ai/flows/chat-assistant';
-
-interface Message {
-  id: string;
-  text: string;
-  sender: 'buyer' | 'seller';
-  timestamp: string;
-}
+import { useChatStore } from './use-chat-store';
 
 interface ChatWindowProps {
   buyer: User;
-  seller: UserProfile;
-  property: Property;
+  conversation: Conversation;
 }
 
-export function ChatWindow({ buyer, seller, property }: ChatWindowProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: `Hi ${buyer.displayName?.split(' ')[0] || 'there'}, I'm ${seller.name}. I see you're interested in the property at ${property.address}. How can I help you today?`,
-      sender: 'seller',
-      timestamp: new Date().toLocaleTimeString(),
-    },
-  ]);
+export function ChatWindow({ buyer, conversation }: ChatWindowProps) {
+  const { messages, addMessage } = useChatStore((state) => ({
+    messages: state.conversations.find((c) => c.id === conversation.id)?.messages || [],
+    addMessage: state.addMessage,
+  }));
+  
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -64,19 +54,19 @@ export function ChatWindow({ buyer, seller, property }: ChatWindowProps) {
       timestamp: new Date().toLocaleTimeString(),
     };
 
-    setMessages((prev) => [...prev, buyerMessage]);
+    addMessage(conversation.id, buyerMessage);
     setNewMessage('');
     setIsSending(true);
 
     try {
         const messageHistory = [...messages, buyerMessage]
-            .map(m => `${m.sender === 'buyer' ? buyer.displayName : seller.name}: ${m.text}`)
+            .map(m => `${m.sender === 'buyer' ? buyer.displayName : conversation.user.name}: ${m.text}`)
             .join('\n');
 
         const result = await chatAssistant({
             buyerName: buyer.displayName || 'Potential Buyer',
-            sellerName: seller.name,
-            propertyName: property.title,
+            sellerName: conversation.user.name,
+            propertyName: conversation.property.title,
             messageHistory: messageHistory,
         });
 
@@ -87,7 +77,7 @@ export function ChatWindow({ buyer, seller, property }: ChatWindowProps) {
             timestamp: new Date().toLocaleTimeString(),
         };
 
-        setMessages((prev) => [...prev, sellerResponse]);
+        addMessage(conversation.id, sellerResponse);
     } catch (error) {
         console.error("Failed to get AI response:", error);
         const errorResponse: Message = {
@@ -96,23 +86,23 @@ export function ChatWindow({ buyer, seller, property }: ChatWindowProps) {
             sender: 'seller',
             timestamp: new Date().toLocaleTimeString(),
         };
-        setMessages((prev) => [...prev, errorResponse]);
+        addMessage(conversation.id, errorResponse);
     } finally {
         setIsSending(false);
     }
   };
 
   const getAvatar = (sender: 'buyer' | 'seller') => {
-    return sender === 'buyer' ? buyer.photoURL : seller.avatar;
+    return sender === 'buyer' ? buyer.photoURL : conversation.user.avatar;
   };
 
   const getInitial = (sender: 'buyer' | 'seller') => {
-    const name = sender === 'buyer' ? buyer.displayName : seller.name;
+    const name = sender === 'buyer' ? buyer.displayName : conversation.user.name;
     return name ? name.charAt(0).toUpperCase() : 'U';
   }
 
   return (
-    <div className="flex flex-col h-[60vh]">
+    <div className="flex flex-col h-full">
       <ScrollArea className="flex-grow p-4 pr-2" ref={scrollAreaRef}>
         <div className="space-y-4">
           {messages.map((message) => (

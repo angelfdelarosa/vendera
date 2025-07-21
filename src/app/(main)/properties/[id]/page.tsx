@@ -24,6 +24,8 @@ import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ChatWindow } from '@/components/chat/ChatWindow';
+import { useChatStore } from '@/components/chat/use-chat-store';
+import type { Conversation } from '@/types';
 
 export default function PropertyDetailPage() {
   const params = useParams();
@@ -32,6 +34,7 @@ export default function PropertyDetailPage() {
   const pathname = usePathname();
   const property = properties.find((p) => p.id === params.id);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const { getConversationByPropertyId, createConversation } = useChatStore();
 
   if (!property) {
     notFound();
@@ -42,7 +45,7 @@ export default function PropertyDetailPage() {
   );
   
   const sellerForChat = realtorProfile || { 
-      id: property.realtor.name.toLowerCase().replace(' ', '-'),
+      id: property.realtor.name.toLowerCase().replace(/ /g, '-'),
       name: property.realtor.name,
       avatar: property.realtor.avatar,
       bio: "A passionate real estate professional.",
@@ -50,6 +53,21 @@ export default function PropertyDetailPage() {
       rating: 5,
       properties: [property]
   };
+
+  const handleContactSeller = () => {
+    let convo = getConversationByPropertyId(property.id);
+    if (!convo) {
+      convo = createConversation({
+        user: sellerForChat,
+        property: property,
+      });
+    }
+    setIsChatOpen(true);
+  };
+
+  const conversation = getConversationByPropertyId(property.id) || 
+    ({ id: 'temp', user: sellerForChat, property, messages: [], unread: false, timestamp: '' } as Conversation);
+
 
   if (loading) {
     return (
@@ -212,19 +230,18 @@ export default function PropertyDetailPage() {
               </div>
                <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
                 <DialogTrigger asChild>
-                    <Button className="w-full">
+                    <Button className="w-full" onClick={handleContactSeller}>
                         <MessageSquare className="mr-2" />
                         Contact Seller
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[425px] h-3/4 flex flex-col">
                   <DialogHeader>
                     <DialogTitle>Chat about "{property.title}"</DialogTitle>
                   </DialogHeader>
                    <ChatWindow
                       buyer={user}
-                      seller={sellerForChat}
-                      property={property}
+                      conversation={conversation}
                     />
                 </DialogContent>
               </Dialog>

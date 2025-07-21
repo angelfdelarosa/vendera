@@ -4,41 +4,32 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { mockConversations } from '@/lib/mock-data';
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Loader2, MessageCircle, MessagesSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { UserProfile, Property } from '@/types';
-
-interface Conversation {
-    id: string;
-    user: UserProfile;
-    property: Property;
-    lastMessage: string;
-    timestamp: string;
-    unread: boolean;
-}
+import type { UserProfile, Property, Conversation } from '@/types';
+import { useChatStore } from '@/components/chat/use-chat-store';
+import Link from 'next/link';
 
 export default function MessagesPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const { conversations, selectedConversation, selectConversation } = useChatStore();
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
     }
   }, [user, loading, router]);
-  
-   useEffect(() => {
-    // Select the first conversation by default if none is selected
+
+  useEffect(() => {
+    // Select the first conversation by default if none is selected and conversations exist
     if (conversations.length > 0 && !selectedConversation) {
-      setSelectedConversation(conversations[0]);
+      selectConversation(conversations[0].id);
     }
-  }, [conversations, selectedConversation]);
+  }, [conversations, selectedConversation, selectConversation]);
 
 
   if (loading || !user) {
@@ -56,9 +47,12 @@ export default function MessagesPage() {
         <h2 className="text-2xl font-semibold mb-2 text-primary">
           No Conversations Yet
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground mb-6">
           When you contact a seller, your conversations will appear here.
         </p>
+         <Link href="/">
+            <div className='text-primary hover:underline'>Browse Properties</div>
+          </Link>
       </div>
     );
   }
@@ -82,7 +76,7 @@ export default function MessagesPage() {
             {conversations.map((convo) => (
               <button
                 key={convo.id}
-                onClick={() => setSelectedConversation(convo)}
+                onClick={() => selectConversation(convo.id)}
                 className={cn(
                   "w-full text-left p-3 rounded-lg flex items-start gap-3 transition-colors",
                   selectedConversation?.id === convo.id ? "bg-muted" : "hover:bg-muted/50"
@@ -100,7 +94,7 @@ export default function MessagesPage() {
                     <p className="text-xs text-muted-foreground truncate">
                         Re: {convo.property.title}
                     </p>
-                   <p className="text-sm text-muted-foreground truncate">{convo.lastMessage}</p>
+                   <p className="text-sm text-muted-foreground truncate">{convo.messages[convo.messages.length - 1]?.text}</p>
                 </div>
                  {convo.unread && <div className="w-2 h-2 rounded-full bg-primary mt-1 flex-shrink-0"></div>}
               </button>
@@ -112,8 +106,7 @@ export default function MessagesPage() {
             <ChatWindow
               key={selectedConversation.id}
               buyer={user}
-              seller={selectedConversation.user}
-              property={selectedConversation.property}
+              conversation={selectedConversation}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
