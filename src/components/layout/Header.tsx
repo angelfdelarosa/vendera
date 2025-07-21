@@ -5,6 +5,8 @@ import { UserNav } from "./UserNav";
 import { Logo } from "./Logo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslation } from "@/hooks/useTranslation";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 export function Header() {
   const { t } = useTranslation();
@@ -33,7 +35,16 @@ export function Header() {
             {t('header.addProperty')}
           </Link>
         </nav>
-        <div className="flex flex-1 items-center justify-end space-x-4">
+        <div className="flex flex-1 items-center justify-center space-x-4 px-8">
+           <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search properties, locations, users..." 
+              className="pl-10"
+            />
+          </div>
+        </div>
+        <div className="flex items-center justify-end space-x-2">
           <LanguageSwitcher />
           <UserNav />
         </div>
