@@ -198,7 +198,7 @@ export const mockUsers: Record<string, UserProfile> = {
   'emily-white': {
     id: "emily-white",
     name: "Emily White",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=2574&auto=format&fit=crop",
+    avatar: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
     bio: "Your Santa Monica real estate expert. I live and breathe coastal properties.",
     isVerifiedSeller: true,
     rating: 5,
