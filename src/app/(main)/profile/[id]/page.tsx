@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, MessageSquare, Settings, Loader2, Building, Heart, Camera } from 'lucide-react';
+import { Star, MessageSquare, Settings, Loader2, Building, Heart } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -70,26 +70,23 @@ export default function ProfilePage() {
     }
   }, [searchParams, profileId, getConversationByUserId]);
 
-  const displayUser = useMemo(() => {
-    let userToDisplay: UserProfile | null | undefined = mockUsers[profileId];
+  const displayUser: UserProfile | undefined = useMemo(() => {
+    const userFromMock = mockUsers[profileId];
 
     if (isOwnProfile && currentUser) {
-      // If viewing own profile, synthesize a UserProfile from auth context and potential mock data.
-      // This allows the profile to reflect live updates made by the user.
-      const mockData = mockUsers[currentUser.uid];
-      userToDisplay = {
+      // For the current user, merge auth data with mock data to get the most up-to-date profile.
+      return {
+        ...userFromMock,
         id: currentUser.uid,
-        name: currentUser.displayName || 'Anonymous User',
-        avatar: currentUser.photoURL || 'https://placehold.co/100x100.png',
-        bio: mockData?.bio || 'Real estate enthusiast. Helping you find the home of your dreams.',
-        isVerifiedSeller: mockData?.isVerifiedSeller || true,
-        rating: mockData?.rating || 4,
-        properties: allProperties.filter(p => p.realtor.name === (currentUser.displayName || 'Anonymous User')),
+        name: currentUser.displayName || userFromMock?.name || 'Anonymous User',
+        avatar: currentUser.photoURL || userFromMock?.avatar || 'https://placehold.co/100x100.png',
+        // Ensure properties are up-to-date from the mock source
+        properties: userFromMock?.properties || []
       };
     }
     
-    return userToDisplay;
-  }, [profileId, currentUser, isOwnProfile, allProperties]);
+    return userFromMock;
+  }, [profileId, currentUser, isOwnProfile]);
 
   useEffect(() => {
     if (displayUser && isSheetOpen) {

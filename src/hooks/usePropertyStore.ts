@@ -13,13 +13,16 @@ interface PropertyState {
 export const usePropertyStore = create<PropertyState>((set) => ({
   properties: initialProperties,
   addProperty: (property, userId) => {
+    // Add property to the global list of properties
     set((state) => ({
-      properties: [...state.properties, property],
+      properties: [property, ...state.properties],
     }));
+
     // This part would ideally be handled by a proper backend.
-    // We are mutating a mock object here for demonstration purposes.
+    // We are mutating a mock object here for demonstration purposes to ensure consistency.
     if (mockUsers[userId]) {
-      mockUsers[userId].properties.push(property);
+      // Add property to the user's specific list of properties
+      mockUsers[userId].properties.unshift(property);
     }
   },
 }));
