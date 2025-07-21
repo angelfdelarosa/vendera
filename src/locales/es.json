@@ -1,0 +1,21 @@
+{
+  "header": {
+    "properties": "Propiedades",
+    "favorites": "Favoritos",
+    "addProperty": "Añadir Propiedad"
+  },
+  "home": {
+    "title": "Encuentra la Casa de tus Sueños",
+    "subtitle": "Descubre una cuidada selección de las mejores propiedades. Tu nuevo comienzo te espera.",
+    "featuredListings": "Listados Destacados",
+    "noProperties": "No hay propiedades que coincidan con tus filtros actuales."
+  },
+  "search": {
+    "location": "Ubicación",
+    "allLocations": "Todas las Ubicaciones",
+    "propertyType": "Tipo de Propiedad",
+    "allTypes": "Todos los Tipos",
+    "priceRange": "Rango de Precios",
+    "button": "Buscar"
+  }
+}

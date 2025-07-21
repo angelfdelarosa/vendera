@@ -1,0 +1,21 @@
+{
+  "header": {
+    "properties": "Properties",
+    "favorites": "Favorites",
+    "addProperty": "Add Property"
+  },
+  "home": {
+    "title": "Find Your Dream Home",
+    "subtitle": "Discover a curated selection of the finest properties. Your new beginning awaits.",
+    "featuredListings": "Featured Listings",
+    "noProperties": "No properties match your current filters."
+  },
+  "search": {
+    "location": "Location",
+    "allLocations": "All Locations",
+    "propertyType": "Property Type",
+    "allTypes": "All Types",
+    "priceRange": "Price Range",
+    "button": "Search"
+  }
+}
