@@ -24,14 +24,6 @@ export default function MessagesPage() {
     }
   }, [user, loading, router]);
 
-  useEffect(() => {
-    // Select the first conversation by default if none is selected and conversations exist
-    if (conversations.length > 0 && !selectedConversation) {
-      selectConversation(conversations[0].id);
-    }
-  }, [conversations, selectedConversation, selectConversation]);
-
-
   if (loading || !user) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
