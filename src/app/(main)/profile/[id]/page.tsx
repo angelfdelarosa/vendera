@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, MessageSquare, Settings, Loader2, Building, Heart } from 'lucide-react';
+import { Star, MessageSquare, Settings, Loader2, Building, Heart, Camera } from 'lucide-react';
 import { properties } from '@/lib/mock-data';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
@@ -212,6 +212,18 @@ export default function ProfilePage() {
                           </SheetDescription>
                         </SheetHeader>
                         <div className="grid gap-4 py-4">
+                           <div className="grid grid-cols-4 items-center gap-4">
+                            <Label className="text-right">
+                              Avatar
+                            </Label>
+                            <div className="col-span-3 flex items-center gap-4">
+                               <Avatar>
+                                <AvatarImage src={displayUser.avatar} />
+                                <AvatarFallback>{userInitial}</AvatarFallback>
+                              </Avatar>
+                              <Input type="file" className="text-sm" />
+                            </div>
+                          </div>
                           <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="name" className="text-right">
                               Full Name
@@ -321,5 +333,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    
