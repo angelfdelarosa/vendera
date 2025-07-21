@@ -45,22 +45,24 @@ export function PropertyCard({ property }: PropertyCardProps) {
               <span>{property.location}</span>
             </div>
           </CardContent>
-          <CardFooter className="p-4 pt-0 flex items-start">
-             <div className="flex justify-between w-full text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <BedDouble className="w-4 h-4" />
-                <span>{property.bedrooms} beds</span>
+          {user && (
+            <CardFooter className="p-4 pt-0 flex items-start">
+              <div className="flex justify-between w-full text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <BedDouble className="w-4 h-4" />
+                  <span>{property.bedrooms} beds</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Bath className="w-4 h-4" />
+                  <span>{property.bathrooms} baths</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Ruler className="w-4 h-4" />
+                  <span>{property.area.toLocaleString()} sqft</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Bath className="w-4 h-4" />
-                <span>{property.bathrooms} baths</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Ruler className="w-4 h-4" />
-                <span>{property.area.toLocaleString()} sqft</span>
-              </div>
-            </div>
-          </CardFooter>
+            </CardFooter>
+          )}
         </Card>
     </Link>
   );
