@@ -116,17 +116,18 @@ function GuestHome() {
 
   return (
     <div className="flex flex-col">
-      <section className="relative h-[60vh] flex items-center justify-center text-center text-white bg-primary">
+      <section className="relative h-[60vh] flex items-center justify-center text-center text-white">
+        <div className="absolute inset-0 bg-primary/70 z-10" />
         <Image
             src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmVhbCUyMHN0YXRlfGVufDB8fHx8MTc1MzExOTEwNHww&ixlib=rb-4.1.0&q=80&w=1080"
             layout="fill"
             objectFit="cover"
             alt="Hero background"
-            className="absolute inset-0 z-0 opacity-20"
+            className="absolute inset-0 z-0"
             data-ai-hint="house interior"
             priority
         />
-        <div className="relative z-10 p-4">
+        <div className="relative z-20 p-4">
             <h1 className="font-headline text-5xl md:text-7xl font-bold mb-4">
                 Encuentra la casa de tus sueños
             </h1>
