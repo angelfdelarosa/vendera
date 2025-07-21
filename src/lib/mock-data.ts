@@ -100,7 +100,7 @@ export const properties: Property[] = [
     description: "An exquisite oceanfront estate with private beach access. This masterpiece of design features panoramic ocean views from every room, a state-of-the-art home cinema, and a tennis court.",
     features: ["Oceanfront", "Private Beach", "Tennis Court", "Home Cinema"],
     images: [
-      "https://placehold.co/600x400.png",
+      "https://images.unsplash.com/photo-1716807335226-dfe1e2062db1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx2aWxsYXxlbnwwfHx8fDE3NTMxMTkzODh8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "https://placehold.co/600x400.png",
       "https://placehold.co/600x400.png"
     ],
