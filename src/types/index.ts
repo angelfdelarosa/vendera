@@ -21,6 +21,7 @@ export type Property = {
 export type UserProfile = {
   id: string;
   name: string;
+  email: string;
   avatar: string;
   bio: string;
   isVerifiedSeller: boolean;
@@ -43,3 +44,5 @@ export interface Conversation {
   timestamp: string;
   unread: boolean;
 }
+
+    

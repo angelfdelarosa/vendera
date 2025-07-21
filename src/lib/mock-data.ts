@@ -20,6 +20,7 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor: {
+      id: "jane-doe-realtor",
       name: "Jane Doe",
       avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop"
     }
@@ -41,6 +42,7 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor: {
+      id: "john-smith",
       name: "John Smith",
       avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop"
     }
@@ -63,6 +65,7 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor: {
+      id: "emily-white",
       name: "Emily White",
       avatar: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080"
     }
@@ -84,6 +87,7 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor: {
+      id: "k1OaP2yL9aWcE5xQyRzFp8sT7uJ3",
       name: "Michael Brown",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop"
     }
@@ -106,6 +110,7 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor: {
+      id: "jane-doe-realtor",
       name: "Jane Doe",
       avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop"
     }
@@ -127,6 +132,7 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor: {
+      id: "k1OaP2yL9aWcE5xQyRzFp8sT7uJ3",
       name: "Michael Brown",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop"
     }
@@ -149,6 +155,7 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor: {
+      id: "john-smith",
       name: "John Smith",
       avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop"
     }
@@ -170,6 +177,7 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor: {
+      id: "emily-white",
       name: "Emily White",
       avatar: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080"
     }
@@ -183,38 +191,42 @@ export const mockUsers: Record<string, UserProfile> = {
   'jane-doe-realtor': {
     id: "jane-doe-realtor",
     name: "Jane Doe",
+    email: "jane.doe@test.com",
     avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop",
     bio: "Top-rated realtor with over 15 years of experience in the luxury market. Let me help you find your dream home.",
     isVerifiedSeller: true,
     rating: 5,
-    properties: [properties.find(p => p.id === '1')!, properties.find(p => p.id === '5')!]
+    properties: properties.filter(p => p.realtor.id === "jane-doe-realtor")
   },
   'john-smith': {
     id: "john-smith",
     name: "John Smith",
+    email: "john.smith@test.com",
     avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop",
     bio: "Specializing in downtown residential and commercial properties. Let's find your next investment.",
     isVerifiedSeller: true,
     rating: 4,
-    properties: [properties.find(p => p.id === '2')!, properties.find(p => p.id === '7')!]
+    properties: properties.filter(p => p.realtor.id === "john-smith")
   },
   'emily-white': {
     id: "emily-white",
     name: "Emily White",
+    email: "emily.white@test.com",
     avatar: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
     bio: "Your Santa Monica real estate expert. I live and breathe coastal properties.",
     isVerifiedSeller: true,
     rating: 5,
-    properties: [properties.find(p => p.id === '3')!, properties.find(p => p.id === '8')!]
+    properties: properties.filter(p => p.realtor.id === "emily-white")
   },
    [michaelBrownId]: {
     id: michaelBrownId,
     name: "Michael Brown",
+    email: "michael.brown@test.com",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop",
     bio: "Connecting clients with the vibrant lifestyle of West Hollywood. Your dream condo awaits.",
     isVerifiedSeller: false,
     rating: 4,
-    properties: [properties.find(p => p.id === '4')!, properties.find(p => p.id === '6')!]
+    properties: properties.filter(p => p.realtor.id === michaelBrownId)
   }
 };
 
@@ -248,3 +260,5 @@ export const mockConversations: Conversation[] = [
     unread: true,
   },
 ];
+
+    

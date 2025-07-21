@@ -2,7 +2,6 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { User } from 'firebase/auth';
 import { mockUsers } from '@/lib/mock-data';
 import { useToast } from '@/hooks/use-toast';
 import type { UserProfile } from '@/types';
@@ -22,17 +21,13 @@ type MockUser = {
 interface AuthContextType {
   user: MockUser | null;
   loading: boolean;
-  login: (email: string) => void;
+  login: (email: string) => boolean;
   logout: () => void;
   signup: (name: string, email: string) => void;
   updateUser: (updates: { displayName?: string, photoURL?: string }) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// A simple mock user to be used for the simulation
-const michaelBrownId = "k1OaP2yL9aWcE5xQyRzFp8sT7uJ3";
-const defaultMockUser: UserProfile = mockUsers[michaelBrownId];
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<MockUser | null>(null);
@@ -46,21 +41,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = (email: string) => {
     setLoading(true);
-    // Simulate a successful login
-    const userToLogin = Object.values(mockUsers).find(u => u.id === michaelBrownId) || defaultMockUser;
     
-    setUser({
-      uid: userToLogin.id,
-      displayName: userToLogin.name,
-      email: email,
-      photoURL: userToLogin.avatar,
-      getIdToken: async () => 'mock-token',
-    });
-    toast({
-      title: "Login Successful",
-      description: "Welcome back! (Simulated)",
-    });
-    setLoading(false);
+    const userToLogin = Object.values(mockUsers).find(u => u.email === email);
+    
+    if (userToLogin) {
+      setUser({
+        uid: userToLogin.id,
+        displayName: userToLogin.name,
+        email: userToLogin.email,
+        photoURL: userToLogin.avatar,
+        getIdToken: async () => 'mock-token',
+      });
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${userToLogin.name}! (Simulated)`,
+      });
+      setLoading(false);
+      return true;
+    } else {
+       toast({
+        title: "Login Failed",
+        description: "No user found with that email. (Simulated)",
+        variant: "destructive"
+      });
+      setLoading(false);
+      return false;
+    }
   };
 
   const signup = (name: string, email: string) => {
@@ -70,6 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const newUserProfile: UserProfile = {
       id: newUserId,
       name: name,
+      email: email,
       avatar: 'https://placehold.co/100x100.png',
       bio: 'A new member of the VENDRA community!',
       isVerifiedSeller: false,
@@ -81,7 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser({
       uid: newUserProfile.id,
       displayName: newUserProfile.name,
-      email: email,
+      email: newUserProfile.email,
       photoURL: newUserProfile.avatar,
       getIdToken: async () => 'mock-token',
     });
@@ -132,3 +139,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+    

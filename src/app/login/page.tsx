@@ -52,13 +52,15 @@ export default function LoginPage() {
 
   const redirectUrl = searchParams.get('redirect');
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     // Simulate a delay for the login process
     setTimeout(() => {
-      login(email);
-      router.push(redirectUrl || '/');
+      const success = login(email);
+      if (success) {
+        router.push(redirectUrl || '/');
+      }
       setIsLoading(false);
     }, 1000);
   };
@@ -126,3 +128,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    
