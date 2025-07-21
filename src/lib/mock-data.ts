@@ -14,7 +14,7 @@ export const properties: Property[] = [
     description: "A stunning villa offering unparalleled luxury and privacy. Features a grand staircase, gourmet kitchen, and a breathtaking infinity pool with city views. Perfect for those who demand the very best in life.",
     features: ["Swimming Pool", "Garage", "Home Theater", "City View"],
     images: [
-      "https://placehold.co/600x400.png",
+      "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx2aWxsYXxlbnwwfHx8fDE3NTMxMTkzODh8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "https://placehold.co/600x400.png",
       "https://placehold.co/600x400.png"
     ],
