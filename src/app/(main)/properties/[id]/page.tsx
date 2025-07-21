@@ -1,6 +1,7 @@
+
 'use client';
 
-import { notFound, useRouter, usePathname } from 'next/navigation';
+import { notFound, useRouter, usePathname, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { properties, mockUsers } from '@/lib/mock-data';
@@ -22,11 +23,8 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
 
-export default function PropertyDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function PropertyDetailPage() {
+  const params = useParams();
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
