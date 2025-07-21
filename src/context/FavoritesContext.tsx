@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import type { Property } from '@/types';
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,7 +17,7 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
   const [favorites, setFavorites] = useState<Property[]>([]);
   const { toast } = useToast();
 
-  const addFavorite = (property: Property) => {
+  const addFavorite = useCallback((property: Property) => {
     setFavorites((prevFavorites) => {
       if (prevFavorites.find(p => p.id === property.id)) {
         return prevFavorites;
@@ -28,9 +28,9 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
       });
       return [...prevFavorites, property];
     });
-  };
+  }, [toast]);
 
-  const removeFavorite = (propertyId: string) => {
+  const removeFavorite = useCallback((propertyId: string) => {
     setFavorites((prevFavorites) => {
       const property = prevFavorites.find(p => p.id === propertyId);
        if (property) {
@@ -41,7 +41,7 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
        }
       return prevFavorites.filter((p) => p.id !== propertyId);
     });
-  };
+  }, [toast]);
 
   const isFavorite = (propertyId: string) => {
     return favorites.some((p) => p.id === propertyId);
