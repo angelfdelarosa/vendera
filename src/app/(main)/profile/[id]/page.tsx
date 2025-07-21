@@ -98,10 +98,12 @@ export default function ProfilePage() {
   }, [profileId, currentUser, isOwnProfile]);
 
   useEffect(() => {
-    if (displayUser) {
+    if (displayUser && isSheetOpen) {
       setName(displayUser.name);
       setBio(displayUser.bio);
-      setNewAvatarUrl(null);
+    }
+    if (!isSheetOpen) {
+        setNewAvatarUrl(null);
     }
   }, [displayUser, isSheetOpen]);
   
