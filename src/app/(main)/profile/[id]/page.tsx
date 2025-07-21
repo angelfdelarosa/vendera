@@ -38,6 +38,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 
 
 export default function ProfilePage() {
@@ -48,9 +49,16 @@ export default function ProfilePage() {
   const profileId = params.id as string;
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { getConversationByUserId, createConversation } = useChatStore();
+  const { toast } = useToast();
 
   const isOwnProfile = currentUser?.uid === profileId;
   
+  // State for the edit profile sheet
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [bio, setBio] = useState('');
+  const [newAvatarUrl, setNewAvatarUrl] = useState<string | null>(null);
+
   useEffect(() => {
     if (searchParams.get('chat') === 'true') {
       const convo = getConversationByUserId(profileId);
@@ -88,6 +96,14 @@ export default function ProfilePage() {
     
     return null;
   }, [profileId, currentUser, isOwnProfile]);
+
+  useEffect(() => {
+    if (displayUser) {
+      setName(displayUser.name);
+      setBio(displayUser.bio);
+      setNewAvatarUrl(null);
+    }
+  }, [displayUser, isSheetOpen]);
   
   const conversation = getConversationByUserId(profileId) ||
    (displayUser && displayUser.properties.length > 0
@@ -116,16 +132,35 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!loading && !displayUser) {
-        // If loading is finished and we still can't find a user to display,
-        // it means the profile doesn't exist.
         notFound();
     }
   }, [loading, displayUser]);
   
   const { favorites } = useFavorites();
 
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewAvatarUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveChanges = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, you would send this data to your backend/Firebase
+    console.log("Saving changes:", { name, bio, newAvatarUrl });
+    toast({
+      title: "Profile Updated",
+      description: "Your changes have been saved locally.",
+    });
+    setIsSheetOpen(false);
+  };
+
   if (loading || !displayUser) {
-    // Show loader while we're still loading or waiting for displayUser to be calculated
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -198,13 +233,14 @@ export default function ProfilePage() {
                     <Button variant="outline" size="icon" asChild>
                       <Link href="/messages"><MessageSquare className="h-4 w-4" /></Link>
                     </Button>
-                    <Sheet>
+                    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                       <SheetTrigger asChild>
                          <Button variant="outline" size="icon">
                           <Settings className="h-4 w-4" />
                         </Button>
                       </SheetTrigger>
                       <SheetContent>
+                       <form onSubmit={handleSaveChanges}>
                         <SheetHeader>
                           <SheetTitle>Edit Profile</SheetTitle>
                           <SheetDescription>
@@ -218,28 +254,29 @@ export default function ProfilePage() {
                             </Label>
                             <div className="col-span-3 flex items-center gap-4">
                                <Avatar>
-                                <AvatarImage src={displayUser.avatar} />
+                                <AvatarImage src={newAvatarUrl || displayUser.avatar} />
                                 <AvatarFallback>{userInitial}</AvatarFallback>
                               </Avatar>
-                              <Input type="file" className="text-sm" />
+                              <Input id="avatar-upload" type="file" accept="image/*" onChange={handleAvatarChange} className="text-sm" />
                             </div>
                           </div>
                           <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="name" className="text-right">
                               Full Name
                             </Label>
-                            <Input id="name" defaultValue={displayUser.name} className="col-span-3" />
+                            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" />
                           </div>
                           <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="bio" className="text-right">
                               Bio
                             </Label>
-                            <Textarea id="bio" defaultValue={displayUser.bio} className="col-span-3" />
+                            <Textarea id="bio" value={bio} onChange={(e) => setBio(e.target.value)} className="col-span-3" />
                           </div>
                         </div>
                         <SheetFooter>
                           <Button type="submit">Save changes</Button>
                         </SheetFooter>
+                       </form>
                       </SheetContent>
                     </Sheet>
                   </div>
