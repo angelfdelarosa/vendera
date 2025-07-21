@@ -22,7 +22,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return;
     }
     const conversation = get().conversations.find((c) => c.id === conversationId);
-    set({ selectedConversation: conversation || null });
+    
+    set((state) => ({
+      selectedConversation: conversation || null,
+      // Mark the selected conversation as read
+      conversations: state.conversations.map((c) =>
+        c.id === conversationId ? { ...c, unread: false } : c
+      ),
+    }));
   },
   addMessage: (conversationId, message) => {
     set((state) => ({
