@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { UserNav } from "./UserNav";
-import { Logo } from "../Logo";
+import { Logo } from "./Logo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslation } from "@/hooks/useTranslation";
 

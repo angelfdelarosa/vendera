@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import { Header } from '@/components/layout/Header';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 
@@ -25,10 +24,10 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <LanguageProvider>
-          <FavoritesProvider>
-            {children}
-            <Toaster />
-          </FavoritesProvider>
+            <FavoritesProvider>
+                {children}
+                <Toaster />
+            </FavoritesProvider>
         </LanguageProvider>
       </body>
     </html>

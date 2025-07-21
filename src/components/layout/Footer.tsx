@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Logo } from "../Logo";
+import { Logo } from "./Logo";
 import { Facebook, Twitter, Instagram } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 

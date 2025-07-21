@@ -1,13 +1,32 @@
-"use client";
+'use client';
 
-import { useFavorites } from "@/context/FavoritesContext";
-import { PropertyCard } from "@/components/properties/PropertyCard";
-import { Heart } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { useFavorites } from '@/context/FavoritesContext';
+import { PropertyCard } from '@/components/properties/PropertyCard';
+import { Heart, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function FavoritesPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const { favorites } = useFavorites();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  if (loading || !user) {
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -28,8 +47,10 @@ export default function FavoritesPage() {
         </div>
       ) : (
         <div className="text-center py-24 bg-card rounded-xl border border-dashed flex flex-col items-center">
-            <Heart className="w-16 h-16 text-muted-foreground/50 mb-4" />
-          <h2 className="text-2xl font-semibold mb-2 text-primary">No Favorites Yet</h2>
+          <Heart className="w-16 h-16 text-muted-foreground/50 mb-4" />
+          <h2 className="text-2xl font-semibold mb-2 text-primary">
+            No Favorites Yet
+          </h2>
           <p className="text-muted-foreground mb-6">
             Click the heart icon on any property to save it here.
           </p>
