@@ -36,7 +36,7 @@ export const properties: Property[] = [
     description: "Sleek and stylish modern apartment in the heart of Downtown LA. Floor-to-ceiling windows provide amazing skyline views. Amenities include a rooftop lounge, fitness center, and 24/7 concierge.",
     features: ["Rooftop Lounge", "Fitness Center", "Concierge", "Skyline View"],
     images: [
-      "https://placehold.co/600x400.png",
+      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxhcGFydG1lbnR8ZW58MHx8fHwxNzUzMTE5NDMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "https://placehold.co/600x400.png"
     ],
     realtor: {
