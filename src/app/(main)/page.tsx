@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from 'next/navigation';
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { PropertySearchFilters } from "@/components/properties/PropertySearchFilters";
 import { properties as allProperties } from "@/lib/mock-data";
@@ -16,6 +17,21 @@ import Image from "next/image";
 function AuthenticatedHome() {
   const [filteredProperties, setFilteredProperties] = useState<Property[]>(allProperties);
   const { t } = useTranslation();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const searchQuery = searchParams.get('q');
+    if (searchQuery) {
+      const results = allProperties.filter(p => 
+        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredProperties(results);
+    } else {
+        setFilteredProperties(allProperties);
+    }
+  }, [searchParams]);
 
   const locations = useMemo(() => {
     const locationSet = new Set(allProperties.map(p => p.location));
@@ -81,7 +97,22 @@ function AuthenticatedHome() {
 }
 
 function GuestHome() {
-  const featuredProperties = allProperties.slice(0, 4);
+    const [properties, setProperties] = useState(allProperties.slice(0, 4));
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const searchQuery = searchParams.get('q');
+        if (searchQuery) {
+            const results = allProperties.filter(p =>
+                p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                p.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                p.description.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            setProperties(results);
+        } else {
+            setProperties(allProperties.slice(0, 8));
+        }
+    }, [searchParams]);
 
   return (
     <div className="flex flex-col">
@@ -116,13 +147,19 @@ function GuestHome() {
 
       <section className="container mx-auto px-4 py-16">
         <h2 className="font-headline text-4xl font-bold text-primary mb-10 text-center">
-            Listados Destacados
+            {searchParams.get('q') ? 'Resultados de la Búsqueda' : 'Listados Destacados'}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredProperties.map(property => (
-                <PropertyCard key={property.id} property={property} />
-            ))}
-        </div>
+        {properties.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {properties.map(property => (
+                    <PropertyCard key={property.id} property={property} />
+                ))}
+            </div>
+        ) : (
+            <div className="text-center py-16 bg-card rounded-lg">
+                <p className="text-muted-foreground text-lg">No se encontraron propiedades.</p>
+            </div>
+        )}
       </section>
     </div>
   );
