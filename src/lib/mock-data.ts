@@ -21,7 +21,7 @@ export const properties: Property[] = [
     ],
     realtor: {
       name: "Jane Doe",
-      avatar: "https://placehold.co/100x100.png"
+      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop"
     }
   },
   {
@@ -42,7 +42,7 @@ export const properties: Property[] = [
     ],
     realtor: {
       name: "John Smith",
-      avatar: "https://placehold.co/100x100.png"
+      avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop"
     }
   },
   {
@@ -64,7 +64,7 @@ export const properties: Property[] = [
     ],
     realtor: {
       name: "Emily White",
-      avatar: "https://placehold.co/100x100.png"
+      avatar: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080"
     }
   },
   {
@@ -85,7 +85,7 @@ export const properties: Property[] = [
     ],
     realtor: {
       name: "Michael Brown",
-      avatar: "https://placehold.co/100x100.png"
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop"
     }
   },
   {
@@ -106,8 +106,8 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor: {
-      name: "Sophia Loren",
-      avatar: "https://placehold.co/100x100.png"
+      name: "Jane Doe",
+      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop"
     }
   },
   {
@@ -127,8 +127,8 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor: {
-      name: "David Green",
-      avatar: "https://placehold.co/100x100.png"
+      name: "Michael Brown",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop"
     }
   },
   {
@@ -150,7 +150,7 @@ export const properties: Property[] = [
     ],
     realtor: {
       name: "John Smith",
-      avatar: "https://placehold.co/100x100.png"
+      avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop"
     }
   },
   {
@@ -171,10 +171,13 @@ export const properties: Property[] = [
     ],
     realtor: {
       name: "Emily White",
-      avatar: "https://placehold.co/100x100.png"
+      avatar: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080"
     }
   }
 ];
+
+// This user ID can be used for logging in with email: 'michael.brown@test.com', pass: 'password'
+const michaelBrownId = "k1OaP2yL9aWcE5xQyRzFp8sT7uJ3";
 
 export const mockUsers: Record<string, UserProfile> = {
   'jane-doe-realtor': {
@@ -184,7 +187,7 @@ export const mockUsers: Record<string, UserProfile> = {
     bio: "Top-rated realtor with over 15 years of experience in the luxury market. Let me help you find your dream home.",
     isVerifiedSeller: true,
     rating: 5,
-    properties: [properties[0], properties[4]]
+    properties: [properties.find(p => p.id === '1')!, properties.find(p => p.id === '5')!]
   },
   'john-smith': {
     id: "john-smith",
@@ -193,7 +196,7 @@ export const mockUsers: Record<string, UserProfile> = {
     bio: "Specializing in downtown residential and commercial properties. Let's find your next investment.",
     isVerifiedSeller: true,
     rating: 4,
-    properties: [properties[1], properties[6]]
+    properties: [properties.find(p => p.id === '2')!, properties.find(p => p.id === '7')!]
   },
   'emily-white': {
     id: "emily-white",
@@ -202,16 +205,16 @@ export const mockUsers: Record<string, UserProfile> = {
     bio: "Your Santa Monica real estate expert. I live and breathe coastal properties.",
     isVerifiedSeller: true,
     rating: 5,
-    properties: [properties[2], properties[7]]
+    properties: [properties.find(p => p.id === '3')!, properties.find(p => p.id === '8')!]
   },
-   'michael-brown': {
-    id: "michael-brown",
+   [michaelBrownId]: {
+    id: michaelBrownId,
     name: "Michael Brown",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop",
     bio: "Connecting clients with the vibrant lifestyle of West Hollywood. Your dream condo awaits.",
     isVerifiedSeller: false,
     rating: 4,
-    properties: [properties[3]]
+    properties: [properties.find(p => p.id === '4')!, properties.find(p => p.id === '6')!]
   }
 };
 
@@ -221,10 +224,7 @@ export const mockConversations: Conversation[] = [
     id: 'convo-1',
     user: mockUsers['jane-doe-realtor'],
     property: properties[0],
-    messages: [
-        { id: 'msg-1-1', text: `Hi there, I'm Jane. I see you're interested in the property at ${properties[0].address}. How can I help you today?`, sender: 'seller', timestamp: '10:30 AM' },
-        { id: 'msg-1-2', text: 'Sounds great! I can do tomorrow at 2 PM.', sender: 'buyer', timestamp: '10:32 AM' }
-    ],
+    messages: [],
     timestamp: '2m ago',
     unread: true,
   },
@@ -243,10 +243,7 @@ export const mockConversations: Conversation[] = [
     id: 'convo-3',
     user: mockUsers['emily-white'],
     property: properties[2],
-    messages: [
-        { id: 'msg-3-1', text: 'Hi Emily, this house looks lovely. Could I see more photos of the backyard?', sender: 'buyer', timestamp: '1:00 PM' },
-        { id: 'msg-3-2', text: 'Of course, I can send you more photos.', sender: 'seller', timestamp: '1:05 PM' }
-    ],
+    messages: [],
     timestamp: '5h ago',
     unread: true,
   },

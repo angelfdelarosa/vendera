@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, MessageSquare, Settings, Loader2, Building, Heart, Camera } from 'lucide-react';
-import { properties } from '@/lib/mock-data';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -24,7 +23,7 @@ import { mockUsers } from '@/lib/mock-data';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { useChatStore } from '@/components/chat/use-chat-store';
-import type { Conversation } from '@/types';
+import type { Conversation, UserProfile } from '@/types';
 import Image from 'next/image';
 import {
   Sheet,
@@ -70,32 +69,24 @@ export default function ProfilePage() {
   }, [searchParams, profileId, getConversationByUserId]);
 
   const displayUser = useMemo(() => {
+    let userToDisplay: UserProfile | null | undefined = mockUsers[profileId];
+
     if (isOwnProfile && currentUser) {
-      return {
+      // If viewing own profile, synthesize a UserProfile from auth context and potential mock data.
+      // This allows the profile to reflect live updates made by the user.
+      const mockData = mockUsers[currentUser.uid];
+      userToDisplay = {
         id: currentUser.uid,
         name: currentUser.displayName || 'Anonymous User',
         avatar: currentUser.photoURL || 'https://placehold.co/100x100.png',
-        bio: 'Real estate enthusiast and savvy investor. Helping you find the home of your dreams.',
-        isVerifiedSeller: true,
-        rating: 4,
-        properties: properties.slice(0, 4), // Mock properties for demo
+        bio: mockData?.bio || 'Real estate enthusiast. Helping you find the home of your dreams.',
+        isVerifiedSeller: mockData?.isVerifiedSeller || true,
+        rating: mockData?.rating || 4,
+        properties: mockData?.properties || [],
       };
     }
     
-    const mockUser = mockUsers[profileId];
-    if (mockUser) {
-      return {
-        id: profileId,
-        name: mockUser.name,
-        avatar: mockUser.avatar,
-        bio: mockUser.bio,
-        isVerifiedSeller: mockUser.isVerifiedSeller,
-        rating: mockUser.rating,
-        properties: mockUser.properties,
-      };
-    }
-    
-    return null;
+    return userToDisplay;
   }, [profileId, currentUser, isOwnProfile]);
 
   useEffect(() => {
