@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { properties } from "@/lib/mock-data";
+import Link from "next/link";
+import { properties, mockUsers } from "@/lib/mock-data";
 import {
   Carousel,
   CarouselContent,
@@ -12,9 +13,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { BedDouble, Bath, Ruler, MapPin, Building, DollarSign } from "lucide-react";
+import { BedDouble, Bath, Ruler, MapPin, Building, DollarSign, MessageSquare } from "lucide-react";
 import { SimilarProperties } from "@/components/properties/SimilarProperties";
 import { FavoriteButton } from "@/components/properties/FavoriteButton";
+import { Button } from "@/components/ui/button";
 
 export default function PropertyDetailPage({ params }: { params: { id: string } }) {
   const property = properties.find((p) => p.id === params.id);
@@ -22,6 +24,11 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
   if (!property) {
     notFound();
   }
+
+  // Find the realtor's full profile to get their ID for the link
+  const realtorProfile = Object.values(mockUsers).find(
+    (user) => user.name === property.realtor.name
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -77,15 +84,27 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
             <CardHeader>
               <CardTitle className="font-headline text-xl">Realtor Information</CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center gap-4">
-              <Avatar className="h-16 w-16">
-                <AvatarImage src={property.realtor.avatar} alt={property.realtor.name} data-ai-hint="person face" />
-                <AvatarFallback>{property.realtor.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-semibold text-lg">{property.realtor.name}</p>
-                <p className="text-sm text-muted-foreground">Certified Realtor</p>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarImage src={property.realtor.avatar} alt={property.realtor.name} data-ai-hint="person face" />
+                  <AvatarFallback>{property.realtor.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  {realtorProfile ? (
+                    <Link href={`/profile/${realtorProfile.id}`} className="font-semibold text-lg hover:underline">
+                      {property.realtor.name}
+                    </Link>
+                  ) : (
+                    <p className="font-semibold text-lg">{property.realtor.name}</p>
+                  )}
+                  <p className="text-sm text-muted-foreground">Certified Realtor</p>
+                </div>
               </div>
+               <Button className="w-full">
+                  <MessageSquare className="mr-2" />
+                  Contact Seller
+               </Button>
             </CardContent>
           </Card>
         </div>
@@ -94,7 +113,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
       <Card className="mt-8">
         <CardHeader>
             <CardTitle className="font-headline text-2xl">Property Details</CardTitle>
-        </CardHeader>
+        </Header>
         <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center mb-6">
                 <div className="bg-secondary/50 p-4 rounded-lg">
