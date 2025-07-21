@@ -5,19 +5,24 @@ import { Badge } from "@/components/ui/badge";
 import type { Property } from "@/types";
 import { MapPin, BedDouble, Bath, Ruler } from "lucide-react";
 import { FavoriteButton } from "./FavoriteButton";
+import { useAuth } from "@/context/AuthContext";
 
 interface PropertyCardProps {
   property: Property;
 }
 
 export function PropertyCard({ property }: PropertyCardProps) {
+  const { user } = useAuth();
+
   return (
     <Link href={`/properties/${property.id}`} className="group block">
         <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
           <CardHeader className="p-0 relative">
-            <div className="absolute top-2 right-2 z-10">
-                <FavoriteButton property={property} />
-            </div>
+            {user && (
+                <div className="absolute top-2 right-2 z-10">
+                    <FavoriteButton property={property} />
+                </div>
+            )}
              <div className="absolute top-2 left-2 z-10 bg-primary/90 text-primary-foreground py-1.5 px-3 rounded-lg">
                 <p className="font-bold text-lg">${property.price.toLocaleString()}</p>
             </div>

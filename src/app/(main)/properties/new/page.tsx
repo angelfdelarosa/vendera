@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,13 +22,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 // This is a mock of the AI function call.
 import { generatePropertyDescription as mockGenerateDescription } from "@/ai/flows/property-description-generator";
 
 export default function NewPropertyPage() {
+    const { user, loading } = useAuth();
+    const router = useRouter();
     const { toast } = useToast();
     const [isGenerating, setIsGenerating] = useState(false);
     const [formData, setFormData] = useState({
@@ -38,6 +42,20 @@ export default function NewPropertyPage() {
         uniqueFeatures: 'Ocean view, modern architecture',
         description: ''
     });
+
+    useEffect(() => {
+        if (!loading && !user) {
+            router.push('/login');
+        }
+    }, [user, loading, router]);
+
+    if (loading || !user) {
+        return (
+            <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+                <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            </div>
+        );
+    }
 
     const handleGenerateDescription = async () => {
         setIsGenerating(true);
