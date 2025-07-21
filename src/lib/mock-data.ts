@@ -122,7 +122,7 @@ export const properties: Property[] = [
     description: "A beautiful craftsman house in a quiet, tree-lined street in Pasadena. Features original woodwork, a large front porch, and a serene backyard perfect for relaxing.",
     features: ["Craftsman Style", "Front Porch", "Quiet Neighborhood", "Original Woodwork"],
     images: [
-      "https://placehold.co/600x400.png",
+      "https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxob3VzZXxlbnwwfHx8fDE3NTMwODk5OTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "https://placehold.co/600x400.png"
     ],
     realtor: {
@@ -143,7 +143,7 @@ export const properties: Property[] = [
     description: "Live at the top of the world in this exclusive penthouse. Offering 360-degree views of the city, this residence is the epitome of urban luxury. Includes a private elevator, rooftop terrace, and premium services.",
     features: ["Panoramic View", "Private Elevator", "Rooftop Terrace", "Premium Services"],
     images: [
-      "https://placehold.co/600x400.png",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwZW50aG91c2UlMjBhcGFydG1lbnR8ZW58MHx8fHwxNzUzMzkzMjE5fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "https://placehold.co/600x400.png",
       "https://placehold.co/600x400.png"
     ],
