@@ -16,3 +16,13 @@ export type Property = {
     avatar: string;
   };
 };
+
+export type UserProfile = {
+  id: string;
+  name: string;
+  avatar: string;
+  bio: string;
+  isVerifiedSeller: boolean;
+  rating: number;
+  properties: Property[];
+};

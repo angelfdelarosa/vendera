@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useEffect, use } from 'react';
+import { useRouter, notFound } from 'next/navigation';
+import { useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -20,20 +20,15 @@ import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { users as mockUsers } from '@/lib/mock-data';
-import { notFound } from 'next/navigation';
+import { mockUsers } from '@/lib/mock-data';
 
 export default function ProfilePage({ params }: { params: { id: string } }) {
   const { user: currentUser, loading } = useAuth();
   const router = useRouter();
   const profileId = params.id;
 
-  // Determine if the user is viewing their own profile
   const isOwnProfile = currentUser?.uid === profileId;
   
-  // Get the profile data to display
-  // If it's my profile, use my data. If not, get the data from mock users.
-  // We'll create a composite user object to display.
   let displayUser = null;
   if (isOwnProfile && currentUser) {
       displayUser = {
@@ -43,10 +38,10 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
           bio: 'Real estate enthusiast and savvy investor. Helping you find the home of your dreams.',
           isVerifiedSeller: true,
           rating: 4,
-          properties: properties.slice(0, 4) // Mock listed properties for current user
+          properties: properties.slice(0, 4)
       };
-  } else if (mockUsers[profileId as keyof typeof mockUsers]) {
-      const mockUser = mockUsers[profileId as keyof typeof mockUsers];
+  } else if (mockUsers[profileId]) {
+      const mockUser = mockUsers[profileId];
       displayUser = {
           id: profileId,
           name: mockUser.name,
@@ -60,12 +55,19 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
 
 
   useEffect(() => {
-    if (!loading && !currentUser) {
-      router.push('/login');
+    // We don't need to block non-logged in users from viewing public profiles.
+    // We only redirect if they try to access a non-existent profile and aren't logged in.
+    if (!loading && !displayUser) {
+        if (!currentUser) {
+            router.push('/login');
+        } else if (currentUser.uid !== profileId) {
+            // This handles the case where the profile ID is not a mock user
+            // and not the current logged-in user.
+            notFound();
+        }
     }
-  }, [currentUser, loading, router]);
+  }, [currentUser, loading, router, displayUser, profileId]);
   
-  // This hook is still needed to get the favorites for the logged-in user
   const { favorites } = useFavorites();
 
   if (loading) {
@@ -76,9 +78,16 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
     );
   }
   
+  // This logic now correctly handles showing a 404 page.
   if (!displayUser) {
-    // This could happen if a non-logged-in user tries to view a non-existent mock profile
-    return notFound();
+      if (!isOwnProfile) return notFound();
+      // If it's supposed to be our own profile but we can't find it (e.g., user just signed up),
+      // we can show a loading state or a default shell. For now, let's just show loading.
+      return (
+         <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+         </div>
+      );
   }
 
   const userInitial = displayUser.name.charAt(0).toUpperCase();
@@ -86,7 +95,6 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto space-y-8">
-        {/* User Info Card */}
         <Card className="overflow-hidden shadow-lg">
           <CardHeader className="p-0">
             <div className="bg-primary/10 h-24" />
@@ -145,7 +153,6 @@ export default function ProfilePage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        {/* Properties Tabs */}
         <Tabs defaultValue="listed" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="listed">

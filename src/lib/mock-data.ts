@@ -1,4 +1,4 @@
-import type { Property } from "@/types";
+import type { Property, UserProfile } from "@/types";
 
 export const properties: Property[] = [
   {
@@ -175,13 +175,41 @@ export const properties: Property[] = [
   }
 ];
 
-export const users = {
+export const mockUsers: Record<string, UserProfile> = {
   'jane-doe-realtor': {
+    id: "jane-doe-realtor",
     name: "Jane Doe",
     avatar: "https://placehold.co/100x100.png",
     bio: "Top-rated realtor with over 15 years of experience in the luxury market. Let me help you find your dream home.",
     isVerifiedSeller: true,
     rating: 5,
     properties: [properties[0], properties[4]]
+  },
+  'john-smith': {
+    id: "john-smith",
+    name: "John Smith",
+    avatar: "https://placehold.co/100x100.png",
+    bio: "Specializing in downtown residential and commercial properties. Let's find your next investment.",
+    isVerifiedSeller: true,
+    rating: 4,
+    properties: [properties[1], properties[6]]
+  },
+  'emily-white': {
+    id: "emily-white",
+    name: "Emily White",
+    avatar: "https://placehold.co/100x100.png",
+    bio: "Your Santa Monica real estate expert. I live and breathe coastal properties.",
+    isVerifiedSeller: true,
+    rating: 5,
+    properties: [properties[2], properties[7]]
+  },
+   'michael-brown': {
+    id: "michael-brown",
+    name: "Michael Brown",
+    avatar: "https://placehold.co/100x100.png",
+    bio: "Connecting clients with the vibrant lifestyle of West Hollywood. Your dream condo awaits.",
+    isVerifiedSeller: false,
+    rating: 4,
+    properties: [properties[3]]
   }
 };
