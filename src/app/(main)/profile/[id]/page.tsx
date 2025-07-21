@@ -2,7 +2,7 @@
 'use client';
 
 import { useParams, useRouter, notFound } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -29,66 +29,53 @@ export default function ProfilePage() {
   const profileId = params.id as string;
 
   const isOwnProfile = currentUser?.uid === profileId;
-  
-  let displayUser = null;
-  if (isOwnProfile && currentUser) {
-      displayUser = {
-          id: currentUser.uid,
-          name: currentUser.displayName || 'Anonymous User',
-          avatar: currentUser.photoURL || 'https://placehold.co/100x100.png',
-          bio: 'Real estate enthusiast and savvy investor. Helping you find the home of your dreams.',
-          isVerifiedSeller: true,
-          rating: 4,
-          properties: properties.slice(0, 4)
-      };
-  } else if (mockUsers[profileId]) {
-      const mockUser = mockUsers[profileId];
-      displayUser = {
-          id: profileId,
-          name: mockUser.name,
-          avatar: mockUser.avatar,
-          bio: mockUser.bio,
-          isVerifiedSeller: mockUser.isVerifiedSeller,
-          rating: mockUser.rating,
-          properties: mockUser.properties
-      };
-  }
 
+  const displayUser = useMemo(() => {
+    if (isOwnProfile && currentUser) {
+      return {
+        id: currentUser.uid,
+        name: currentUser.displayName || 'Anonymous User',
+        avatar: currentUser.photoURL || 'https://placehold.co/100x100.png',
+        bio: 'Real estate enthusiast and savvy investor. Helping you find the home of your dreams.',
+        isVerifiedSeller: true,
+        rating: 4,
+        properties: properties.slice(0, 4), // Mock properties for demo
+      };
+    }
+    
+    const mockUser = mockUsers[profileId];
+    if (mockUser) {
+      return {
+        id: profileId,
+        name: mockUser.name,
+        avatar: mockUser.avatar,
+        bio: mockUser.bio,
+        isVerifiedSeller: mockUser.isVerifiedSeller,
+        rating: mockUser.rating,
+        properties: mockUser.properties,
+      };
+    }
+    
+    return null;
+  }, [profileId, currentUser, isOwnProfile]);
 
   useEffect(() => {
-    // We don't need to block non-logged in users from viewing public profiles.
-    // We only redirect if they try to access a non-existent profile and aren't logged in.
     if (!loading && !displayUser) {
-        if (!currentUser) {
-            router.push('/login');
-        } else if (currentUser.uid !== profileId) {
-            // This handles the case where the profile ID is not a mock user
-            // and not the current logged-in user.
-            notFound();
-        }
+        // If loading is finished and we still can't find a user to display,
+        // it means the profile doesn't exist.
+        notFound();
     }
-  }, [currentUser, loading, router, displayUser, profileId]);
+  }, [loading, displayUser]);
   
   const { favorites } = useFavorites();
 
-  if (loading) {
+  if (loading || !displayUser) {
+    // Show loader while we're still loading or waiting for displayUser to be calculated
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
       </div>
     );
-  }
-  
-  // This logic now correctly handles showing a 404 page.
-  if (!displayUser) {
-      if (!isOwnProfile) return notFound();
-      // If it's supposed to be our own profile but we can't find it (e.g., user just signed up),
-      // we can show a loading state or a default shell. For now, let's just show loading.
-      return (
-         <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
-            <Loader2 className="h-16 w-16 animate-spin text-primary" />
-         </div>
-      );
   }
 
   const userInitial = displayUser.name.charAt(0).toUpperCase();
