@@ -37,8 +37,8 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
 export default function LoginPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
-      <div className="scale-150 mb-8">
-        <Logo />
+      <div className="mb-8">
+        <Logo layout="vertical" />
       </div>
       <Card className="mx-auto max-w-sm w-full">
         <CardHeader>
