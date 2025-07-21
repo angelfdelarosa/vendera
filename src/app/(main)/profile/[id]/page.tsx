@@ -153,7 +153,7 @@ export default function ProfilePage() {
                   </span>
                 </div>
               </div>
-              <div className="flex flex-col items-end space-y-2">
+              <div className="flex flex-col items-center space-y-2">
                 <Avatar className="h-24 w-24 border-4 border-background bg-background">
                   <AvatarImage
                     src={displayUser.avatar}
