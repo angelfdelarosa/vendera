@@ -7,8 +7,13 @@ import { properties as allProperties } from "@/lib/mock-data";
 import type { Property } from "@/types";
 import { useMemo } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAuth } from "@/context/AuthContext";
+import { Loader2, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import Image from "next/image";
 
-export default function Home() {
+function AuthenticatedHome() {
   const [filteredProperties, setFilteredProperties] = useState<Property[]>(allProperties);
   const { t } = useTranslation();
 
@@ -73,4 +78,67 @@ export default function Home() {
       </section>
     </div>
   );
+}
+
+function GuestHome() {
+  const featuredProperties = allProperties.slice(0, 4);
+
+  return (
+    <div className="flex flex-col">
+      <section className="relative h-[60vh] flex items-center justify-center text-center text-white bg-primary">
+        <Image
+            src="https://placehold.co/1920x1080.png"
+            layout="fill"
+            objectFit="cover"
+            alt="Hero background"
+            className="absolute inset-0 z-0 opacity-20"
+            data-ai-hint="house interior"
+        />
+        <div className="relative z-10 p-4">
+            <h1 className="font-headline text-5xl md:text-7xl font-bold mb-4">
+                Encuentra la casa de tus sueños
+            </h1>
+            <p className="text-xl md:text-2xl text-primary-foreground/90 max-w-3xl mx-auto mb-8">
+                Explora miles de propiedades exclusivas, conecta con los mejores agentes y da el siguiente paso hacia tu nuevo hogar.
+            </p>
+            <div className="flex justify-center gap-4">
+                <Button size="lg" asChild>
+                    <Link href="/signup">
+                        Crear Cuenta <ArrowRight className="ml-2" />
+                    </Link>
+                </Button>
+                <Button size="lg" variant="secondary" asChild>
+                    <Link href="/login">Iniciar Sesión</Link>
+                </Button>
+            </div>
+        </div>
+      </section>
+
+      <section className="container mx-auto px-4 py-16">
+        <h2 className="font-headline text-4xl font-bold text-primary mb-10 text-center">
+            Listados Destacados
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {featuredProperties.map(property => (
+                <PropertyCard key={property.id} property={property} />
+            ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+
+export default function HomePage() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return user ? <AuthenticatedHome /> : <GuestHome />;
 }
