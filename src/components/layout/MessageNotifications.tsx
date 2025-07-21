@@ -12,10 +12,17 @@ import { Bell, MessageSquare } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import { useChatStore } from '../chat/use-chat-store';
+import { useRouter } from 'next/navigation';
 
 export function MessageNotifications() {
+  const router = useRouter();
   const { conversations, selectConversation } = useChatStore();
   const unreadCount = conversations.filter((c) => c.unread).length;
+
+  const handleNotificationClick = (conversationId: string) => {
+    selectConversation(conversationId);
+    router.push('/messages');
+  };
 
   return (
     <Popover>
@@ -38,37 +45,44 @@ export function MessageNotifications() {
         <div className="space-y-1 p-2 max-h-[400px] overflow-y-auto">
           {conversations.length > 0 ? (
             conversations.map((convo) => (
-              <Link
+              <div
                 key={convo.id}
-                href={`/messages`}
-                className="block"
-                onClick={() => selectConversation(convo.id)}
+                className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer"
+                onClick={() => handleNotificationClick(convo.id)}
               >
-                <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer">
-                   <Link href={`/profile/${convo.user.id}`} onClick={(e) => e.stopPropagation()}>
-                    <Avatar className="hover:ring-2 hover:ring-primary transition-all">
-                        <AvatarImage src={convo.user.avatar} />
-                        <AvatarFallback>
-                          {convo.user.name.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                   </Link>
-                  <div className="flex-grow overflow-hidden">
-                    <div className="flex justify-between items-center">
-                        <Link href={`/profile/${convo.user.id}`} onClick={(e) => e.stopPropagation()}>
-                            <p className="font-semibold text-sm hover:underline">{convo.user.name}</p>
-                        </Link>
-                        <p className="text-xs text-muted-foreground">{convo.timestamp}</p>
-                    </div>
-                    <p className="text-sm text-muted-foreground truncate">
-                      {convo.messages[convo.messages.length - 1]?.text}
+                <Link
+                  href={`/profile/${convo.user.id}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Avatar className="hover:ring-2 hover:ring-primary transition-all">
+                    <AvatarImage src={convo.user.avatar} />
+                    <AvatarFallback>
+                      {convo.user.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                </Link>
+                <div className="flex-grow overflow-hidden">
+                  <div className="flex justify-between items-center">
+                    <Link
+                      href={`/profile/${convo.user.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <p className="font-semibold text-sm hover:underline">
+                        {convo.user.name}
+                      </p>
+                    </Link>
+                    <p className="text-xs text-muted-foreground">
+                      {convo.timestamp}
                     </p>
                   </div>
-                  {convo.unread && (
-                    <div className="w-2 h-2 rounded-full bg-primary mt-1"></div>
-                  )}
+                  <p className="text-sm text-muted-foreground truncate">
+                    {convo.messages[convo.messages.length - 1]?.text}
+                  </p>
                 </div>
-              </Link>
+                {convo.unread && (
+                  <div className="w-2 h-2 rounded-full bg-primary mt-1"></div>
+                )}
+              </div>
             ))
           ) : (
             <div className="text-center text-muted-foreground p-8">
@@ -77,11 +91,11 @@ export function MessageNotifications() {
             </div>
           )}
         </div>
-         <div className="p-2 border-t text-center">
-            <Button variant="link" asChild>
-                <Link href="/messages">View all messages</Link>
-            </Button>
-         </div>
+        <div className="p-2 border-t text-center">
+          <Button variant="link" asChild>
+            <Link href="/messages">View all messages</Link>
+          </Button>
+        </div>
       </PopoverContent>
     </Popover>
   );
