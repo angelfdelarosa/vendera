@@ -57,7 +57,7 @@ export const properties: Property[] = [
     description: "Charming family house just blocks from the beach. This home features a beautiful backyard with a garden, a spacious living room with a fireplace, and a newly renovated kitchen. Ideal for family living.",
     features: ["Garden", "Fireplace", "Near Beach", "Renovated Kitchen"],
     images: [
-      "https://placehold.co/600x400.png",
+      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxob3VzZXxlbnwwfHx8fDE3NTMwODk5OTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "https://placehold.co/600x400.png",
       "https://placehold.co/600x400.png"
     ],
