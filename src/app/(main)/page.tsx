@@ -118,7 +118,7 @@ function GuestHome() {
     <div className="flex flex-col">
       <section className="relative h-[60vh] flex items-center justify-center text-center text-white bg-primary">
         <Image
-            src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxiaWVuZXMlMjByYWljZXN8ZW58MHx8fHwxNzUzMTE4OTk1fDA&ixlib=rb-4.1.0&q=80&w=1080"
+            src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmVhbCUyMHN0YXRlfGVufDB8fHx8MTc1MzExOTEwNHww&ixlib=rb-4.1.0&q=80&w=1080"
             layout="fill"
             objectFit="cover"
             alt="Hero background"
