@@ -43,11 +43,11 @@ export default function PropertyDetailPage() {
   }
 
   const realtorProfile = Object.values(mockUsers).find(
-    (user) => user.name === property.realtor.name
+    (user) => user.id === property.realtor.id
   );
   
   const sellerForChat = realtorProfile || { 
-      id: property.realtor.name.toLowerCase().replace(/ /g, '-'),
+      id: property.realtor.id,
       name: property.realtor.name,
       avatar: property.realtor.avatar,
       bio: "A passionate real estate professional.",
@@ -242,7 +242,6 @@ export default function PropertyDetailPage() {
                     <DialogTitle>Chat about "{property.title}"</DialogTitle>
                   </DialogHeader>
                    <ChatWindow
-                      buyer={user}
                       conversation={conversation}
                     />
                 </DialogContent>

@@ -12,13 +12,15 @@ import { Send, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { chatAssistant } from '@/ai/flows/chat-assistant';
 import { useChatStore } from './use-chat-store';
+import { useAuth } from '@/context/AuthContext';
 
 interface ChatWindowProps {
-  buyer: User;
+  // We no longer get the buyer from props, we get it from the context
   conversation: Conversation;
 }
 
-export function ChatWindow({ buyer, conversation }: ChatWindowProps) {
+export function ChatWindow({ conversation }: ChatWindowProps) {
+  const { user: buyer } = useAuth();
   const { messages, addMessage } = useChatStore((state) => ({
     messages: state.conversations.find((c) => c.id === conversation.id)?.messages || [],
     addMessage: state.addMessage,
@@ -45,7 +47,7 @@ export function ChatWindow({ buyer, conversation }: ChatWindowProps) {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || !buyer) return;
 
     const buyerMessage: Message = {
       id: crypto.randomUUID(),
@@ -93,12 +95,20 @@ export function ChatWindow({ buyer, conversation }: ChatWindowProps) {
   };
 
   const getAvatar = (sender: 'buyer' | 'seller') => {
-    return sender === 'buyer' ? buyer.photoURL : conversation.user.avatar;
+    return sender === 'buyer' ? buyer?.photoURL : conversation.user.avatar;
   };
 
   const getInitial = (sender: 'buyer' | 'seller') => {
-    const name = sender === 'buyer' ? buyer.displayName : conversation.user.name;
+    const name = sender === 'buyer' ? buyer?.displayName : conversation.user.name;
     return name ? name.charAt(0).toUpperCase() : 'U';
+  }
+
+  if (!buyer) {
+      return (
+        <div className="flex flex-col h-full items-center justify-center text-muted-foreground">
+            <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      )
   }
 
   return (
@@ -132,7 +142,7 @@ export function ChatWindow({ buyer, conversation }: ChatWindowProps) {
               </div>
               {message.sender === 'buyer' && (
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={getAvatar('buyer')} />
+                  <AvatarImage src={getAvatar('buyer') || undefined} />
                   <AvatarFallback>{getInitial('buyer')}</AvatarFallback>
                 </Avatar>
               )}

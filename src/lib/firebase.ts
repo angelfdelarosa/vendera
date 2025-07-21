@@ -1,7 +1,9 @@
+
 'use client';
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+// We are removing auth for now to simulate it.
+// import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -13,6 +15,7 @@ const firebaseConfig = {
 };
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
+// Auth is being simulated in AuthContext.tsx
+// const auth = getAuth(app);
 
-export { app, auth };
+export { app };

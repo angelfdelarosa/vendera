@@ -38,7 +38,6 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { updateProfile } from 'firebase/auth';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 
 
@@ -71,22 +70,8 @@ export default function ProfilePage() {
   }, [searchParams, profileId, getConversationByUserId]);
 
   const displayUser: UserProfile | undefined = useMemo(() => {
-    const userFromMock = mockUsers[profileId];
-
-    if (isOwnProfile && currentUser) {
-      // For the current user, merge auth data with mock data to get the most up-to-date profile.
-      return {
-        ...userFromMock,
-        id: currentUser.uid,
-        name: currentUser.displayName || userFromMock?.name || 'Anonymous User',
-        avatar: currentUser.photoURL || userFromMock?.avatar || 'https://placehold.co/100x100.png',
-        // Ensure properties are up-to-date from the mock source
-        properties: userFromMock?.properties || []
-      };
-    }
-    
-    return userFromMock;
-  }, [profileId, currentUser, isOwnProfile]);
+    return mockUsers[profileId];
+  }, [profileId]);
 
   useEffect(() => {
     if (displayUser && isSheetOpen) {
@@ -147,18 +132,6 @@ export default function ProfilePage() {
     if (!currentUser) return;
 
     try {
-      // In a real app, you would upload the newAvatarUrl to Firebase Storage,
-      // get a downloadable URL, and save that. Base64 data URLs are too long for Firebase Auth.
-      const profileUpdates: { displayName?: string; photoURL?: string } = {
-        displayName: name,
-      };
-      if (newAvatarUrl && !newAvatarUrl.startsWith('data:')) {
-        profileUpdates.photoURL = newAvatarUrl;
-      }
-      
-      await updateProfile(currentUser, profileUpdates);
-
-      // Update the user state in our AuthContext to reflect changes immediately
       updateUser({
         displayName: name,
         ...(newAvatarUrl && { photoURL: newAvatarUrl }),
