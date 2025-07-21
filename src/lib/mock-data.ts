@@ -174,3 +174,14 @@ export const properties: Property[] = [
     }
   }
 ];
+
+export const users = {
+  'jane-doe-realtor': {
+    name: "Jane Doe",
+    avatar: "https://placehold.co/100x100.png",
+    bio: "Top-rated realtor with over 15 years of experience in the luxury market. Let me help you find your dream home.",
+    isVerifiedSeller: true,
+    rating: 5,
+    properties: [properties[0], properties[4]]
+  }
+};
