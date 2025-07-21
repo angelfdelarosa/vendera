@@ -25,6 +25,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { useChatStore } from '@/components/chat/use-chat-store';
 import type { Conversation } from '@/types';
+import Image from 'next/image';
 
 export default function ProfilePage() {
   const params = useParams();
@@ -154,14 +155,28 @@ export default function ProfilePage() {
                 </div>
               </div>
               <div className="flex flex-col items-center space-y-2">
-                <Avatar className="h-32 w-32 border-4 border-background bg-background">
-                  <AvatarImage
-                    src={displayUser.avatar}
-                    alt="User avatar"
-                    data-ai-hint="person face"
-                  />
-                  <AvatarFallback>{userInitial}</AvatarFallback>
-                </Avatar>
+                 <Dialog>
+                  <DialogTrigger asChild>
+                    <Avatar className="h-32 w-32 border-4 border-background bg-background cursor-pointer hover:ring-4 hover:ring-primary transition-all duration-300">
+                      <AvatarImage
+                        src={displayUser.avatar}
+                        alt="User avatar"
+                        data-ai-hint="person face"
+                      />
+                      <AvatarFallback>{userInitial}</AvatarFallback>
+                    </Avatar>
+                  </DialogTrigger>
+                  <DialogContent className="p-0 border-0 bg-transparent shadow-none max-w-2xl">
+                     <Image 
+                        src={displayUser.avatar} 
+                        alt="User avatar enlarged"
+                        width={800}
+                        height={800}
+                        className="rounded-lg object-contain"
+                        data-ai-hint="person face"
+                     />
+                  </DialogContent>
+                </Dialog>
                 {isOwnProfile ? (
                   <div className="space-x-2">
                     <Button variant="outline" size="icon" asChild>
