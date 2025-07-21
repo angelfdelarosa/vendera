@@ -143,7 +143,7 @@ export const properties: Property[] = [
     description: "Live at the top of the world in this exclusive penthouse. Offering 360-degree views of the city, this residence is the epitome of urban luxury. Includes a private elevator, rooftop terrace, and premium services.",
     features: ["Panoramic View", "Private Elevator", "Rooftop Terrace", "Premium Services"],
     images: [
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwZW50aG91c2UlMjBhcGFydG1lbnR8ZW58MHx8fHwxNzUzMzkzMjE5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "https://images.unsplash.com/photo-1580216643062-cf460548a66a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxM3x8YXBhcnRtZW50fGVufDB8fHx8MTc1MzExOTQzMnww&ixlib=rb-4.1.0&q=80&w=1080",
       "https://placehold.co/600x400.png",
       "https://placehold.co/600x400.png"
     ],
@@ -165,7 +165,7 @@ export const properties: Property[] = [
     description: "Wake up to the sound of waves in this luxurious beachfront condo. Direct access to the sand, a modern open-plan living area, and a large balcony to enjoy the sunset. A rare opportunity in a prime location.",
     features: ["Beachfront", "Direct Beach Access", "Sunset View", "Modern Interior"],
     images: [
-      "https://placehold.co/600x400.png",
+      "https://images.unsplash.com/photo-1574362848149-11496d93a7c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y29uZG98ZW58MHx8fHwxNzUzMTE5NjA1fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "https://placehold.co/600x400.png"
     ],
     realtor: {
