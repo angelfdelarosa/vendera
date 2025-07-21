@@ -129,7 +129,7 @@ export default function ProfilePage() {
             <div className="bg-primary/10 h-24" />
           </CardHeader>
           <CardContent className="p-6">
-            <div className="flex justify-between items-start -mt-16">
+            <div className="flex justify-between items-start -mt-20">
               <div className="flex-grow pt-8">
                 {displayUser.isVerifiedSeller && (
                   <Badge variant="secondary" className="mb-2">
@@ -154,7 +154,7 @@ export default function ProfilePage() {
                 </div>
               </div>
               <div className="flex flex-col items-center space-y-2">
-                <Avatar className="h-24 w-24 border-4 border-background bg-background">
+                <Avatar className="h-32 w-32 border-4 border-background bg-background">
                   <AvatarImage
                     src={displayUser.avatar}
                     alt="User avatar"
