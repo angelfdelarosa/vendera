@@ -14,7 +14,7 @@ import { Badge } from '../ui/badge';
 import { useChatStore } from '../chat/use-chat-store';
 
 export function MessageNotifications() {
-  const { conversations } = useChatStore();
+  const { conversations, selectConversation } = useChatStore();
   const unreadCount = conversations.filter((c) => c.unread).length;
 
   return (
@@ -40,19 +40,24 @@ export function MessageNotifications() {
             conversations.map((convo) => (
               <Link
                 key={convo.id}
-                href={`/profile/${convo.user.id}?chat=true`}
+                href={`/messages`}
                 className="block"
+                onClick={() => selectConversation(convo.id)}
               >
                 <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer">
-                  <Avatar>
-                    <AvatarImage src={convo.user.avatar} />
-                    <AvatarFallback>
-                      {convo.user.name.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
+                   <Link href={`/profile/${convo.user.id}`} onClick={(e) => e.stopPropagation()}>
+                    <Avatar className="hover:ring-2 hover:ring-primary transition-all">
+                        <AvatarImage src={convo.user.avatar} />
+                        <AvatarFallback>
+                          {convo.user.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                   </Link>
                   <div className="flex-grow overflow-hidden">
                     <div className="flex justify-between items-center">
-                        <p className="font-semibold text-sm">{convo.user.name}</p>
+                        <Link href={`/profile/${convo.user.id}`} onClick={(e) => e.stopPropagation()}>
+                            <p className="font-semibold text-sm hover:underline">{convo.user.name}</p>
+                        </Link>
                         <p className="text-xs text-muted-foreground">{convo.timestamp}</p>
                     </div>
                     <p className="text-sm text-muted-foreground truncate">

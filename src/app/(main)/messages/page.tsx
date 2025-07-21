@@ -82,13 +82,17 @@ export default function MessagesPage() {
                   selectedConversation?.id === convo.id ? "bg-muted" : "hover:bg-muted/50"
                 )}
               >
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={convo.user.avatar} />
-                  <AvatarFallback>{convo.user.name.charAt(0)}</AvatarFallback>
-                </Avatar>
+                <Link href={`/profile/${convo.user.id}`} onClick={(e) => e.stopPropagation()}>
+                    <Avatar className="h-10 w-10 hover:ring-2 hover:ring-primary transition-all">
+                      <AvatarImage src={convo.user.avatar} />
+                      <AvatarFallback>{convo.user.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                </Link>
                 <div className="flex-grow overflow-hidden">
                    <div className="flex justify-between items-center">
-                     <p className="font-semibold text-sm truncate">{convo.user.name}</p>
+                    <Link href={`/profile/${convo.user.id}`} onClick={(e) => e.stopPropagation()}>
+                        <p className="font-semibold text-sm truncate hover:underline">{convo.user.name}</p>
+                    </Link>
                      <p className="text-xs text-muted-foreground flex-shrink-0">{convo.timestamp}</p>
                    </div>
                     <p className="text-xs text-muted-foreground truncate">
