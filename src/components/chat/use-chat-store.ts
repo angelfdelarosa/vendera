@@ -69,16 +69,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       id: `convo-${crypto.randomUUID()}`,
       user,
       property,
-      messages: [
-        {
-          id: crypto.randomUUID(),
-          text: `Hi! I'm ${user.name}. I saw you're interested in the property "${property.title}". How can I help?`,
-          sender: 'seller',
-          timestamp: new Date().toLocaleTimeString(),
-        },
-      ],
+      messages: [],
       timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-      unread: false,
+      unread: true,
     };
     
     set(state => ({
