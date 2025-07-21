@@ -30,12 +30,16 @@ export function PropertySearchFilters({
   propertyTypes,
   onSearch,
 }: PropertySearchFiltersProps) {
-  const [location, setLocation] = useState("");
-  const [type, setType] = useState("");
+  const [location, setLocation] = useState("all");
+  const [type, setType] = useState("all");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, MAX_PRICE]);
 
   const handleSearch = () => {
-    onSearch({ location, type, priceRange });
+    onSearch({ 
+      location: location === 'all' ? '' : location, 
+      type: type === 'all' ? '' : type, 
+      priceRange 
+    });
   };
 
   return (
@@ -53,7 +57,7 @@ export function PropertySearchFilters({
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Locations</SelectItem>
+                  <SelectItem value="all">All Locations</SelectItem>
                   {locations.map((loc) => (
                     <SelectItem key={loc} value={loc}>{loc}</SelectItem>
                   ))}
@@ -70,7 +74,7 @@ export function PropertySearchFilters({
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                   <SelectItem value="">All Types</SelectItem>
+                   <SelectItem value="all">All Types</SelectItem>
                   {propertyTypes.map((pt) => (
                     <SelectItem key={pt} value={pt}>{pt}</SelectItem>
                   ))}
