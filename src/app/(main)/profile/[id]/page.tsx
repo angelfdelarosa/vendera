@@ -26,6 +26,19 @@ import { ChatWindow } from '@/components/chat/ChatWindow';
 import { useChatStore } from '@/components/chat/use-chat-store';
 import type { Conversation } from '@/types';
 import Image from 'next/image';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+
 
 export default function ProfilePage() {
   const params = useParams();
@@ -185,9 +198,38 @@ export default function ProfilePage() {
                     <Button variant="outline" size="icon" asChild>
                       <Link href="/messages"><MessageSquare className="h-4 w-4" /></Link>
                     </Button>
-                    <Button variant="outline" size="icon">
-                      <Settings className="h-4 w-4" />
-                    </Button>
+                    <Sheet>
+                      <SheetTrigger asChild>
+                         <Button variant="outline" size="icon">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent>
+                        <SheetHeader>
+                          <SheetTitle>Edit Profile</SheetTitle>
+                          <SheetDescription>
+                            Make changes to your profile here. Click save when you're done.
+                          </SheetDescription>
+                        </SheetHeader>
+                        <div className="grid gap-4 py-4">
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="name" className="text-right">
+                              Full Name
+                            </Label>
+                            <Input id="name" defaultValue={displayUser.name} className="col-span-3" />
+                          </div>
+                          <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="bio" className="text-right">
+                              Bio
+                            </Label>
+                            <Textarea id="bio" defaultValue={displayUser.bio} className="col-span-3" />
+                          </div>
+                        </div>
+                        <SheetFooter>
+                          <Button type="submit">Save changes</Button>
+                        </SheetFooter>
+                      </SheetContent>
+                    </Sheet>
                   </div>
                 ) : (
                   <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
@@ -279,3 +321,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
