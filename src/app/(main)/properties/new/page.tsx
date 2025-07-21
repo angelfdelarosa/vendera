@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { generatePropertyDescription } from "@/ai/flows/property-description-generator";
 import { usePropertyStore } from "@/hooks/usePropertyStore";
 import type { Property } from "@/types";
+import Image from "next/image";
 
 const initialFormData = {
   title: "Luxurious Villa in Beverly Hills",
@@ -53,6 +54,7 @@ export default function NewPropertyPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -75,6 +77,29 @@ export default function NewPropertyPage() {
   const handleSelectChange = (value: Property["type"]) => {
     setFormData((prev) => ({ ...prev, propertyType: value }));
   };
+  
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      const newPreviews: string[] = [];
+      
+      // Clear previous previews
+      setImagePreviews([]);
+
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push(reader.result as string);
+          // When all files are read, update the state
+          if (newPreviews.length === files.length) {
+            setImagePreviews(newPreviews);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
 
   const handleGenerateDescription = async () => {
     setIsGenerating(true);
@@ -120,7 +145,7 @@ export default function NewPropertyPage() {
       area: formData.area,
       description: formData.description,
       features: formData.amenities.split(",").map((f) => f.trim()),
-      images: [
+      images: imagePreviews.length > 0 ? imagePreviews : [
         "https://placehold.co/600x400.png",
         "https://placehold.co/600x400.png",
       ],
@@ -140,6 +165,7 @@ export default function NewPropertyPage() {
 
     // Reset form and navigate
     setFormData(initialFormData);
+    setImagePreviews([]);
     setIsSubmitting(false);
     router.push(`/properties/${newProperty.id}`);
   };
@@ -298,10 +324,21 @@ export default function NewPropertyPage() {
             </div>
             <div className="md:col-span-2 space-y-2">
               <Label htmlFor="images">Property Photos</Label>
-              <Input id="images" type="file" multiple disabled/>
-              <p className="text-xs text-muted-foreground">
-                Image uploads are not yet implemented. Placeholder images will be used.
-              </p>
+              <Input id="images" type="file" multiple accept="image/*" onChange={handleImageChange} />
+              {imagePreviews.length > 0 && (
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mt-2">
+                  {imagePreviews.map((src, index) => (
+                    <div key={index} className="relative aspect-square">
+                      <Image
+                        src={src}
+                        alt={`Preview ${index + 1}`}
+                        fill
+                        className="rounded-md object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </CardContent>
           <CardFooter>
