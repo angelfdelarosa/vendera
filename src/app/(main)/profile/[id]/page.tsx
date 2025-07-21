@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRouter, notFound } from 'next/navigation';
+import { useParams, useRouter, notFound } from 'next/navigation';
 import { useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -22,10 +22,11 @@ import { useFavorites } from '@/context/FavoritesContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { mockUsers } from '@/lib/mock-data';
 
-export default function ProfilePage({ params }: { params: { id: string } }) {
+export default function ProfilePage() {
+  const params = useParams();
   const { user: currentUser, loading } = useAuth();
   const router = useRouter();
-  const profileId = params.id;
+  const profileId = params.id as string;
 
   const isOwnProfile = currentUser?.uid === profileId;
   
