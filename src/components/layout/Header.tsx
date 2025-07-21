@@ -10,6 +10,7 @@ import { Search } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { MessageNotifications } from "./MessageNotifications";
 
 export function Header() {
   const { user } = useAuth();
@@ -71,6 +72,7 @@ export function Header() {
         </div>
         <div className="flex items-center justify-end space-x-2">
           <LanguageSwitcher />
+          {user && <MessageNotifications />}
           <UserNav />
         </div>
       </div>

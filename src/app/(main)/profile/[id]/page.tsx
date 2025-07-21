@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useParams, useRouter, notFound } from 'next/navigation';
+import { useParams, useRouter, notFound, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -26,12 +26,19 @@ import { ChatWindow } from '@/components/chat/ChatWindow';
 
 export default function ProfilePage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const { user: currentUser, loading } = useAuth();
   const router = useRouter();
   const profileId = params.id as string;
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   const isOwnProfile = currentUser?.uid === profileId;
+  
+  useEffect(() => {
+    if (searchParams.get('chat') === 'true') {
+      setIsChatOpen(true);
+    }
+  }, [searchParams]);
 
   const displayUser = useMemo(() => {
     if (isOwnProfile && currentUser) {

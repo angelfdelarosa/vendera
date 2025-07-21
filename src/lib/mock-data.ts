@@ -213,3 +213,31 @@ export const mockUsers: Record<string, UserProfile> = {
     properties: [properties[3]]
   }
 };
+
+
+export const mockConversations = [
+  {
+    id: 'convo-1',
+    user: mockUsers['jane-doe-realtor'],
+    property: properties[0],
+    lastMessage: 'Sounds great! I can do tomorrow at 2 PM.',
+    timestamp: '2m ago',
+    unread: true,
+  },
+  {
+    id: 'convo-2',
+    user: mockUsers['john-smith'],
+    property: properties[1],
+    lastMessage: 'Yes, the building is pet friendly.',
+    timestamp: '1h ago',
+    unread: false,
+  },
+  {
+    id: 'convo-3',
+    user: mockUsers['emily-white'],
+    property: properties[2],
+    lastMessage: 'Of course, I can send you more photos.',
+    timestamp: '5h ago',
+    unread: true,
+  },
+];
