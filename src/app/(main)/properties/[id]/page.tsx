@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { BedDouble, Bath, Ruler, MapPin, Building, DollarSign, MessageSquare } from "lucide-react";
+import { BedDouble, Bath, Ruler, MapPin, Building, MessageSquare } from "lucide-react";
 import { SimilarProperties } from "@/components/properties/SimilarProperties";
 import { FavoriteButton } from "@/components/properties/FavoriteButton";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
     notFound();
   }
 
-  // Find the realtor's full profile to get their ID for the link
+  // Correctly find the realtor's profile from the mock data
   const realtorProfile = Object.values(mockUsers).find(
     (user) => user.name === property.realtor.name
   );
