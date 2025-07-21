@@ -76,7 +76,7 @@ export default function ProfilePage() {
           </h2>
           {userProperties.length > 0 ? (
             <div className="flex justify-center">
-              <div className="w-full md:w-3/4 lg:w-1/2">
+              <div className="w-full md:w-5/6 lg:w-3/4">
                 {userProperties.map((property) => (
                   <PropertyCard key={property.id} property={property} />
                 ))}
