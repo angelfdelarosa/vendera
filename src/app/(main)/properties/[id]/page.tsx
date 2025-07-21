@@ -4,7 +4,7 @@
 import { notFound, useRouter, usePathname, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { properties, mockUsers } from '@/lib/mock-data';
+import { mockUsers } from '@/lib/mock-data';
 import {
   Carousel,
   CarouselContent,
@@ -26,12 +26,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { useChatStore } from '@/components/chat/use-chat-store';
 import type { Conversation } from '@/types';
+import { usePropertyStore } from '@/hooks/usePropertyStore';
 
 export default function PropertyDetailPage() {
   const params = useParams();
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const properties = usePropertyStore((state) => state.properties);
   const property = properties.find((p) => p.id === params.id);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { getConversationByPropertyId, createConversation } = useChatStore();

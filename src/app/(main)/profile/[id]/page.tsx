@@ -39,6 +39,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { updateProfile } from 'firebase/auth';
+import { usePropertyStore } from '@/hooks/usePropertyStore';
 
 
 export default function ProfilePage() {
@@ -50,6 +51,7 @@ export default function ProfilePage() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { getConversationByUserId, createConversation } = useChatStore();
   const { toast } = useToast();
+  const allProperties = usePropertyStore((state) => state.properties);
 
   const isOwnProfile = currentUser?.uid === profileId;
   
@@ -82,12 +84,12 @@ export default function ProfilePage() {
         bio: mockData?.bio || 'Real estate enthusiast. Helping you find the home of your dreams.',
         isVerifiedSeller: mockData?.isVerifiedSeller || true,
         rating: mockData?.rating || 4,
-        properties: mockData?.properties || [],
+        properties: allProperties.filter(p => p.realtor.name === (currentUser.displayName || 'Anonymous User')),
       };
     }
     
     return userToDisplay;
-  }, [profileId, currentUser, isOwnProfile]);
+  }, [profileId, currentUser, isOwnProfile, allProperties]);
 
   useEffect(() => {
     if (displayUser && isSheetOpen) {

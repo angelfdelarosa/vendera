@@ -1,12 +1,14 @@
-import { properties } from "@/lib/mock-data";
+
 import type { Property } from "@/types";
 import { PropertyCard } from "./PropertyCard";
+import { usePropertyStore } from "@/hooks/usePropertyStore";
 
 interface SimilarPropertiesProps {
   currentPropertyId: string;
 }
 
 export function SimilarProperties({ currentPropertyId }: SimilarPropertiesProps) {
+  const properties = usePropertyStore((state) => state.properties);
   // In a real app, this would use the GenAI flow `getSimilarPropertySuggestions`
   // For now, we'll just show a few other properties from the mock data.
   const similar = properties

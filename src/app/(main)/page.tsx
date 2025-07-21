@@ -1,10 +1,11 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from 'next/navigation';
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { PropertySearchFilters } from "@/components/properties/PropertySearchFilters";
-import { properties as allProperties } from "@/lib/mock-data";
+import { usePropertyStore } from "@/hooks/usePropertyStore";
 import type { Property } from "@/types";
 import { useMemo } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -15,9 +16,14 @@ import Link from "next/link";
 import Image from "next/image";
 
 function AuthenticatedHome() {
+  const allProperties = usePropertyStore((state) => state.properties);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>(allProperties);
   const { t } = useTranslation();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    setFilteredProperties(allProperties);
+  }, [allProperties]);
 
   useEffect(() => {
     const searchQuery = searchParams.get('q');
@@ -31,17 +37,17 @@ function AuthenticatedHome() {
     } else {
         setFilteredProperties(allProperties);
     }
-  }, [searchParams]);
+  }, [searchParams, allProperties]);
 
   const locations = useMemo(() => {
     const locationSet = new Set(allProperties.map(p => p.location));
     return Array.from(locationSet);
-  }, []);
+  }, [allProperties]);
 
   const propertyTypes = useMemo(() => {
     const typeSet = new Set(allProperties.map(p => p.type));
     return Array.from(typeSet);
-  }, []);
+  }, [allProperties]);
 
   const handleSearch = (filters: {
     location: string;
@@ -97,6 +103,7 @@ function AuthenticatedHome() {
 }
 
 function GuestHome() {
+    const allProperties = usePropertyStore((state) => state.properties);
     const [properties, setProperties] = useState(allProperties.slice(0, 4));
     const searchParams = useSearchParams();
 
@@ -112,7 +119,7 @@ function GuestHome() {
         } else {
             setProperties(allProperties.slice(0, 8));
         }
-    }, [searchParams]);
+    }, [searchParams, allProperties]);
 
   return (
     <div className="flex flex-col">
