@@ -18,12 +18,15 @@ export function PropertyCard({ property }: PropertyCardProps) {
             <div className="absolute top-2 right-2 z-10">
                 <FavoriteButton property={property} />
             </div>
+             <div className="absolute top-2 left-2 z-10 bg-primary/90 text-primary-foreground py-1.5 px-3 rounded-lg">
+                <p className="font-bold text-lg">${property.price.toLocaleString()}</p>
+            </div>
             <Image
               src={property.images[0]}
               alt={property.title}
               width={400}
               height={250}
-              className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+              className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
               data-ai-hint="house exterior"
             />
           </CardHeader>
@@ -37,10 +40,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
               <span>{property.location}</span>
             </div>
           </CardContent>
-          <CardFooter className="p-4 pt-0 flex flex-col items-start">
-             <div className="text-2xl font-bold text-primary mb-4 w-full">
-              ${property.price.toLocaleString()}
-            </div>
+          <CardFooter className="p-4 pt-0 flex items-start">
              <div className="flex justify-between w-full text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <BedDouble className="w-4 h-4" />

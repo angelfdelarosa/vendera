@@ -19,7 +19,7 @@ import { useFavorites } from "@/context/FavoritesContext";
 
 export default function ProfilePage() {
   // Mock data for demonstration
-  const userProperties = properties.slice(0, 2);
+  const userProperties = properties.slice(0, 1); // Show only one property
   const { favorites } = useFavorites();
 
   return (
@@ -75,10 +75,12 @@ export default function ProfilePage() {
             My Properties
           </h2>
           {userProperties.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {userProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
+            <div className="flex justify-center">
+              <div className="w-full md:w-3/4 lg:w-1/2">
+                {userProperties.map((property) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))}
+              </div>
             </div>
           ) : (
              <div className="text-center py-16 bg-card rounded-lg border-dashed border">
