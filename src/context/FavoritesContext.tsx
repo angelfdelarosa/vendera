@@ -18,30 +18,27 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
 
   const addFavorite = useCallback((property: Property) => {
-    setFavorites((prevFavorites) => {
-      if (prevFavorites.find(p => p.id === property.id)) {
-        return prevFavorites;
-      }
-      toast({
-        title: "Added to Favorites",
-        description: `"${property.title}" has been saved.`,
-      });
-      return [...prevFavorites, property];
+    if (favorites.find(p => p.id === property.id)) {
+      return;
+    }
+    setFavorites(prevFavorites => [...prevFavorites, property]);
+    toast({
+      title: "Added to Favorites",
+      description: `"${property.title}" has been saved.`,
     });
-  }, [toast]);
+  }, [favorites, toast]);
 
   const removeFavorite = useCallback((propertyId: string) => {
-    setFavorites((prevFavorites) => {
-      const property = prevFavorites.find(p => p.id === propertyId);
-       if (property) {
-         toast({
-           title: "Removed from Favorites",
-           description: `"${property.title}" has been removed.`,
-         });
-       }
-      return prevFavorites.filter((p) => p.id !== propertyId);
+    const property = favorites.find(p => p.id === propertyId);
+    if (!property) {
+      return;
+    }
+    setFavorites(prevFavorites => prevFavorites.filter((p) => p.id !== propertyId));
+    toast({
+      title: "Removed from Favorites",
+      description: `"${property.title}" has been removed.`,
     });
-  }, [toast]);
+  }, [favorites, toast]);
 
   const isFavorite = (propertyId: string) => {
     return favorites.some((p) => p.id === propertyId);
