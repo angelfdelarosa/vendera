@@ -1,0 +1,181 @@
+
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import type { User } from 'firebase/auth';
+import type { Property, UserProfile } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Send, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { chatAssistant } from '@/ai/flows/chat-assistant';
+
+interface Message {
+  id: string;
+  text: string;
+  sender: 'buyer' | 'seller';
+  timestamp: string;
+}
+
+interface ChatWindowProps {
+  buyer: User;
+  seller: UserProfile;
+  property: Property;
+}
+
+export function ChatWindow({ buyer, seller, property }: ChatWindowProps) {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      text: `Hi ${buyer.displayName?.split(' ')[0] || 'there'}, I'm ${seller.name}. I see you're interested in the property at ${property.address}. How can I help you today?`,
+      sender: 'seller',
+      timestamp: new Date().toLocaleTimeString(),
+    },
+  ]);
+  const [newMessage, setNewMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+       if (scrollAreaRef.current) {
+        const viewport = scrollAreaRef.current.querySelector('div');
+        if (viewport) {
+          viewport.scrollTop = viewport.scrollHeight;
+        }
+      }
+    }, 100);
+  };
+  
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
+
+    const buyerMessage: Message = {
+      id: crypto.randomUUID(),
+      text: newMessage,
+      sender: 'buyer',
+      timestamp: new Date().toLocaleTimeString(),
+    };
+
+    setMessages((prev) => [...prev, buyerMessage]);
+    setNewMessage('');
+    setIsSending(true);
+
+    try {
+        const messageHistory = [...messages, buyerMessage]
+            .map(m => `${m.sender === 'buyer' ? buyer.displayName : seller.name}: ${m.text}`)
+            .join('\n');
+
+        const result = await chatAssistant({
+            buyerName: buyer.displayName || 'Potential Buyer',
+            sellerName: seller.name,
+            propertyName: property.title,
+            messageHistory: messageHistory,
+        });
+
+        const sellerResponse: Message = {
+            id: crypto.randomUUID(),
+            text: result.response,
+            sender: 'seller',
+            timestamp: new Date().toLocaleTimeString(),
+        };
+
+        setMessages((prev) => [...prev, sellerResponse]);
+    } catch (error) {
+        console.error("Failed to get AI response:", error);
+        const errorResponse: Message = {
+            id: crypto.randomUUID(),
+            text: "Sorry, I'm having trouble connecting right now. Please try again later.",
+            sender: 'seller',
+            timestamp: new Date().toLocaleTimeString(),
+        };
+        setMessages((prev) => [...prev, errorResponse]);
+    } finally {
+        setIsSending(false);
+    }
+  };
+
+  const getAvatar = (sender: 'buyer' | 'seller') => {
+    return sender === 'buyer' ? buyer.photoURL : seller.avatar;
+  };
+
+  const getInitial = (sender: 'buyer' | 'seller') => {
+    const name = sender === 'buyer' ? buyer.displayName : seller.name;
+    return name ? name.charAt(0).toUpperCase() : 'U';
+  }
+
+  return (
+    <div className="flex flex-col h-[60vh]">
+      <ScrollArea className="flex-grow p-4 pr-2" ref={scrollAreaRef}>
+        <div className="space-y-4">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={cn(
+                'flex items-end gap-2',
+                message.sender === 'buyer' ? 'justify-end' : 'justify-start'
+              )}
+            >
+              {message.sender === 'seller' && (
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={getAvatar('seller')} />
+                  <AvatarFallback>{getInitial('seller')}</AvatarFallback>
+                </Avatar>
+              )}
+              <div
+                className={cn(
+                  'max-w-xs rounded-lg p-3 text-sm',
+                  message.sender === 'buyer'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted'
+                )}
+              >
+                <p>{message.text}</p>
+                <p className="text-xs opacity-70 mt-1 text-right">{message.timestamp}</p>
+              </div>
+              {message.sender === 'buyer' && (
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={getAvatar('buyer')} />
+                  <AvatarFallback>{getInitial('buyer')}</AvatarFallback>
+                </Avatar>
+              )}
+            </div>
+          ))}
+          {isSending && (
+             <div className="flex items-end gap-2 justify-start">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={getAvatar('seller')} />
+                  <AvatarFallback>{getInitial('seller')}</AvatarFallback>
+                </Avatar>
+                 <div className="bg-muted rounded-lg p-3 flex items-center">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                 </div>
+             </div>
+          )}
+        </div>
+      </ScrollArea>
+      <form
+        onSubmit={handleSendMessage}
+        className="flex items-center gap-2 border-t p-4"
+      >
+        <Input
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          placeholder="Type your message..."
+          autoComplete="off"
+          disabled={isSending}
+        />
+        <Button type="submit" size="icon" disabled={isSending || !newMessage.trim()}>
+          <Send className="h-4 w-4" />
+        </Button>
+      </form>
+    </div>
+  );
+}

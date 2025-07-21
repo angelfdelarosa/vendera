@@ -2,7 +2,7 @@
 'use client';
 
 import { useParams, useRouter, notFound } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -21,12 +21,15 @@ import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { mockUsers } from '@/lib/mock-data';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ChatWindow } from '@/components/chat/ChatWindow';
 
 export default function ProfilePage() {
   const params = useParams();
   const { user: currentUser, loading } = useAuth();
   const router = useRouter();
   const profileId = params.id as string;
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const isOwnProfile = currentUser?.uid === profileId;
 
@@ -131,10 +134,26 @@ export default function ProfilePage() {
                     </Button>
                   </div>
                 ) : (
-                   <Button>
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Contact Seller
-                   </Button>
+                  <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Contact Seller
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Chat with {displayUser.name}</DialogTitle>
+                      </DialogHeader>
+                      {currentUser && (
+                        <ChatWindow
+                          buyer={currentUser}
+                          seller={displayUser}
+                          property={displayUser.properties[0]}
+                        />
+                      )}
+                    </DialogContent>
+                  </Dialog>
                 )}
               </div>
             </div>

@@ -21,7 +21,9 @@ import { SimilarProperties } from '@/components/properties/SimilarProperties';
 import { FavoriteButton } from '@/components/properties/FavoriteButton';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ChatWindow } from '@/components/chat/ChatWindow';
 
 export default function PropertyDetailPage() {
   const params = useParams();
@@ -29,6 +31,7 @@ export default function PropertyDetailPage() {
   const router = useRouter();
   const pathname = usePathname();
   const property = properties.find((p) => p.id === params.id);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   if (!property) {
     notFound();
@@ -37,6 +40,16 @@ export default function PropertyDetailPage() {
   const realtorProfile = Object.values(mockUsers).find(
     (user) => user.name === property.realtor.name
   );
+  
+  const sellerForChat = realtorProfile || { 
+      id: property.realtor.name.toLowerCase().replace(' ', '-'),
+      name: property.realtor.name,
+      avatar: property.realtor.avatar,
+      bio: "A passionate real estate professional.",
+      isVerifiedSeller: true,
+      rating: 5,
+      properties: [property]
+  };
 
   if (loading) {
     return (
@@ -197,10 +210,24 @@ export default function PropertyDetailPage() {
                   </p>
                 </div>
               </div>
-              <Button className="w-full">
-                <MessageSquare className="mr-2" />
-                Contact Seller
-              </Button>
+               <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
+                <DialogTrigger asChild>
+                    <Button className="w-full">
+                        <MessageSquare className="mr-2" />
+                        Contact Seller
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Chat about "{property.title}"</DialogTitle>
+                  </DialogHeader>
+                   <ChatWindow
+                      buyer={user}
+                      seller={sellerForChat}
+                      property={property}
+                    />
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </div>
