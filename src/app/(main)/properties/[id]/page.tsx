@@ -79,70 +79,7 @@ export default function PropertyDetailPage() {
     );
   }
   
-  const UnauthenticatedView = () => {
-    const loginUrl = `/login?redirect=${encodeURIComponent(pathname)}`;
-    const signupUrl = `/signup?redirect=${encodeURIComponent(pathname)}`;
-
-    return (
-     <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <Card className="overflow-hidden">
-                <CardContent className="p-0">
-                <Carousel className="w-full">
-                    <CarouselContent>
-                    {property.images.map((src, index) => (
-                        <CarouselItem key={index}>
-                        <Image
-                            src={src}
-                            alt={`${property.title} image ${index + 1}`}
-                            width={800}
-                            height={500}
-                            className="w-full h-[500px] object-cover"
-                            data-ai-hint="house interior"
-                        />
-                        </CarouselItem>
-                    ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="ml-16" />
-                    <CarouselNext className="mr-16" />
-                </Carousel>
-                </CardContent>
-            </Card>
-          </div>
-           <div className="lg:col-span-1 flex items-center justify-center">
-             <Card className="w-full text-center p-8 border-dashed">
-                <CardHeader>
-                    <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit">
-                        <Lock className="w-10 h-10 text-primary"/>
-                    </div>
-                   <CardTitle className="font-headline text-2xl mt-4">
-                     Access Full Details
-                   </CardTitle>
-                </CardHeader>
-                <CardContent>
-                   <p className="text-muted-foreground mb-6">
-                     Create an account or log in to view property details, realtor information, and more.
-                   </p>
-                   <div className="flex flex-col gap-4">
-                     <Button size="lg" asChild>
-                       <Link href={signupUrl}>
-                         Create Account <ArrowRight className="ml-2" />
-                       </Link>
-                     </Button>
-                     <Button size="lg" variant="outline" asChild>
-                       <Link href={loginUrl}>Login</Link>
-                     </Button>
-                   </div>
-                </CardContent>
-             </Card>
-           </div>
-        </div>
-     </div>
-    );
-  };
-
-  return user ? (
+  return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
@@ -309,5 +246,5 @@ export default function PropertyDetailPage() {
 
       <SimilarProperties currentPropertyId={property.id} />
     </div>
-  ) : <UnauthenticatedView />;
+  );
 }
