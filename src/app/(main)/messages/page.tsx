@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -33,11 +34,11 @@ export default function MessagesPage() {
   }, [user, loading, router]);
   
    useEffect(() => {
-    // Select the first conversation by default
-    if (conversations.length > 0) {
+    // Select the first conversation by default if none is selected
+    if (conversations.length > 0 && !selectedConversation) {
       setSelectedConversation(conversations[0]);
     }
-  }, [conversations]);
+  }, [conversations, selectedConversation]);
 
 
   if (loading || !user) {
@@ -109,6 +110,7 @@ export default function MessagesPage() {
         <div className="w-2/3 flex flex-col">
           {selectedConversation ? (
             <ChatWindow
+              key={selectedConversation.id}
               buyer={user}
               seller={selectedConversation.user}
               property={selectedConversation.property}
