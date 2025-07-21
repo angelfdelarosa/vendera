@@ -33,7 +33,7 @@ export function Logo({ layout = 'horizontal' }: LogoProps) {
       <CustomLogo
         className={cn(
           'text-primary',
-          isVertical ? 'h-16 w-auto' : 'h-8 w-auto'
+          isVertical ? 'h-24 w-24' : 'h-8 w-8'
         )}
       />
       <span
