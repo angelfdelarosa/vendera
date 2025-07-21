@@ -39,12 +39,13 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { updateProfile } from 'firebase/auth';
 
 
 export default function ProfilePage() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const { user: currentUser, loading } = useAuth();
+  const { user: currentUser, loading, updateUser } = useAuth();
   const router = useRouter();
   const profileId = params.id as string;
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -151,16 +152,40 @@ export default function ProfilePage() {
     }
   };
 
-  const handleSaveChanges = (e: React.FormEvent) => {
+  const handleSaveChanges = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you would send this data to your backend/Firebase
-    console.log("Saving changes:", { name, bio, newAvatarUrl });
-    toast({
-      title: "Profile Updated",
-      description: "Your changes have been saved locally.",
-    });
-    setIsSheetOpen(false);
+    if (!currentUser) return;
+
+    try {
+      // In a real app, you would upload the newAvatarUrl (if it's a file) to Firebase Storage
+      // and get a downloadable URL. For this simulation, we'll use the base64 data URL directly.
+      await updateProfile(currentUser, {
+        displayName: name,
+        // photoURL should be the public URL from storage. We use the local one for simulation.
+        ...(newAvatarUrl && { photoURL: newAvatarUrl }),
+      });
+
+      // Update the user state in our AuthContext to reflect changes immediately
+      updateUser({
+        displayName: name,
+        ...(newAvatarUrl && { photoURL: newAvatarUrl }),
+      });
+
+      toast({
+        title: "Profile Updated",
+        description: "Your changes have been saved.",
+      });
+    } catch (error) {
+      toast({
+        title: "Update Failed",
+        description: "Could not save your profile changes.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSheetOpen(false);
+    }
   };
+
 
   if (loading || !displayUser) {
     return (
