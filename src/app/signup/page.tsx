@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -44,11 +44,14 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const redirectUrl = searchParams.get('redirect');
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +67,7 @@ export default function SignupPage() {
         title: 'Account Created',
         description: "You've been successfully signed up.",
       });
-      router.push('/profile');
+      router.push(redirectUrl || '/');
     } catch (error: any) {
       toast({
         title: 'Sign Up Failed',
@@ -132,7 +135,7 @@ export default function SignupPage() {
           </form>
           <div className="mt-4 text-center text-sm">
             Already have an account?{' '}
-            <Link href="/login" className="underline">
+            <Link href={redirectUrl ? `/login?redirect=${encodeURIComponent(redirectUrl)}` : "/login"} className="underline">
               Login
             </Link>
           </div>

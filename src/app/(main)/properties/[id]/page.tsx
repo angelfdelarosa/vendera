@@ -1,6 +1,6 @@
 'use client';
 
-import { notFound, useRouter } from 'next/navigation';
+import { notFound, useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { properties, mockUsers } from '@/lib/mock-data';
@@ -29,6 +29,7 @@ export default function PropertyDetailPage({
 }) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const property = properties.find((p) => p.id === params.id);
 
   if (!property) {
@@ -47,7 +48,11 @@ export default function PropertyDetailPage({
     );
   }
   
-  const UnauthenticatedView = () => (
+  const UnauthenticatedView = () => {
+    const loginUrl = `/login?redirect=${encodeURIComponent(pathname)}`;
+    const signupUrl = `/signup?redirect=${encodeURIComponent(pathname)}`;
+
+    return (
      <div className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
@@ -90,12 +95,12 @@ export default function PropertyDetailPage({
                    </p>
                    <div className="flex flex-col gap-4">
                      <Button size="lg" asChild>
-                       <Link href="/signup">
+                       <Link href={signupUrl}>
                          Create Account <ArrowRight className="ml-2" />
                        </Link>
                      </Button>
                      <Button size="lg" variant="outline" asChild>
-                       <Link href="/login">Login</Link>
+                       <Link href={loginUrl}>Login</Link>
                      </Button>
                    </div>
                 </CardContent>
@@ -103,7 +108,8 @@ export default function PropertyDetailPage({
            </div>
         </div>
      </div>
-  );
+    );
+  };
 
   return user ? (
     <div className="container mx-auto px-4 py-8">
