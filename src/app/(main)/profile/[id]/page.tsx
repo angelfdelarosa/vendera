@@ -167,6 +167,9 @@ export default function ProfilePage() {
                     </Avatar>
                   </DialogTrigger>
                   <DialogContent className="p-0 border-0 bg-transparent shadow-none max-w-2xl">
+                     <DialogHeader>
+                      <DialogTitle className="sr-only">{displayUser.name}'s Profile Picture</DialogTitle>
+                    </DialogHeader>
                      <Image 
                         src={displayUser.avatar} 
                         alt="User avatar enlarged"
