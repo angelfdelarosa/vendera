@@ -19,7 +19,8 @@ import { useFavorites } from "@/context/FavoritesContext";
 
 export default function ProfilePage() {
   // Mock data for demonstration
-  const userProperties = properties.slice(0, 1); // Show only one property
+  const featuredProperty = properties[0]; 
+  const moreProperties = properties.slice(1, 4);
   const { favorites } = useFavorites();
 
   return (
@@ -69,17 +70,15 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        {/* My Properties Section */}
+        {/* Featured Property Section */}
         <section>
           <h2 className="text-2xl font-headline font-semibold text-primary mb-4">
             Featured Property
           </h2>
-          {userProperties.length > 0 ? (
+          {featuredProperty ? (
             <div className="flex justify-center">
               <div className="w-full md:w-5/6 lg:w-3/4">
-                {userProperties.map((property) => (
-                  <PropertyCard key={property.id} property={property} />
-                ))}
+                <PropertyCard property={featuredProperty} />
               </div>
             </div>
           ) : (
@@ -91,6 +90,20 @@ export default function ProfilePage() {
             </div>
           )}
         </section>
+
+        {/* More Properties Section */}
+        {moreProperties.length > 0 && (
+          <section>
+            <h2 className="text-2xl font-headline font-semibold text-primary mb-4">
+              More Properties
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {moreProperties.map((property) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))}
+            </div>
+          </section>
+        )}
 
         {/* Saved Properties Section */}
         <section>
