@@ -157,13 +157,16 @@ export default function ProfilePage() {
     if (!currentUser) return;
 
     try {
-      // In a real app, you would upload the newAvatarUrl (if it's a file) to Firebase Storage
-      // and get a downloadable URL. For this simulation, we'll use the base64 data URL directly.
-      await updateProfile(currentUser, {
+      // In a real app, you would upload the newAvatarUrl to Firebase Storage,
+      // get a downloadable URL, and save that. Base64 data URLs are too long for Firebase Auth.
+      const profileUpdates: { displayName?: string; photoURL?: string } = {
         displayName: name,
-        // photoURL should be the public URL from storage. We use the local one for simulation.
-        ...(newAvatarUrl && { photoURL: newAvatarUrl }),
-      });
+      };
+      if (newAvatarUrl && !newAvatarUrl.startsWith('data:')) {
+        profileUpdates.photoURL = newAvatarUrl;
+      }
+      
+      await updateProfile(currentUser, profileUpdates);
 
       // Update the user state in our AuthContext to reflect changes immediately
       updateUser({
@@ -176,6 +179,7 @@ export default function ProfilePage() {
         description: "Your changes have been saved.",
       });
     } catch (error) {
+      console.error("Profile update error:", error);
       toast({
         title: "Update Failed",
         description: "Could not save your profile changes.",
