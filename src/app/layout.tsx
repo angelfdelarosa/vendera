@@ -26,10 +26,7 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <LanguageProvider>
           <FavoritesProvider>
-            <div className="flex flex-col min-h-screen">
-              <Header />
-              <main className="flex-grow">{children}</main>
-            </div>
+            {children}
             <Toaster />
           </FavoritesProvider>
         </LanguageProvider>

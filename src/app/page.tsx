@@ -40,7 +40,7 @@ export default function Home() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <>
       <section className="text-center bg-card shadow-md rounded-xl p-8 md:p-12 mb-12">
         <h1 className="font-headline text-4xl md:text-6xl font-bold text-primary mb-4">
           {t('home.title')}
@@ -71,6 +71,6 @@ export default function Home() {
           </div>
         )}
       </section>
-    </div>
+    </>
   );
 }
