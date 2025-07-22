@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -85,7 +86,7 @@ export function PropertySearchFilters({
                   <SelectItem value="all">{t('search.allTypes')}</SelectItem>
                   {propertyTypes.map((pt) => (
                     <SelectItem key={pt} value={pt}>
-                      {pt}
+                      {t(`property.types.${pt}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -45,7 +45,7 @@ export default function NewPropertyPage() {
     price: 3500000,
     location: "Beverly Hills",
     address: "123 Rodeo Drive, Beverly Hills, CA",
-    propertyType: "Villa" as Property["type"],
+    propertyType: "villa" as Property["type"],
     numBedrooms: 4,
     numBathrooms: 3,
     area: 600,
@@ -106,7 +106,7 @@ export default function NewPropertyPage() {
     setIsGenerating(true);
     try {
       const result = await generatePropertyDescription({
-        propertyType: formData.propertyType,
+        propertyType: t(`property.types.${formData.propertyType}`),
         location: formData.location,
         numBedrooms: formData.numBedrooms,
         numBathrooms: formData.numBathrooms,
@@ -242,10 +242,10 @@ export default function NewPropertyPage() {
                   <SelectValue placeholder={t('newProperty.form.type_placeholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="House">{t('property.types.house')}</SelectItem>
-                  <SelectItem value="Apartment">{t('property.types.apartment')}</SelectItem>
-                  <SelectItem value="Condo">{t('property.types.condo')}</SelectItem>
-                  <SelectItem value="Villa">{t('property.types.villa')}</SelectItem>
+                  <SelectItem value="house">{t('property.types.house')}</SelectItem>
+                  <SelectItem value="apartment">{t('property.types.apartment')}</SelectItem>
+                  <SelectItem value="condo">{t('property.types.condo')}</SelectItem>
+                  <SelectItem value="villa">{t('property.types.villa')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

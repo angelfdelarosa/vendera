@@ -113,7 +113,7 @@ export default function PropertyDetailPage() {
           <Card>
             <CardHeader>
               <Badge variant="secondary" className="w-fit mb-2">
-                {property.type}
+                {t(`property.types.${property.type}`)}
               </Badge>
               <CardTitle className="font-headline text-3xl font-bold text-primary">
                 {t(property.title)}
@@ -214,7 +214,7 @@ export default function PropertyDetailPage() {
             </div>
             <div className="bg-secondary/50 p-4 rounded-lg">
               <Building className="mx-auto mb-2 h-8 w-8 text-primary" />
-              <p className="font-semibold">{property.type}</p>
+              <p className="font-semibold">{t(`property.types.${property.type}`)}</p>
             </div>
           </div>
 

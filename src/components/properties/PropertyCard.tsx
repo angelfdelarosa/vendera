@@ -39,7 +39,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
             />
           </CardHeader>
           <CardContent className="p-4 flex-grow">
-            <Badge variant="secondary">{property.type}</Badge>
+            <Badge variant="secondary">{t(`property.types.${property.type}`)}</Badge>
             <CardTitle className="text-lg font-headline font-semibold mb-2 leading-tight group-hover:text-accent transition-colors">
               {t(property.title)}
             </CardTitle>
