@@ -205,6 +205,70 @@
     "why3_title": "Experiencia Simplificada",
     "why3_text": "Nuestra plataforma fácil de usar hace que encontrar, comprar y vender propiedades sea más sencillo que nunca."
   },
+  "contact": {
+    "title": "Ponte en Contacto",
+    "subtitle": "¿Tienes alguna pregunta o comentario? Usa el formulario a continuación para enviarnos un mensaje, o contáctanos por correo electrónico o teléfono.",
+    "form": {
+      "title": "Envíanos un Mensaje",
+      "name": "Nombre Completo",
+      "name_placeholder": "Tu Nombre",
+      "email": "Correo Electrónico",
+      "email_placeholder": "tu.email@ejemplo.com",
+      "message": "Mensaje",
+      "message_placeholder": "Escribe tu mensaje aquí...",
+      "submit": "Enviar Mensaje",
+      "validation": {
+        "name": "Por favor, introduce tu nombre.",
+        "email": "Por favor, introduce una dirección de correo válida.",
+        "message": "El mensaje debe tener al menos 10 caracteres."
+      }
+    },
+    "info": {
+      "title": "Información de Contacto",
+      "address_title": "Nuestra Oficina",
+      "address": "Avenida VENDRA 123, Oficina 500, Ciudad Inmobiliaria, 90210",
+      "phone_title": "Teléfono",
+      "phone": "(123) 456-7890",
+      "email_title": "Correo Electrónico",
+      "email": "soporte@vendra.com"
+    },
+    "toast": {
+      "success": {
+        "title": "¡Mensaje Enviado!",
+        "description": "Gracias por contactarnos. Te responderemos en breve."
+      }
+    }
+  },
+  "terms": {
+    "title": "Términos y Condiciones",
+    "subtitle": "Por favor, lee estos términos y condiciones cuidadosamente antes de usar Nuestro Servicio.",
+    "lastUpdated": "Última actualización: {date}",
+    "locale_code": "es-ES",
+    "section1": {
+      "title": "1. Introducción",
+      "content": "Bienvenido a VENDRA. Estos Términos y Condiciones rigen tu uso de nuestro sitio web y servicios. Al acceder o utilizar el servicio, aceptas estar sujeto a estos Términos. Si no estás de acuerdo con alguna parte de los términos, no podrás acceder al servicio."
+    },
+    "section2": {
+      "title": "2. Cuentas de Usuario",
+      "content": "Cuando creas una cuenta con nosotros, debes proporcionarnos información que sea precisa, completa y actualizada en todo momento. No hacerlo constituye una violación de los Términos, lo que puede resultar en la terminación inmediata de tu cuenta en nuestro Servicio."
+    },
+    "section3": {
+      "title": "3. Listados de Propiedades",
+      "content": "VENDRA permite a los usuarios publicar listados de propiedades. Eres responsable de la exactitud y legalidad del contenido que publicas. Nos reservamos el derecho de eliminar cualquier listado que viole nuestras políticas o se considere inapropiado, a nuestra entera discreción."
+    },
+    "section4": {
+      "title": "4. Propiedad Intelectual",
+      "content": "El Servicio y su contenido original, características y funcionalidades son y seguirán siendo propiedad exclusiva de VENDRA y sus licenciantes. El Servicio está protegido por derechos de autor, marcas registradas y otras leyes tanto de los Estados Unidos como de otros países."
+    },
+    "section5": {
+      "title": "5. Limitación de Responsabilidad",
+      "content": "En ningún caso VENDRA, ni sus directores, empleados, socios, agentes, proveedores o afiliados, serán responsables por daños indirectos, incidentales, especiales, consecuentes o punitivos, incluyendo, sin limitación, pérdida de beneficios, datos, uso, buena voluntad u otras pérdidas intangibles."
+    },
+    "section6": {
+      "title": "6. Ley Aplicable",
+      "content": "Estos Términos se regirán e interpretarán de acuerdo con las leyes del Estado de California, Estados Unidos, sin tener en cuenta sus disposiciones sobre conflicto de leyes."
+    }
+  },
   "mock": {
     "property1_title": "Lujosa Villa en Beverly Hills",
     "property1_description": "Una impresionante villa que ofrece lujo y privacidad incomparables. Cuenta con una gran escalera, cocina gourmet y una piscina infinita impresionante con vistas a la ciudad. Perfecta para quienes exigen lo mejor de la vida.",

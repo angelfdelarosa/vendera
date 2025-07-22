@@ -205,6 +205,70 @@
     "why3_title": "Simplified Experience",
     "why3_text": "Our user-friendly platform makes finding, buying, and selling properties easier than ever before."
   },
+  "contact": {
+    "title": "Get In Touch",
+    "subtitle": "Have a question or a comment? Use the form below to send us a message, or contact us by email or phone.",
+    "form": {
+      "title": "Send us a Message",
+      "name": "Full Name",
+      "name_placeholder": "Your Name",
+      "email": "Email Address",
+      "email_placeholder": "your.email@example.com",
+      "message": "Message",
+      "message_placeholder": "Type your message here...",
+      "submit": "Send Message",
+      "validation": {
+        "name": "Please enter your name.",
+        "email": "Please enter a valid email address.",
+        "message": "Message must be at least 10 characters long."
+      }
+    },
+    "info": {
+      "title": "Contact Information",
+      "address_title": "Our Office",
+      "address": "123 VENDRA Avenue, Suite 500, Real Estate City, 90210",
+      "phone_title": "Phone",
+      "phone": "(123) 456-7890",
+      "email_title": "Email",
+      "email": "support@vendra.com"
+    },
+    "toast": {
+      "success": {
+        "title": "Message Sent!",
+        "description": "Thank you for contacting us. We'll get back to you shortly."
+      }
+    }
+  },
+  "terms": {
+    "title": "Terms and Conditions",
+    "subtitle": "Please read these terms and conditions carefully before using Our Service.",
+    "lastUpdated": "Last updated: {date}",
+    "locale_code": "en-US",
+    "section1": {
+      "title": "1. Introduction",
+      "content": "Welcome to VENDRA. These Terms and Conditions govern your use of our website and services. By accessing or using the service, you agree to be bound by these Terms. If you disagree with any part of the terms, then you may not access the service."
+    },
+    "section2": {
+      "title": "2. User Accounts",
+      "content": "When you create an account with us, you must provide us with information that is accurate, complete, and current at all times. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account on our Service."
+    },
+    "section3": {
+      "title": "3. Property Listings",
+      "content": "VENDRA allows users to post property listings. You are responsible for the accuracy and legality of the content you post. We reserve the right to remove any listing that violates our policies or is deemed inappropriate, at our sole discretion."
+    },
+    "section4": {
+      "title": "4. Intellectual Property",
+      "content": "The Service and its original content, features, and functionality are and will remain the exclusive property of VENDRA and its licensors. The Service is protected by copyright, trademark, and other laws of both the United States and foreign countries."
+    },
+    "section5": {
+      "title": "5. Limitation of Liability",
+      "content": "In no event shall VENDRA, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses."
+    },
+    "section6": {
+      "title": "6. Governing Law",
+      "content": "These Terms shall be governed and construed in accordance with the laws of the State of California, United States, without regard to its conflict of law provisions."
+    }
+  },
   "mock": {
     "property1_title": "Luxurious Villa in Beverly Hills",
     "property1_description": "A stunning villa offering unparalleled luxury and privacy. Features a grand staircase, gourmet kitchen, and a breathtaking infinity pool with city views. Perfect for those who demand the very best in life.",
