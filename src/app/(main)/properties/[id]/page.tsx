@@ -93,7 +93,7 @@ export default function PropertyDetailPage() {
                     <CarouselItem key={index}>
                       <Image
                         src={src}
-                        alt={`${property.title} image ${index + 1}`}
+                        alt={`${t(property.title)} image ${index + 1}`}
                         width={800}
                         height={500}
                         className="w-full h-[500px] object-cover"
@@ -116,7 +116,7 @@ export default function PropertyDetailPage() {
                 {property.type}
               </Badge>
               <CardTitle className="font-headline text-3xl font-bold text-primary">
-                {property.title}
+                {t(property.title)}
               </CardTitle>
               <p className="flex items-center text-muted-foreground pt-2">
                 <MapPin className="w-4 h-4 mr-2" />
@@ -178,7 +178,7 @@ export default function PropertyDetailPage() {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px] h-3/4 flex flex-col">
                   <DialogHeader>
-                    <DialogTitle>{t('chat.titleProperty', { title: property.title })}</DialogTitle>
+                    <DialogTitle>{t('chat.titleProperty', { title: t(property.title) })}</DialogTitle>
                   </DialogHeader>
                    <ChatWindow
                       conversation={conversation}
@@ -225,7 +225,7 @@ export default function PropertyDetailPage() {
               {t('property.description')}
             </h3>
             <p className="text-muted-foreground leading-relaxed">
-              {property.description}
+              {t(property.description)}
             </p>
           </div>
 

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -11,14 +12,14 @@ import { Globe } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 export function LanguageSwitcher() {
-  const { setLocale } = useTranslation();
+  const { setLocale, t } = useTranslation();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
           <Globe className="h-[1.2rem] w-[1.2rem]" />
-          <span className="sr-only">Cambiar idioma</span>
+          <span className="sr-only">{t('languageSwitcher.label')}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

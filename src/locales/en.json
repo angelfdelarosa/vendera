@@ -73,6 +73,10 @@
     "select": {
         "title": "Select a conversation",
         "description": "Choose a conversation from the list to see the messages."
+    },
+    "timestamp": {
+      "minutes": "{count}m ago",
+      "hours": "{count}h ago"
     }
   },
   "chat": {
@@ -130,6 +134,9 @@
     "details": "Property Details",
     "bedrooms": "Bedrooms",
     "bathrooms": "Bathrooms",
+    "beds": "beds",
+    "baths": "baths",
+    "sqft": "sqft",
     "description": "Description",
     "features": "Features",
     "similar": "Similar Properties",
@@ -178,5 +185,30 @@
   },
   "userCard": {
       "viewProfile": "View Profile"
+  },
+  "languageSwitcher": {
+      "label": "Change language"
+  },
+  "mock": {
+      "property1_title": "Luxurious Villa in Beverly Hills",
+      "property1_description": "A stunning villa offering unparalleled luxury and privacy. Features a grand staircase, gourmet kitchen, and a breathtaking infinity pool with city views. Perfect for those who demand the very best in life.",
+      "property2_title": "Modern Downtown LA Apartment",
+      "property2_description": "Sleek, stylish, and modern apartment in the heart of downtown LA. Floor-to-ceiling windows offer incredible skyline views. Amenities include a rooftop lounge, fitness center, and 24/7 concierge.",
+      "property3_title": "Cozy Family Home in Santa Monica",
+      "property3_description": "Charming family home just blocks from the beach. This house boasts a beautiful backyard with a garden, a spacious living room with a fireplace, and a recently renovated kitchen. Ideal for family living.",
+      "property4_title": "Chic West Hollywood Condo",
+      "property4_description": "A trendy condo in a vibrant neighborhood, perfect for a young professional. Open-concept design with modern finishes and a private balcony. The building offers a pool, gym, and secure parking.",
+      "property5_title": "Sprawling Malibu Estate",
+      "property5_description": "An exquisite beachfront estate with private beach access. This designer masterpiece features panoramic ocean views from every room, a state-of-the-art home theater, and a tennis court.",
+      "property6_title": "Quaint Pasadena Craftsman",
+      "property6_description": "A beautiful craftsman-style home on a quiet, tree-lined street in Pasadena. Features original woodwork, a large front porch, and a serene backyard perfect for relaxing.",
+      "property7_title": "Penthouse with Panoramic Views",
+      "property7_description": "Live at the top of the world in this exclusive penthouse. Offering 360-degree views of the city, this residence is the epitome of urban luxury. Includes a private elevator, rooftop terrace, and premium services.",
+      "property8_title": "Beachfront Santa Monica Condo",
+      "property8_description": "Wake up to the sound of the waves in this luxurious beachfront condo. Direct access to the sand, a modern open-plan living area, and a large balcony to enjoy the sunset. A rare opportunity in a prime location.",
+      "user1_bio": "Top-tier real estate agent with over 15 years of experience in the luxury market. Let me help you find your dream home.",
+      "user2_bio": "Specializing in downtown residential and commercial properties. Let's find your next investment.",
+      "user3_bio": "Your go-to Santa Monica real estate expert. I live and breathe coastal properties.",
+      "user4_bio": "Connecting clients with the vibrant West Hollywood lifestyle. Your dream condo awaits."
   }
 }

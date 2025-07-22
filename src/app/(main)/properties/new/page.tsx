@@ -32,19 +32,6 @@ import type { Property } from "@/types";
 import Image from "next/image";
 import { useTranslation } from "@/hooks/useTranslation";
 
-const initialFormData = {
-  title: "Lujosa Villa en Beverly Hills",
-  price: 3500000,
-  location: "Beverly Hills",
-  address: "123 Rodeo Drive, Beverly Hills, CA",
-  propertyType: "Villa" as Property["type"],
-  numBedrooms: 4,
-  numBathrooms: 3,
-  area: 600,
-  amenities: "Piscina, Garaje",
-  uniqueFeatures: "Vista al mar, arquitectura moderna",
-  description: "",
-};
 
 export default function NewPropertyPage() {
   const { user, loading } = useAuth();
@@ -53,6 +40,20 @@ export default function NewPropertyPage() {
   const addProperty = usePropertyStore((state) => state.addProperty);
   const { t, locale } = useTranslation();
 
+  const initialFormData = {
+    title: t("mock.property1_title"),
+    price: 3500000,
+    location: "Beverly Hills",
+    address: "123 Rodeo Drive, Beverly Hills, CA",
+    propertyType: "Villa" as Property["type"],
+    numBedrooms: 4,
+    numBathrooms: 3,
+    area: 600,
+    amenities: t("newProperty.form.amenities_placeholder"),
+    uniqueFeatures: t("newProperty.form.features_placeholder"),
+    description: "",
+  };
+  
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState(initialFormData);

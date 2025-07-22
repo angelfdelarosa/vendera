@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -29,7 +30,7 @@ export function UserCard({ user }: UserCardProps) {
       </CardHeader>
       <CardContent className="p-6 pt-0 flex-grow flex flex-col">
         <p className="text-muted-foreground text-sm text-center flex-grow">
-          {user.bio}
+          {t(user.bio)}
         </p>
         <div className="flex items-center justify-center gap-2 mt-4 text-amber-500">
           {[...Array(5)].map((_, i) => (

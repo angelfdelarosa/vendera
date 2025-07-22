@@ -26,6 +26,17 @@ export default function MessagesPage() {
     }
   }, [user, loading, router]);
 
+  const getTimestamp = (convo: Conversation) => {
+    if (convo.timestamp.includes('m ago') || convo.timestamp.includes('hace')) {
+      return convo.timestamp;
+    }
+    const isMinutes = Math.random() > 0.5;
+    if (isMinutes) {
+      return t('messages.timestamp.minutes', { count: convo.timestamp });
+    }
+    return t('messages.timestamp.hours', { count: convo.timestamp });
+  }
+
   if (loading || !user) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
@@ -87,10 +98,10 @@ export default function MessagesPage() {
                     <Link href={`/profile/${convo.user.id}`} onClick={(e) => e.stopPropagation()}>
                         <p className="font-semibold text-sm truncate hover:underline">{convo.user.name}</p>
                     </Link>
-                     <p className="text-xs text-muted-foreground flex-shrink-0">{convo.timestamp}</p>
+                     <p className="text-xs text-muted-foreground flex-shrink-0">{getTimestamp(convo)}</p>
                    </div>
                     <p className="text-xs text-muted-foreground truncate">
-                        {t('messages.re')} {convo.property.title}
+                        {t('messages.re')} {t(convo.property.title)}
                     </p>
                    <p className="text-sm text-muted-foreground truncate">{convo.messages[convo.messages.length - 1]?.text}</p>
                 </div>

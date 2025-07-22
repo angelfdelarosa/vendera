@@ -77,12 +77,12 @@ export default function ProfilePage() {
   useEffect(() => {
     if (displayUser && isSheetOpen) {
       setName(displayUser.name);
-      setBio(displayUser.bio);
+      setBio(t(displayUser.bio));
     }
     if (!isSheetOpen) {
         setNewAvatarUrl(null);
     }
-  }, [displayUser, isSheetOpen]);
+  }, [displayUser, isSheetOpen, t]);
   
   const conversation = getConversationByUserId(profileId) ||
    (displayUser && displayUser.properties.length > 0
@@ -184,7 +184,7 @@ export default function ProfilePage() {
                   {displayUser.name}
                 </h1>
                 <p className="text-muted-foreground mt-2 max-w-md">
-                  {displayUser.bio}
+                  {t(displayUser.bio)}
                 </p>
                 <div className="flex items-center gap-2 mt-4">
                   <div className="flex items-center text-amber-500">
