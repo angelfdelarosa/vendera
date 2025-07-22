@@ -14,11 +14,17 @@ export const useTranslation = () => {
     throw new Error('useTranslation must be used within a LanguageProvider');
   }
 
-  const { translations } = context;
+  const { translations, locale, setLocale } = context;
 
-  const t = (key: string): string => {
-    return getNestedTranslation(translations, key) || key;
+  const t = (key: string, params?: Record<string, string | number>): string => {
+    let translation = getNestedTranslation(translations, key) || key;
+    if (params) {
+      Object.keys(params).forEach(paramKey => {
+        translation = translation.replace(`{${paramKey}}`, String(params[paramKey]));
+      });
+    }
+    return translation;
   };
 
-  return { t, locale: context.locale, setLocale: context.setLocale };
+  return { t, locale, setLocale };
 };

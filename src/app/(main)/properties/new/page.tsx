@@ -51,7 +51,7 @@ export default function NewPropertyPage() {
   const router = useRouter();
   const { toast } = useToast();
   const addProperty = usePropertyStore((state) => state.addProperty);
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -111,6 +111,7 @@ export default function NewPropertyPage() {
         numBathrooms: formData.numBathrooms,
         amenities: formData.amenities,
         uniqueFeatures: formData.uniqueFeatures,
+        locale: locale,
       });
       setFormData((prev) => ({ ...prev, description: result.description }));
       toast({
@@ -240,10 +241,10 @@ export default function NewPropertyPage() {
                   <SelectValue placeholder={t('newProperty.form.type_placeholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="House">Casa</SelectItem>
-                  <SelectItem value="Apartment">Apartamento</SelectItem>
-                  <SelectItem value="Condo">Condominio</SelectItem>
-                  <SelectItem value="Villa">Villa</SelectItem>
+                  <SelectItem value="House">{t('property.types.house')}</SelectItem>
+                  <SelectItem value="Apartment">{t('property.types.apartment')}</SelectItem>
+                  <SelectItem value="Condo">{t('property.types.condo')}</SelectItem>
+                  <SelectItem value="Villa">{t('property.types.villa')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

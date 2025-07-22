@@ -132,7 +132,13 @@
     "bathrooms": "Bathrooms",
     "description": "Description",
     "features": "Features",
-    "similar": "Similar Properties"
+    "similar": "Similar Properties",
+    "types": {
+        "house": "House",
+        "apartment": "Apartment",
+        "condo": "Condo",
+        "villa": "Villa"
+    }
   },
   "newProperty": {
     "title": "List a New Property",

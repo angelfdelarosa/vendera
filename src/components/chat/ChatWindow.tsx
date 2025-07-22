@@ -25,7 +25,7 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
     messages: state.conversations.find((c) => c.id === conversation.id)?.messages || [],
     addMessage: state.addMessage,
   }));
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -71,6 +71,7 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
             sellerName: conversation.user.name,
             propertyName: conversation.property.title,
             messageHistory: messageHistory,
+            locale: locale,
         });
 
         const sellerResponse: Message = {
