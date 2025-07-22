@@ -33,18 +33,18 @@ export function Footer() {
                         <h3 className="font-semibold text-primary mb-3">VENDRA</h3>
                          <nav className="space-y-2 text-sm">
                             <Link href="/about" className="block text-muted-foreground hover:text-accent">
-                                About Us
+                                {t('footer.about')}
                             </Link>
                              <Link href="/contact" className="block text-muted-foreground hover:text-accent">
-                                Contact
+                                {t('footer.contact')}
                             </Link>
                              <Link href="/terms" className="block text-muted-foreground hover:text-accent">
-                                Terms of Service
+                                {t('footer.terms')}
                             </Link>
                         </nav>
                     </div>
                     <div>
-                        <h3 className="font-semibold text-primary mb-3">Follow Us</h3>
+                        <h3 className="font-semibold text-primary mb-3">{t('footer.follow')}</h3>
                         <div className="flex space-x-4">
                             <Link href="#" className="text-muted-foreground hover:text-accent">
                                 <Facebook className="h-5 w-5" />
@@ -59,7 +59,7 @@ export function Footer() {
                     </div>
                 </div>
                 <div className="mt-8 border-t pt-6 text-center text-sm text-muted-foreground">
-                    <p>&copy; {new Date().getFullYear()} VENDRA. All rights reserved.</p>
+                    <p>{t('footer.copyright', { year: new Date().getFullYear() })}</p>
                 </div>
             </div>
         </footer>

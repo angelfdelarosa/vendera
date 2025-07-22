@@ -8,11 +8,13 @@ import { PropertyCard } from '@/components/properties/PropertyCard';
 import { Heart, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function FavoritesPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const { favorites } = useFavorites();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -32,10 +34,10 @@ export default function FavoritesPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="font-headline text-4xl font-bold text-primary mb-2">
-          Your Favorite Properties
+          {t('favorites.title')}
         </h1>
         <p className="text-lg text-muted-foreground">
-          Here are the listings you've saved for later.
+          {t('favorites.subtitle')}
         </p>
       </div>
 
@@ -49,13 +51,13 @@ export default function FavoritesPage() {
         <div className="text-center py-24 bg-card rounded-xl border border-dashed flex flex-col items-center">
           <Heart className="w-16 h-16 text-muted-foreground/50 mb-4" />
           <h2 className="text-2xl font-semibold mb-2 text-primary">
-            No Favorites Yet
+            {t('favorites.empty.title')}
           </h2>
           <p className="text-muted-foreground mb-6">
-            Click the heart icon on any property to save it here.
+            {t('favorites.empty.description')}
           </p>
           <Button asChild>
-            <Link href="/">Browse Properties</Link>
+            <Link href="/">{t('favorites.empty.button')}</Link>
           </Button>
         </div>
       )}

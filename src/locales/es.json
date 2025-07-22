@@ -6,10 +6,10 @@
     "addProperty": "Añadir Propiedad"
   },
   "home": {
-    "title": "Vende rápido. Compra feliz",
-    "subtitle": "Descubre una cuidada selección de las mejores propiedades. Donde empiezan tus raíces.",
+    "title": "Vende rápido. Compra feliz.",
+    "subtitle": "Descubre una cuidada selección de las mejores propiedades. Tu nuevo comienzo te espera.",
     "featuredListings": "Listados Destacados",
-    "noProperties": "No hay propiedades que coincidan con tus filtros actuales."
+    "noProperties": "Ninguna propiedad coincide con tus filtros actuales."
   },
   "search": {
     "location": "Ubicación",
@@ -17,6 +17,160 @@
     "propertyType": "Tipo de Propiedad",
     "allTypes": "Todos los Tipos",
     "priceRange": "Rango de Precios",
-    "button": "Buscar"
+    "button": "Buscar",
+    "placeholder": {
+        "users": "Buscar usuarios por nombre...",
+        "properties": "Buscar propiedades..."
+    },
+    "enterQuery": "Por favor, introduce un nombre para buscar.",
+    "resultsTitle": "Resultados de Búsqueda",
+    "resultsFor": "Mostrando resultados para:",
+    "noUsersFound": "No se encontraron usuarios",
+    "noUsersMatch": "Ningún usuario coincide con tu búsqueda. Intenta con un nombre diferente."
+  },
+  "footer": {
+    "about": "Sobre Nosotros",
+    "contact": "Contacto",
+    "terms": "Términos de Servicio",
+    "follow": "Síguenos",
+    "copyright": "© {year} VENDRA. Todos los derechos reservados."
+  },
+  "userNav": {
+    "avatarAlt": "Avatar del usuario",
+    "profile": "Perfil"
+  },
+  "favorites": {
+    "title": "Tus Propiedades Favoritas",
+    "subtitle": "Aquí están los listados que has guardado para más tarde.",
+    "add": "Añadir a favoritos",
+    "remove": "Quitar de favoritos",
+    "empty": {
+      "title": "Aún no tienes favoritos",
+      "description": "Haz clic en el icono del corazón en cualquier propiedad para guardarla aquí.",
+      "button": "Explorar Propiedades"
+    },
+    "toast": {
+      "added": {
+        "title": "Añadido a Favoritos",
+        "description": "\"{title}\" ha sido guardado."
+      },
+      "removed": {
+        "title": "Eliminado de Favoritos",
+        "description": "\"{title}\" ha sido eliminado."
+      }
+    }
+  },
+  "messages": {
+    "title": "Tus Conversaciones",
+    "subtitle": "Gestiona tus mensajes con los vendedores.",
+    "allMessages": "Todos los Mensajes",
+    "re": "Re:",
+    "empty": {
+      "title": "Aún no hay conversaciones",
+      "description": "Cuando contactes a un vendedor, tus conversaciones aparecerán aquí.",
+      "button": "Explorar Propiedades"
+    },
+    "select": {
+        "title": "Selecciona una conversación",
+        "description": "Elige una conversación de la lista para ver los mensajes."
+    }
+  },
+  "chat": {
+    "title": "Chatear con",
+    "titleProperty": "Chatear sobre \"{title}\"",
+    "potentialBuyer": "Comprador Potencial",
+    "error": "Lo siento, estoy teniendo problemas para conectarme ahora mismo. Por favor, inténtalo de nuevo más tarde.",
+    "placeholder": "Escribe tu mensaje..."
+  },
+  "notifications": {
+    "open": "Abrir mensajes",
+    "inbox": "Bandeja de entrada",
+    "noMessages": "No hay mensajes nuevos.",
+    "viewAll": "Ver todos los mensajes"
+  },
+  "profile": {
+    "sellerBadge": "Vendedor",
+    "ratings": "valoraciones",
+    "avatarAlt": "Foto de perfil de {name}",
+    "contactSeller": "Contactar al Vendedor",
+    "tabs": {
+        "listed": "Propiedades Listadas",
+        "saved": "Propiedades Guardadas"
+    },
+    "empty": {
+        "listed": {
+            "own": "Aún no has listado ninguna propiedad.",
+            "other": "{name} aún no ha listado ninguna propiedad."
+        },
+        "saved": {
+            "description": "Aún no has guardado ninguna propiedad.",
+            "button": "Explorar Propiedades"
+        }
+    },
+    "edit": {
+        "title": "Editar Perfil",
+        "description": "Realiza cambios en tu perfil aquí. Haz clic en guardar cuando hayas terminado.",
+        "name": "Nombre Completo",
+        "save": "Guardar cambios",
+        "toast": {
+            "success": {
+                "title": "Perfil Actualizado",
+                "description": "Tus cambios han sido guardados."
+            },
+            "error": {
+                "title": "Error al Actualizar",
+                "description": "No se pudieron guardar los cambios de tu perfil."
+            }
+        }
+    }
+  },
+  "property": {
+    "realtorInfo": "Información del Agente",
+    "certifiedRealtor": "Agente Certificado",
+    "details": "Detalles de la Propiedad",
+    "bedrooms": "Dormitorios",
+    "bathrooms": "Baños",
+    "description": "Descripción",
+    "features": "Características",
+    "similar": "Propiedades Similares"
+  },
+  "newProperty": {
+    "title": "Listar una Nueva Propiedad",
+    "subtitle": "Rellena los detalles a continuación para poner tu propiedad en el mercado.",
+    "form": {
+        "title": "Título de la Propiedad",
+        "title_placeholder": "Ej: Lujosa Villa en Beverly Hills",
+        "price": "Precio (USD)",
+        "location": "Ubicación",
+        "address": "Dirección Completa",
+        "type_placeholder": "Selecciona un tipo",
+        "bedrooms": "Dormitorios",
+        "bathrooms": "Baños",
+        "area": "Área (m²)",
+        "amenities": "Comodidades",
+        "amenities_placeholder": "Ej: Piscina, Garaje",
+        "amenities_note": "Lista separada por comas.",
+        "features": "Características Únicas",
+        "features_placeholder": "Ej: Vista al mar, arquitectura moderna",
+        "generating": "Generando...",
+        "generate_ai": "Generar con IA",
+        "description_placeholder": "Describe la propiedad...",
+        "photos": "Fotos de la Propiedad",
+        "submit": "Listar Propiedad"
+    },
+    "toast": {
+        "generated": {
+            "title": "¡Descripción Generada!",
+            "description": "La descripción generada por IA ha sido añadida."
+        },
+        "listed": {
+            "title": "¡Propiedad Listada!",
+            "description": "Tu propiedad ya está en el mercado."
+        },
+        "error": "No se pudo generar la descripción."
+    }
+  },
+  "userCard": {
+      "viewProfile": "Ver Perfil"
   }
 }

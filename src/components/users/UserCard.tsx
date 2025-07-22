@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import type { UserProfile } from '@/types';
 import { Button } from '../ui/button';
 import { ArrowRight, Star } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface UserCardProps {
   user: UserProfile;
@@ -12,6 +13,7 @@ interface UserCardProps {
 
 export function UserCard({ user }: UserCardProps) {
   const userInitial = user.name.charAt(0).toUpperCase();
+  const { t } = useTranslation();
 
   return (
     <Card className="flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
@@ -22,7 +24,7 @@ export function UserCard({ user }: UserCardProps) {
         </Avatar>
         <h3 className="font-headline text-xl font-bold text-primary">{user.name}</h3>
         {user.isVerifiedSeller && (
-          <Badge variant="secondary" className="mt-1">Seller</Badge>
+          <Badge variant="secondary" className="mt-1">{t('profile.sellerBadge')}</Badge>
         )}
       </CardHeader>
       <CardContent className="p-6 pt-0 flex-grow flex flex-col">
@@ -36,7 +38,7 @@ export function UserCard({ user }: UserCardProps) {
         </div>
         <Button asChild className="w-full mt-6">
           <Link href={`/profile/${user.id}`}>
-            View Profile <ArrowRight className="ml-2" />
+            {t('userCard.viewProfile')} <ArrowRight className="ml-2" />
           </Link>
         </Button>
       </CardContent>

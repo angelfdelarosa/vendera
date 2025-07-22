@@ -12,11 +12,13 @@ import { cn } from '@/lib/utils';
 import type { UserProfile, Property, Conversation } from '@/types';
 import { useChatStore } from '@/components/chat/use-chat-store';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function MessagesPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const { conversations, selectedConversation, selectConversation } = useChatStore();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -37,13 +39,13 @@ export default function MessagesPage() {
       <div className="text-center py-24 bg-card rounded-xl border border-dashed flex flex-col items-center container mx-auto mt-8">
         <MessagesSquare className="w-16 h-16 text-muted-foreground/50 mb-4" />
         <h2 className="text-2xl font-semibold mb-2 text-primary">
-          No Conversations Yet
+          {t('messages.empty.title')}
         </h2>
         <p className="text-muted-foreground mb-6">
-          When you contact a seller, your conversations will appear here.
+          {t('messages.empty.description')}
         </p>
          <Link href="/">
-            <div className='text-primary hover:underline'>Browse Properties</div>
+            <div className='text-primary hover:underline'>{t('messages.empty.button')}</div>
           </Link>
       </div>
     );
@@ -53,16 +55,16 @@ export default function MessagesPage() {
     <div className="container mx-auto py-8">
        <div className="mb-8">
         <h1 className="font-headline text-4xl font-bold text-primary mb-2">
-          Your Conversations
+          {t('messages.title')}
         </h1>
         <p className="text-lg text-muted-foreground">
-          Manage your messages with sellers.
+          {t('messages.subtitle')}
         </p>
       </div>
       <Card className="h-[calc(100vh-18rem)] flex overflow-hidden">
         <div className="w-1/3 border-r overflow-y-auto">
           <div className="p-4 font-semibold border-b">
-            All Messages ({conversations.length})
+            {t('messages.allMessages')} ({conversations.length})
           </div>
           <nav className="p-2 space-y-1">
             {conversations.map((convo) => (
@@ -88,7 +90,7 @@ export default function MessagesPage() {
                      <p className="text-xs text-muted-foreground flex-shrink-0">{convo.timestamp}</p>
                    </div>
                     <p className="text-xs text-muted-foreground truncate">
-                        Re: {convo.property.title}
+                        {t('messages.re')} {convo.property.title}
                     </p>
                    <p className="text-sm text-muted-foreground truncate">{convo.messages[convo.messages.length - 1]?.text}</p>
                 </div>
@@ -107,8 +109,8 @@ export default function MessagesPage() {
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
                 <MessageCircle className="h-16 w-16 mb-4" />
-                <h2 className="text-xl font-semibold">Select a conversation</h2>
-                <p>Choose a conversation from the list to see the messages.</p>
+                <h2 className="text-xl font-semibold">{t('messages.select.title')}</h2>
+                <p>{t('messages.select.description')}</p>
             </div>
           )}
         </div>

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import type { Property } from '@/types';
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface FavoritesContextType {
   favorites: Property[];
@@ -16,6 +17,7 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
   const [favorites, setFavorites] = useState<Property[]>([]);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const addFavorite = useCallback((property: Property) => {
     if (favorites.find(p => p.id === property.id)) {
@@ -23,10 +25,10 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
     }
     setFavorites(prevFavorites => [...prevFavorites, property]);
     toast({
-      title: "Added to Favorites",
-      description: `"${property.title}" has been saved.`,
+      title: t('favorites.toast.added.title'),
+      description: t('favorites.toast.added.description', { title: property.title }),
     });
-  }, [favorites, toast]);
+  }, [favorites, toast, t]);
 
   const removeFavorite = useCallback((propertyId: string) => {
     const property = favorites.find(p => p.id === propertyId);
@@ -35,10 +37,10 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
     }
     setFavorites(prevFavorites => prevFavorites.filter((p) => p.id !== propertyId));
     toast({
-      title: "Removed from Favorites",
-      description: `"${property.title}" has been removed.`,
+      title: t('favorites.toast.removed.title'),
+      description: t('favorites.toast.removed.description', { title: property.title }),
     });
-  }, [favorites, toast]);
+  }, [favorites, toast, t]);
 
   const isFavorite = (propertyId: string) => {
     return favorites.some((p) => p.id === propertyId);

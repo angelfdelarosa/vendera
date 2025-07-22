@@ -5,15 +5,17 @@ import { useSearchParams } from 'next/navigation';
 import { mockUsers } from '@/lib/mock-data';
 import { UserCard } from '@/components/users/UserCard';
 import { Loader2, SearchX } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q');
+  const { t } = useTranslation();
   
   if (!query) {
     return (
       <div className="text-center py-24">
-        <p className="text-muted-foreground">Please enter a name to search.</p>
+        <p className="text-muted-foreground">{t('search.enterQuery')}</p>
       </div>
     );
   }
@@ -26,10 +28,10 @@ function SearchResults() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="font-headline text-3xl font-bold text-primary mb-2">
-        Search Results
+        {t('search.resultsTitle')}
       </h1>
       <p className="text-lg text-muted-foreground mb-8">
-        Showing results for: <span className="font-semibold text-primary">{query}</span>
+        {t('search.resultsFor')} <span className="font-semibold text-primary">{query}</span>
       </p>
 
       {results.length > 0 ? (
@@ -42,10 +44,10 @@ function SearchResults() {
         <div className="text-center py-24 bg-card rounded-xl border border-dashed flex flex-col items-center">
           <SearchX className="w-16 h-16 text-muted-foreground/50 mb-4" />
           <h2 className="text-2xl font-semibold mb-2 text-primary">
-            No Users Found
+            {t('search.noUsersFound')}
           </h2>
           <p className="text-muted-foreground">
-            No users match your search query. Try a different name.
+            {t('search.noUsersMatch')}
           </p>
         </div>
       )}

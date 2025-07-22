@@ -13,9 +13,9 @@ import { cn } from '@/lib/utils';
 import { chatAssistant } from '@/ai/flows/chat-assistant';
 import { useChatStore } from './use-chat-store';
 import { useAuth } from '@/context/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ChatWindowProps {
-  // We no longer get the buyer from props, we get it from the context
   conversation: Conversation;
 }
 
@@ -25,6 +25,7 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
     messages: state.conversations.find((c) => c.id === conversation.id)?.messages || [],
     addMessage: state.addMessage,
   }));
+  const { t } = useTranslation();
   
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -66,7 +67,7 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
             .join('\n');
 
         const result = await chatAssistant({
-            buyerName: buyer.displayName || 'Potential Buyer',
+            buyerName: buyer.displayName || t('chat.potentialBuyer'),
             sellerName: conversation.user.name,
             propertyName: conversation.property.title,
             messageHistory: messageHistory,
@@ -84,7 +85,7 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
         console.error("Failed to get AI response:", error);
         const errorResponse: Message = {
             id: crypto.randomUUID(),
-            text: "Sorry, I'm having trouble connecting right now. Please try again later.",
+            text: t('chat.error'),
             sender: 'seller',
             timestamp: new Date().toLocaleTimeString(),
         };
@@ -168,7 +169,7 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
         <Input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Type your message..."
+          placeholder={t('chat.placeholder')}
           autoComplete="off"
           disabled={isSending}
         />

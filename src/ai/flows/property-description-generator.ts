@@ -36,18 +36,18 @@ const prompt = ai.definePrompt({
   name: 'generatePropertyDescriptionPrompt',
   input: {schema: GeneratePropertyDescriptionInputSchema},
   output: {schema: GeneratePropertyDescriptionOutputSchema},
-  prompt: `You are a real estate expert specializing in writing property listings.
+  prompt: `Eres un experto inmobiliario especializado en escribir anuncios de propiedades.
 
-  Based on the details of the property, create an engaging and attractive description to attract potential buyers.
+  Basándote en los detalles de la propiedad, crea una descripción atractiva y llamativa para atraer a posibles compradores.
 
-  Property Type: {{{propertyType}}}
-  Location: {{{location}}}
-  Bedrooms: {{{numBedrooms}}}
-  Bathrooms: {{{numBathrooms}}}
-  Amenities: {{{amenities}}}
-  Unique Features: {{{uniqueFeatures}}}
+  Tipo de Propiedad: {{{propertyType}}}
+  Ubicación: {{{location}}}
+  Dormitorios: {{{numBedrooms}}}
+  Baños: {{{numBathrooms}}}
+  Comodidades: {{{amenities}}}
+  Características Únicas: {{{uniqueFeatures}}}
 
-  Write a compelling property description:
+  Escribe una descripción de propiedad convincente:
   `,
 });
 

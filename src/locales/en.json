@@ -17,6 +17,160 @@
     "propertyType": "Property Type",
     "allTypes": "All Types",
     "priceRange": "Price Range",
-    "button": "Search"
+    "button": "Search",
+    "placeholder": {
+        "users": "Search users by name...",
+        "properties": "Search for properties..."
+    },
+    "enterQuery": "Please enter a name to search.",
+    "resultsTitle": "Search Results",
+    "resultsFor": "Showing results for:",
+    "noUsersFound": "No Users Found",
+    "noUsersMatch": "No users match your search query. Try a different name."
+  },
+  "footer": {
+    "about": "About Us",
+    "contact": "Contact",
+    "terms": "Terms of Service",
+    "follow": "Follow Us",
+    "copyright": "© {year} VENDRA. All rights reserved."
+  },
+  "userNav": {
+    "avatarAlt": "User avatar",
+    "profile": "Profile"
+  },
+  "favorites": {
+    "title": "Your Favorite Properties",
+    "subtitle": "Here are the listings you've saved for later.",
+    "add": "Add to favorites",
+    "remove": "Remove from favorites",
+    "empty": {
+      "title": "No Favorites Yet",
+      "description": "Click the heart icon on any property to save it here.",
+      "button": "Browse Properties"
+    },
+    "toast": {
+      "added": {
+        "title": "Added to Favorites",
+        "description": "\"{title}\" has been saved."
+      },
+      "removed": {
+        "title": "Removed from Favorites",
+        "description": "\"{title}\" has been removed."
+      }
+    }
+  },
+  "messages": {
+    "title": "Your Conversations",
+    "subtitle": "Manage your messages with sellers.",
+    "allMessages": "All Messages",
+    "re": "Re:",
+    "empty": {
+      "title": "No Conversations Yet",
+      "description": "When you contact a seller, your conversations will appear here.",
+      "button": "Browse Properties"
+    },
+    "select": {
+        "title": "Select a conversation",
+        "description": "Choose a conversation from the list to see the messages."
+    }
+  },
+  "chat": {
+    "title": "Chat with",
+    "titleProperty": "Chat about \"{title}\"",
+    "potentialBuyer": "Potential Buyer",
+    "error": "Sorry, I'm having trouble connecting right now. Please try again later.",
+    "placeholder": "Type your message..."
+  },
+  "notifications": {
+    "open": "Open messages",
+    "inbox": "Inbox",
+    "noMessages": "No new messages.",
+    "viewAll": "View all messages"
+  },
+  "profile": {
+    "sellerBadge": "Seller",
+    "ratings": "ratings",
+    "avatarAlt": "{name}'s Profile Picture",
+    "contactSeller": "Contact Seller",
+    "tabs": {
+        "listed": "Listed Properties",
+        "saved": "Saved Properties"
+    },
+    "empty": {
+        "listed": {
+            "own": "You haven't listed any properties yet.",
+            "other": "{name} hasn't listed any properties yet."
+        },
+        "saved": {
+            "description": "You haven't saved any properties yet.",
+            "button": "Browse Properties"
+        }
+    },
+    "edit": {
+        "title": "Edit Profile",
+        "description": "Make changes to your profile here. Click save when you're done.",
+        "name": "Full Name",
+        "save": "Save changes",
+        "toast": {
+            "success": {
+                "title": "Profile Updated",
+                "description": "Your changes have been saved."
+            },
+            "error": {
+                "title": "Update Failed",
+                "description": "Could not save your profile changes."
+            }
+        }
+    }
+  },
+  "property": {
+    "realtorInfo": "Realtor Information",
+    "certifiedRealtor": "Certified Realtor",
+    "details": "Property Details",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "description": "Description",
+    "features": "Features",
+    "similar": "Similar Properties"
+  },
+  "newProperty": {
+    "title": "List a New Property",
+    "subtitle": "Fill out the details below to put your property on the market.",
+    "form": {
+        "title": "Property Title",
+        "title_placeholder": "e.g., Luxurious Villa in Beverly Hills",
+        "price": "Price (USD)",
+        "location": "Location",
+        "address": "Full Address",
+        "type_placeholder": "Select a type",
+        "bedrooms": "Bedrooms",
+        "bathrooms": "Bathrooms",
+        "area": "Area (m²)",
+        "amenities": "Amenities",
+        "amenities_placeholder": "e.g., Swimming Pool, Garage",
+        "amenities_note": "Comma-separated list.",
+        "features": "Unique Features",
+        "features_placeholder": "e.g., Ocean view, modern architecture",
+        "generating": "Generating...",
+        "generate_ai": "Generate with AI",
+        "description_placeholder": "Describe the property...",
+        "photos": "Property Photos",
+        "submit": "List Property"
+    },
+    "toast": {
+        "generated": {
+            "title": "Description Generated!",
+            "description": "The AI-powered description has been added."
+        },
+        "listed": {
+            "title": "Property Listed!",
+            "description": "Your property is now on the market."
+        },
+        "error": "Failed to generate description."
+    }
+  },
+  "userCard": {
+      "viewProfile": "View Profile"
   }
 }

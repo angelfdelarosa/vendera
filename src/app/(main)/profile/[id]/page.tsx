@@ -39,6 +39,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 
 export default function ProfilePage() {
@@ -51,10 +52,10 @@ export default function ProfilePage() {
   const { getConversationByUserId, createConversation } = useChatStore();
   const { toast } = useToast();
   const allProperties = usePropertyStore((state) => state.properties);
+  const { t } = useTranslation();
 
   const isOwnProfile = currentUser?.uid === profileId;
   
-  // State for the edit profile sheet
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
@@ -101,7 +102,7 @@ export default function ProfilePage() {
     if (!convo) {
        convo = createConversation({
         user: displayUser,
-        property: displayUser.properties[0], // Default to first property
+        property: displayUser.properties[0],
       });
     }
     setIsChatOpen(true);
@@ -138,14 +139,14 @@ export default function ProfilePage() {
       });
 
       toast({
-        title: "Profile Updated",
-        description: "Your changes have been saved.",
+        title: t('profile.edit.toast.success.title'),
+        description: t('profile.edit.toast.success.description'),
       });
     } catch (error) {
       console.error("Profile update error:", error);
       toast({
-        title: "Update Failed",
-        description: "Could not save your profile changes.",
+        title: t('profile.edit.toast.error.title'),
+        description: t('profile.edit.toast.error.description'),
         variant: "destructive"
       });
     } finally {
@@ -176,7 +177,7 @@ export default function ProfilePage() {
               <div className="flex-grow pt-8">
                 {displayUser.isVerifiedSeller && (
                   <Badge variant="secondary" className="mb-2">
-                    Seller
+                    {t('profile.sellerBadge')}
                   </Badge>
                 )}
                 <h1 className="text-3xl font-headline font-bold text-primary">
@@ -192,7 +193,7 @@ export default function ProfilePage() {
                     ))}
                   </div>
                   <span className="text-muted-foreground text-sm">
-                    ({Math.floor(Math.random() * 200)} ratings)
+                    ({Math.floor(Math.random() * 200)} {t('profile.ratings')})
                   </span>
                 </div>
               </div>
@@ -210,7 +211,7 @@ export default function ProfilePage() {
                   </DialogTrigger>
                   <DialogContent className="p-0 border-0 bg-transparent shadow-none max-w-2xl">
                      <DialogHeader>
-                      <DialogTitle className="sr-only">{displayUser.name}'s Profile Picture</DialogTitle>
+                      <DialogTitle className="sr-only">{t('profile.avatarAlt', { name: displayUser.name })}</DialogTitle>
                     </DialogHeader>
                      <Image 
                         src={displayUser.avatar} 
@@ -236,9 +237,9 @@ export default function ProfilePage() {
                       <SheetContent>
                        <form onSubmit={handleSaveChanges}>
                         <SheetHeader>
-                          <SheetTitle>Edit Profile</SheetTitle>
+                          <SheetTitle>{t('profile.edit.title')}</SheetTitle>
                           <SheetDescription>
-                            Make changes to your profile here. Click save when you're done.
+                            {t('profile.edit.description')}
                           </SheetDescription>
                         </SheetHeader>
                         <div className="grid gap-4 py-4">
@@ -256,7 +257,7 @@ export default function ProfilePage() {
                           </div>
                           <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="name" className="text-right">
-                              Full Name
+                              {t('profile.edit.name')}
                             </Label>
                             <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" />
                           </div>
@@ -268,7 +269,7 @@ export default function ProfilePage() {
                           </div>
                         </div>
                         <SheetFooter>
-                          <Button type="submit">Save changes</Button>
+                          <Button type="submit">{t('profile.edit.save')}</Button>
                         </SheetFooter>
                        </form>
                       </SheetContent>
@@ -279,12 +280,12 @@ export default function ProfilePage() {
                     <DialogTrigger asChild>
                       <Button onClick={handleContactSeller}>
                         <MessageSquare className="h-4 w-4 mr-2" />
-                        Contact Seller
+                        {t('profile.contactSeller')}
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px] h-3/4 flex flex-col">
                       <DialogHeader>
-                        <DialogTitle>Chat with {displayUser.name}</DialogTitle>
+                        <DialogTitle>{t('chat.title')} {displayUser.name}</DialogTitle>
                       </DialogHeader>
                       {currentUser && conversation && (
                         <ChatWindow
@@ -303,11 +304,11 @@ export default function ProfilePage() {
         <Tabs defaultValue="listed" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="listed">
-              <Building className="mr-2" /> Listed Properties
+              <Building className="mr-2" /> {t('profile.tabs.listed')}
             </TabsTrigger>
             {isOwnProfile && (
               <TabsTrigger value="saved">
-                <Heart className="mr-2" /> Saved Properties
+                <Heart className="mr-2" /> {t('profile.tabs.saved')}
               </TabsTrigger>
             )}
           </TabsList>
@@ -323,11 +324,11 @@ export default function ProfilePage() {
                 ) : (
                   <div className="text-center py-16">
                     <p className="text-muted-foreground mb-4">
-                      {isOwnProfile ? "You haven't listed any properties yet." : `${displayUser.name} hasn't listed any properties yet.`}
+                      {isOwnProfile ? t('profile.empty.listed.own') : t('profile.empty.listed.other', { name: displayUser.name })}
                     </p>
                     {isOwnProfile && (
                       <Button asChild>
-                        <Link href="/properties/new">List a Property</Link>
+                        <Link href="/properties/new">{t('header.addProperty')}</Link>
                       </Button>
                     )}
                   </div>
@@ -348,10 +349,10 @@ export default function ProfilePage() {
                   ) : (
                     <div className="text-center py-16">
                       <p className="text-muted-foreground mb-4">
-                        You haven't saved any properties yet.
+                        {t('profile.empty.saved.description')}
                       </p>
                       <Button asChild>
-                        <Link href="/">Browse Properties</Link>
+                        <Link href="/">{t('profile.empty.saved.button')}</Link>
                       </Button>
                     </div>
                   )}

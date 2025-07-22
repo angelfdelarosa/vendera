@@ -13,11 +13,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import { useChatStore } from '../chat/use-chat-store';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export function MessageNotifications() {
   const router = useRouter();
   const { conversations, selectConversation } = useChatStore();
   const unreadCount = conversations.filter((c) => c.unread).length;
+  const { t } = useTranslation();
 
   const handleNotificationClick = (conversationId: string) => {
     selectConversation(conversationId);
@@ -35,12 +37,12 @@ export function MessageNotifications() {
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
             </span>
           )}
-          <span className="sr-only">Open messages</span>
+          <span className="sr-only">{t('notifications.open')}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
         <div className="p-4 font-medium border-b">
-          <h3>Inbox</h3>
+          <h3>{t('notifications.inbox')}</h3>
         </div>
         <div className="space-y-1 p-2 max-h-[400px] overflow-y-auto">
           {conversations.length > 0 ? (
@@ -87,13 +89,13 @@ export function MessageNotifications() {
           ) : (
             <div className="text-center text-muted-foreground p-8">
               <MessageSquare className="mx-auto h-8 w-8 mb-2" />
-              <p>No new messages.</p>
+              <p>{t('notifications.noMessages')}</p>
             </div>
           )}
         </div>
         <div className="p-2 border-t text-center">
           <Button variant="link" asChild>
-            <Link href="/messages">View all messages</Link>
+            <Link href="/messages">{t('notifications.viewAll')}</Link>
           </Button>
         </div>
       </PopoverContent>

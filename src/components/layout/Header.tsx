@@ -21,10 +21,8 @@ export function Header() {
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
       if (user) {
-        // Logged-in users search for other users
         router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       } else {
-        // Guests search for properties on the home page
         router.push(`/?q=${encodeURIComponent(searchQuery.trim())}`);
       }
     }
@@ -62,7 +60,7 @@ export function Header() {
            <div className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
-              placeholder={user ? "Search users by name..." : "Search for properties..."}
+              placeholder={user ? t('search.placeholder.users') : t('search.placeholder.properties')}
               className="pl-10"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

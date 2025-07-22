@@ -18,15 +18,15 @@ export function LanguageSwitcher() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
           <Globe className="h-[1.2rem] w-[1.2rem]" />
-          <span className="sr-only">Change language</span>
+          <span className="sr-only">Cambiar idioma</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setLocale('en')}>
-          English
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setLocale('es')}>
           Español
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setLocale('en')}>
+          English
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

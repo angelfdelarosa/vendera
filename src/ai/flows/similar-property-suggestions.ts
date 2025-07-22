@@ -44,14 +44,14 @@ const prompt = ai.definePrompt({
   name: 'similarPropertySuggestionsPrompt',
   input: {schema: SimilarPropertySuggestionsInputSchema},
   output: {schema: SimilarPropertySuggestionsOutputSchema},
-  prompt: `You are an expert real estate agent specializing in property recommendations.
+  prompt: `Eres un agente inmobiliario experto especializado en recomendaciones de propiedades.
 
-You will use the property features and user preferences to provide suggestions for similar properties.
+Utilizarás las características de la propiedad y las preferencias del usuario para proporcionar sugerencias de propiedades similares.
 
-Property Features: {{{propertyFeatures}}}
-User Preferences: {{{userPreferences}}}
+Características de la Propiedad: {{{propertyFeatures}}}
+Preferencias del Usuario: {{{userPreferences}}}
 
-Based on the above information, suggest similar properties.`,
+Basado en la información anterior, sugiere propiedades similares.`,
 });
 
 const similarPropertySuggestionsFlow = ai.defineFlow(

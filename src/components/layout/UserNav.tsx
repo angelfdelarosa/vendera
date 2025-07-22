@@ -16,37 +16,19 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, LogOut, Heart, Building, LogIn, UserPlus, Loader2 } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export function UserNav() {
-  const { user, loading, logout } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
-
-  const handleLogout = () => {
-    logout();
-    router.push('/');
-  };
+  const { t } = useTranslation();
 
   if (loading) {
     return <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />;
   }
 
   if (!user) {
-    return (
-      <div className="flex items-center gap-2">
-        <Button asChild variant="ghost">
-          <Link href="/login">
-            <LogIn className="mr-2" />
-            Login
-          </Link>
-        </Button>
-        <Button asChild>
-          <Link href="/signup">
-            <UserPlus className="mr-2" />
-            Sign Up
-          </Link>
-        </Button>
-      </div>
-    );
+    return null;
   }
 
   const userInitial = user.displayName ? user.displayName.charAt(0).toUpperCase() : (user.email ? user.email.charAt(0).toUpperCase() : 'U');
@@ -56,7 +38,7 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user.photoURL || 'https://placehold.co/100x100.png'} alt="User avatar" />
+            <AvatarImage src={user.photoURL || 'https://placehold.co/100x100.png'} alt={t('userNav.avatarAlt')} />
             <AvatarFallback>{userInitial}</AvatarFallback>
           </Avatar>
         </Button>
@@ -75,27 +57,22 @@ export function UserNav() {
           <Link href={`/profile/${user.uid}`}>
             <DropdownMenuItem>
               <User className="mr-2 h-4 w-4" />
-              <span>Profile</span>
+              <span>{t('userNav.profile')}</span>
             </DropdownMenuItem>
           </Link>
           <Link href="/favorites">
             <DropdownMenuItem>
               <Heart className="mr-2 h-4 w-4" />
-              <span>Favorites</span>
+              <span>{t('header.favorites')}</span>
             </DropdownMenuItem>
           </Link>
           <Link href="/properties/new">
             <DropdownMenuItem>
               <Building className="mr-2 h-4 w-4" />
-              <span>Add Property</span>
+              <span>{t('header.addProperty')}</span>
             </DropdownMenuItem>
           </Link>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

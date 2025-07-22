@@ -27,6 +27,7 @@ import { ChatWindow } from '@/components/chat/ChatWindow';
 import { useChatStore } from '@/components/chat/use-chat-store';
 import type { Conversation } from '@/types';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function PropertyDetailPage() {
   const params = useParams();
@@ -37,6 +38,7 @@ export default function PropertyDetailPage() {
   const property = properties.find((p) => p.id === params.id);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { getConversationByPropertyId, createConversation } = useChatStore();
+  const { t } = useTranslation();
 
   if (!property) {
     notFound();
@@ -50,7 +52,7 @@ export default function PropertyDetailPage() {
       id: property.realtor.id,
       name: property.realtor.name,
       avatar: property.realtor.avatar,
-      bio: "A passionate real estate professional.",
+      bio: "Un apasionado profesional inmobiliario.",
       isVerifiedSeller: true,
       rating: 5,
       properties: [property]
@@ -134,7 +136,7 @@ export default function PropertyDetailPage() {
           <Card>
             <CardHeader>
               <CardTitle className="font-headline text-xl">
-                Realtor Information
+                {t('property.realtorInfo')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -163,7 +165,7 @@ export default function PropertyDetailPage() {
                     </p>
                   )}
                   <p className="text-sm text-muted-foreground">
-                    Certified Realtor
+                    {t('property.certifiedRealtor')}
                   </p>
                 </div>
               </div>
@@ -171,12 +173,12 @@ export default function PropertyDetailPage() {
                 <DialogTrigger asChild>
                     <Button className="w-full" onClick={handleContactSeller}>
                         <MessageSquare className="mr-2" />
-                        Contact Seller
+                        {t('profile.contactSeller')}
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px] h-3/4 flex flex-col">
                   <DialogHeader>
-                    <DialogTitle>Chat about "{property.title}"</DialogTitle>
+                    <DialogTitle>{t('chat.titleProperty', { title: property.title })}</DialogTitle>
                   </DialogHeader>
                    <ChatWindow
                       conversation={conversation}
@@ -191,23 +193,23 @@ export default function PropertyDetailPage() {
       <Card className="mt-8">
         <CardHeader>
           <CardTitle className="font-headline text-2xl">
-            Property Details
+            {t('property.details')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center mb-6">
             <div className="bg-secondary/50 p-4 rounded-lg">
               <BedDouble className="mx-auto mb-2 h-8 w-8 text-primary" />
-              <p className="font-semibold">{property.bedrooms} Bedrooms</p>
+              <p className="font-semibold">{property.bedrooms} {t('property.bedrooms')}</p>
             </div>
             <div className="bg-secondary/50 p-4 rounded-lg">
               <Bath className="mx-auto mb-2 h-8 w-8 text-primary" />
-              <p className="font-semibold">{property.bathrooms} Bathrooms</p>
+              <p className="font-semibold">{property.bathrooms} {t('property.bathrooms')}</p>
             </div>
             <div className="bg-secondary/50 p-4 rounded-lg">
               <Ruler className="mx-auto mb-2 h-8 w-8 text-primary" />
               <p className="font-semibold">
-                {property.area.toLocaleString()} sqft
+                {property.area.toLocaleString()} m²
               </p>
             </div>
             <div className="bg-secondary/50 p-4 rounded-lg">
@@ -220,7 +222,7 @@ export default function PropertyDetailPage() {
 
           <div>
             <h3 className="font-headline text-xl font-semibold mb-4">
-              Description
+              {t('property.description')}
             </h3>
             <p className="text-muted-foreground leading-relaxed">
               {property.description}
@@ -231,7 +233,7 @@ export default function PropertyDetailPage() {
 
           <div>
             <h3 className="font-headline text-xl font-semibold mb-4">
-              Features
+              {t('property.features')}
             </h3>
             <div className="flex flex-wrap gap-2">
               {property.features.map((feature, index) => (

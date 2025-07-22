@@ -30,18 +30,19 @@ import { generatePropertyDescription } from "@/ai/flows/property-description-gen
 import { usePropertyStore } from "@/hooks/usePropertyStore";
 import type { Property } from "@/types";
 import Image from "next/image";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const initialFormData = {
-  title: "Luxurious Villa in Beverly Hills",
+  title: "Lujosa Villa en Beverly Hills",
   price: 3500000,
   location: "Beverly Hills",
   address: "123 Rodeo Drive, Beverly Hills, CA",
   propertyType: "Villa" as Property["type"],
   numBedrooms: 4,
   numBathrooms: 3,
-  area: 6500,
-  amenities: "Swimming Pool, Garage",
-  uniqueFeatures: "Ocean view, modern architecture",
+  area: 600,
+  amenities: "Piscina, Garaje",
+  uniqueFeatures: "Vista al mar, arquitectura moderna",
   description: "",
 };
 
@@ -50,6 +51,7 @@ export default function NewPropertyPage() {
   const router = useRouter();
   const { toast } = useToast();
   const addProperty = usePropertyStore((state) => state.addProperty);
+  const { t } = useTranslation();
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -83,14 +85,12 @@ export default function NewPropertyPage() {
       const files = Array.from(e.target.files);
       const newPreviews: string[] = [];
       
-      // Clear previous previews
       setImagePreviews([]);
 
       files.forEach(file => {
         const reader = new FileReader();
         reader.onloadend = () => {
           newPreviews.push(reader.result as string);
-          // When all files are read, update the state
           if (newPreviews.length === files.length) {
             setImagePreviews(newPreviews);
           }
@@ -114,13 +114,13 @@ export default function NewPropertyPage() {
       });
       setFormData((prev) => ({ ...prev, description: result.description }));
       toast({
-        title: "Description Generated!",
-        description: "The AI-powered description has been added.",
+        title: t('newProperty.toast.generated.title'),
+        description: t('newProperty.toast.generated.description'),
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to generate description.",
+        description: t('newProperty.toast.error'),
         variant: "destructive",
       });
     } finally {
@@ -150,20 +150,20 @@ export default function NewPropertyPage() {
         "https://placehold.co/600x400.png",
       ],
       realtor: {
-        name: user.displayName || "Anonymous Seller",
+        id: user.uid,
+        name: user.displayName || "Vendedor Anónimo",
         avatar:
           user.photoURL || "https://placehold.co/100x100.png",
       },
     };
 
-    addProperty(newProperty, user.uid);
+    addProperty(newProperty);
 
     toast({
-      title: "Property Listed!",
-      description: "Your property is now on the market.",
+      title: t('newProperty.toast.listed.title'),
+      description: t('newProperty.toast.listed.description'),
     });
 
-    // Reset form and navigate
     setFormData(initialFormData);
     setImagePreviews([]);
     setIsSubmitting(false);
@@ -184,25 +184,25 @@ export default function NewPropertyPage() {
         <form onSubmit={handleSubmit}>
           <CardHeader>
             <CardTitle className="font-headline text-2xl">
-              List a New Property
+              {t('newProperty.title')}
             </CardTitle>
             <CardDescription>
-              Fill out the details below to put your property on the market.
+              {t('newProperty.subtitle')}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="title">Property Title</Label>
+              <Label htmlFor="title">{t('newProperty.form.title')}</Label>
               <Input
                 id="title"
-                placeholder="e.g., Luxurious Villa in Beverly Hills"
+                placeholder={t('newProperty.form.title_placeholder')}
                 value={formData.title}
                 onChange={handleInputChange}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="price">Price (USD)</Label>
+              <Label htmlFor="price">{t('newProperty.form.price')}</Label>
               <Input
                 id="price"
                 type="number"
@@ -213,7 +213,7 @@ export default function NewPropertyPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location">{t('newProperty.form.location')}</Label>
               <Input
                 id="location"
                 placeholder="e.g., Beverly Hills"
@@ -222,7 +222,7 @@ export default function NewPropertyPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="address">Full Address</Label>
+              <Label htmlFor="address">{t('newProperty.form.address')}</Label>
               <Input
                 id="address"
                 placeholder="e.g., 123 Rodeo Drive"
@@ -231,25 +231,25 @@ export default function NewPropertyPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="property-type">Property Type</Label>
+              <Label htmlFor="property-type">{t('search.propertyType')}</Label>
               <Select
                 onValueChange={handleSelectChange}
                 value={formData.propertyType}
               >
                 <SelectTrigger id="property-type">
-                  <SelectValue placeholder="Select a type" />
+                  <SelectValue placeholder={t('newProperty.form.type_placeholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="House">House</SelectItem>
-                  <SelectItem value="Apartment">Apartment</SelectItem>
-                  <SelectItem value="Condo">Condo</SelectItem>
+                  <SelectItem value="House">Casa</SelectItem>
+                  <SelectItem value="Apartment">Apartamento</SelectItem>
+                  <SelectItem value="Condo">Condominio</SelectItem>
                   <SelectItem value="Villa">Villa</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="numBedrooms">Bedrooms</Label>
+                <Label htmlFor="numBedrooms">{t('newProperty.form.bedrooms')}</Label>
                 <Input
                   id="numBedrooms"
                   type="number"
@@ -259,7 +259,7 @@ export default function NewPropertyPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="numBathrooms">Bathrooms</Label>
+                <Label htmlFor="numBathrooms">{t('newProperty.form.bathrooms')}</Label>
                 <Input
                   id="numBathrooms"
                   type="number"
@@ -270,39 +270,39 @@ export default function NewPropertyPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="area">Area (sqft)</Label>
+              <Label htmlFor="area">{t('newProperty.form.area')}</Label>
               <Input
                 id="area"
                 type="number"
-                placeholder="e.g., 6500"
+                placeholder="e.g., 600"
                 value={formData.area}
                 onChange={handleNumberInputChange}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="amenities">Amenities</Label>
+              <Label htmlFor="amenities">{t('newProperty.form.amenities')}</Label>
               <Input
                 id="amenities"
-                placeholder="e.g., Swimming Pool, Garage"
+                placeholder={t('newProperty.form.amenities_placeholder')}
                 value={formData.amenities}
                 onChange={handleInputChange}
               />
               <p className="text-xs text-muted-foreground">
-                Comma-separated list.
+                {t('newProperty.form.amenities_note')}
               </p>
             </div>
             <div className="md:col-span-2 space-y-2">
-              <Label htmlFor="uniqueFeatures">Unique Features</Label>
+              <Label htmlFor="uniqueFeatures">{t('newProperty.form.features')}</Label>
               <Input
                 id="uniqueFeatures"
-                placeholder="e.g., Ocean view, modern architecture"
+                placeholder={t('newProperty.form.features_placeholder')}
                 value={formData.uniqueFeatures}
                 onChange={handleInputChange}
               />
             </div>
             <div className="md:col-span-2 space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t('property.description')}</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -311,19 +311,19 @@ export default function NewPropertyPage() {
                   disabled={isGenerating}
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
-                  {isGenerating ? "Generating..." : "Generate with AI"}
+                  {isGenerating ? t('newProperty.form.generating') : t('newProperty.form.generate_ai')}
                 </Button>
               </div>
               <Textarea
                 id="description"
-                placeholder="Describe the property..."
+                placeholder={t('newProperty.form.description_placeholder')}
                 className="min-h-[120px]"
                 value={formData.description}
                 onChange={handleInputChange}
               />
             </div>
             <div className="md:col-span-2 space-y-2">
-              <Label htmlFor="images">Property Photos</Label>
+              <Label htmlFor="images">{t('newProperty.form.photos')}</Label>
               <Input id="images" type="file" multiple accept="image/*" onChange={handleImageChange} />
               {imagePreviews.length > 0 && (
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mt-2">
@@ -344,7 +344,7 @@ export default function NewPropertyPage() {
           <CardFooter>
             <Button type="submit" size="lg" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              List Property
+              {t('newProperty.form.submit')}
             </Button>
           </CardFooter>
         </form>
