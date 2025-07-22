@@ -40,8 +40,8 @@ export default function NewPropertyPage() {
   const addProperty = usePropertyStore((state) => state.addProperty);
   const { t, locale } = useTranslation();
 
-  const initialFormData = {
-    title: t("mock.property1_title"),
+  const getInitialFormData = () => ({
+    title: "",
     price: 3500000,
     location: "Beverly Hills",
     address: "123 Rodeo Drive, Beverly Hills, CA",
@@ -52,12 +52,16 @@ export default function NewPropertyPage() {
     amenities: t("newProperty.form.amenities_placeholder"),
     uniqueFeatures: t("newProperty.form.features_placeholder"),
     description: "",
-  };
+  });
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState(getInitialFormData());
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  
+  useEffect(() => {
+    setFormData(getInitialFormData());
+  }, [t]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -153,7 +157,7 @@ export default function NewPropertyPage() {
       ],
       realtor: {
         id: user.uid,
-        name: user.displayName || "Vendedor Anónimo",
+        name: user.displayName || "Anonymous Seller",
         avatar:
           user.photoURL || "https://placehold.co/100x100.png",
       },
@@ -166,7 +170,7 @@ export default function NewPropertyPage() {
       description: t('newProperty.toast.listed.description'),
     });
 
-    setFormData(initialFormData);
+    setFormData(getInitialFormData());
     setImagePreviews([]);
     setIsSubmitting(false);
     router.push(`/properties/${newProperty.id}`);

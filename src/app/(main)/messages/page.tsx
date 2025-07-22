@@ -114,7 +114,6 @@ export default function MessagesPage() {
           {selectedConversation ? (
             <ChatWindow
               key={selectedConversation.id}
-              buyer={user}
               conversation={selectedConversation}
             />
           ) : (

@@ -62,13 +62,13 @@ export default function ProfilePage() {
   const [newAvatarUrl, setNewAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (searchParams.get('chat') === 'true') {
+    if (searchParams.get('chat') === 'true' && currentUser) {
       const convo = getConversationByUserId(profileId);
       if (convo) {
         setIsChatOpen(true);
       }
     }
-  }, [searchParams, profileId, getConversationByUserId]);
+  }, [searchParams, profileId, getConversationByUserId, currentUser]);
 
   const displayUser: UserProfile | undefined = useMemo(() => {
     return mockUsers[profileId];
@@ -97,6 +97,10 @@ export default function ProfilePage() {
     : null);
 
   const handleContactSeller = () => {
+    if (!currentUser) {
+        router.push(`/login?redirect=/profile/${profileId}`);
+        return;
+    }
     if (!displayUser || !displayUser.properties.length) return;
     let convo = getConversationByUserId(displayUser.id);
     if (!convo) {
@@ -133,7 +137,7 @@ export default function ProfilePage() {
     if (!currentUser) return;
 
     try {
-      updateUser({
+      await updateUser({
         displayName: name,
         ...(newAvatarUrl && { photoURL: newAvatarUrl }),
       });
@@ -289,7 +293,6 @@ export default function ProfilePage() {
                       </DialogHeader>
                       {currentUser && conversation && (
                         <ChatWindow
-                          buyer={currentUser}
                           conversation={conversation}
                         />
                       )}

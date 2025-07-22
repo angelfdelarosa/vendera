@@ -69,7 +69,7 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
         const result = await chatAssistant({
             buyerName: buyer.displayName || t('chat.potentialBuyer'),
             sellerName: conversation.user.name,
-            propertyName: conversation.property.title,
+            propertyName: t(conversation.property.title),
             messageHistory: messageHistory,
             locale: locale,
         });

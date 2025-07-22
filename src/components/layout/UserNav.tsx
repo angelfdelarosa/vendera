@@ -19,16 +19,34 @@ import { User, LogOut, Heart, Building, LogIn, UserPlus, Loader2 } from 'lucide-
 import { useTranslation } from '@/hooks/useTranslation';
 
 export function UserNav() {
-  const { user, loading } = useAuth();
+  const { user, logout, loading } = useAuth();
   const router = useRouter();
   const { t } = useTranslation();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push('/');
+    } catch (error) {
+      console.error('Logout failed', error);
+    }
+  };
 
   if (loading) {
     return <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />;
   }
 
   if (!user) {
-    return null;
+    return (
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" asChild>
+          <Link href="/login"><LogIn /> Login</Link>
+        </Button>
+        <Button asChild>
+          <Link href="/signup"><UserPlus /> Sign Up</Link>
+        </Button>
+      </div>
+    );
   }
 
   const userInitial = user.displayName ? user.displayName.charAt(0).toUpperCase() : (user.email ? user.email.charAt(0).toUpperCase() : 'U');
@@ -73,6 +91,11 @@ export function UserNav() {
             </DropdownMenuItem>
           </Link>
         </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleLogout}>
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Log out</span>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

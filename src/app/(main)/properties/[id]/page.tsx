@@ -40,6 +40,10 @@ export default function PropertyDetailPage() {
   const { getConversationByPropertyId, createConversation } = useChatStore();
   const { t } = useTranslation();
 
+  const handleLoginRedirect = () => {
+    router.push(`/login?redirect=${pathname}`);
+  };
+
   if (!property) {
     notFound();
   }
@@ -59,6 +63,10 @@ export default function PropertyDetailPage() {
   };
 
   const handleContactSeller = () => {
+    if (!user) {
+        handleLoginRedirect();
+        return;
+    }
     let convo = getConversationByPropertyId(property.id);
     if (!convo) {
       convo = createConversation({
@@ -128,7 +136,7 @@ export default function PropertyDetailPage() {
                 <p className="text-4xl font-bold text-accent">
                   ${property.price.toLocaleString()}
                 </p>
-                <FavoriteButton property={property} className="h-10 w-10" />
+                {user && <FavoriteButton property={property} className="h-10 w-10" />}
               </div>
             </CardContent>
           </Card>
