@@ -23,8 +23,7 @@ export function Logo({ layout = 'horizontal' }: LogoProps) {
   const isVertical = layout === 'vertical';
 
   return (
-    <Link
-      href="/landing"
+    <div
       className={cn(
         'flex items-center',
         isVertical ? 'flex-col gap-4' : 'flex-row gap-2'
@@ -44,6 +43,6 @@ export function Logo({ layout = 'horizontal' }: LogoProps) {
       >
         VENDRA
       </span>
-    </Link>
+    </div>
   );
 }
