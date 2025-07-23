@@ -130,6 +130,21 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
   }, [profileId, authUser, authLoading, supabase]);
   
 
+   useEffect(() => {
+    if (
+      completedCrop?.width &&
+      completedCrop.height &&
+      imgRef.current &&
+      previewCanvasRef.current
+    ) {
+      canvasPreview(
+        imgRef.current,
+        previewCanvasRef.current,
+        completedCrop
+      )
+    }
+  }, [completedCrop])
+
   if (loading || authLoading) {
     return (
         <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
@@ -169,21 +184,6 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
       setCrop(centerAspectCrop(width, height, aspect))
     }
   }
-
-   useEffect(() => {
-    if (
-      completedCrop?.width &&
-      completedCrop.height &&
-      imgRef.current &&
-      previewCanvasRef.current
-    ) {
-      canvasPreview(
-        imgRef.current,
-        previewCanvasRef.current,
-        completedCrop
-      )
-    }
-  }, [completedCrop])
   
   const handleAvatarUpload = async () => {
     if (!previewCanvasRef.current || !authUser || !completedCrop) {
