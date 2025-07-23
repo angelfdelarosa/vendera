@@ -168,6 +168,8 @@ export default function NewPropertyPage() {
       features: features,
       images: imageUrls,
     };
+    
+    console.log('Inserting data:', newPropertyData);
 
     const { data, error } = await supabase
         .from('properties')
@@ -180,7 +182,7 @@ export default function NewPropertyPage() {
         console.error('Error inserting property:', error);
         toast({
             title: "Error Listing Property",
-            description: error.message,
+            description: error.message || 'An unknown error occurred.',
             variant: "destructive",
         });
         setIsSubmitting(false);
