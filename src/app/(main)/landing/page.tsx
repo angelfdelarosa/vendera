@@ -110,7 +110,7 @@ export default function LandingPage() {
                     {featuredProperties.map((property, index) => (
                     <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
                         <div className="p-1">
-                            <PropertyCard property={property} />
+                            <PropertyCard property={property} isClickable={false} />
                         </div>
                     </CarouselItem>
                     ))}

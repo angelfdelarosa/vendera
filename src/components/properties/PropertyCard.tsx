@@ -13,9 +13,10 @@ import { useAuth } from "@/context/AuthContext";
 
 interface PropertyCardProps {
   property: Property;
+  isClickable?: boolean;
 }
 
-const PropertyCardContent = ({ property }: PropertyCardProps) => {
+const PropertyCardContent = ({ property }: { property: Property }) => {
     const { t } = useTranslation();
     const { user } = useAuth();
     return (
@@ -75,10 +76,11 @@ const PropertyCardContent = ({ property }: PropertyCardProps) => {
     );
 };
 
-export function PropertyCard({ property }: PropertyCardProps) {
+export function PropertyCard({ property, isClickable = true }: PropertyCardProps) {
   const { user } = useAuth();
+  const canClick = user || isClickable;
 
-  if (user) {
+  if (canClick) {
     return (
       <Link href={`/properties/${property.id}`} className="group block h-full">
         <PropertyCardContent property={property} />
