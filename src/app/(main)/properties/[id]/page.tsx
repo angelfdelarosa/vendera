@@ -76,7 +76,7 @@ export default function PropertyDetailPage() {
               </CardTitle>
               <p className="flex items-center text-muted-foreground pt-2">
                 <MapPin className="w-4 h-4 mr-2" />
-                {property.address}
+                {user ? property.address : property.location}
               </p>
             </CardHeader>
             <CardContent>
@@ -209,4 +209,3 @@ export default function PropertyDetailPage() {
     </div>
   );
 }
-
