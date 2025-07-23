@@ -195,7 +195,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
         return;
     }
 
-    const filePath = `avatars/${authUser.id}/${Date.now()}.png`;
+    const filePath = `${authUser.id}/${Date.now()}.png`;
 
     try {
         const { error: uploadError } = await supabase.storage
