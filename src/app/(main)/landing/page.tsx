@@ -10,11 +10,21 @@ import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { MessageSquare, Search, Home, Star, ShieldCheck } from 'lucide-react';
 import { TestimonialCard, type Testimonial } from '@/components/layout/TestimonialCard';
 import { mockUsers } from '@/lib/mock-data';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
+import Autoplay from 'embla-carousel-autoplay';
+import React from 'react';
+
 
 export default function LandingPage() {
   const { t } = useTranslation();
   const allProperties = usePropertyStore((state) => state.properties);
-  const featuredProperties = allProperties.slice(0, 4);
+  const featuredProperties = allProperties.slice(0, 6);
   
   const testimonials: Testimonial[] = [
     {
@@ -86,11 +96,30 @@ export default function LandingPage() {
           <p className="text-lg text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
              {t('landing.featured.subtitle')}
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredProperties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
-          </div>
+            <Carousel
+                opts={{
+                    align: "start",
+                    loop: true,
+                }}
+                plugins={[
+                    Autoplay({
+                        delay: 3000,
+                    }),
+                ]}
+                className="w-full"
+                >
+                <CarouselContent>
+                    {featuredProperties.map((property, index) => (
+                    <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                        <div className="p-1">
+                            <PropertyCard property={property} />
+                        </div>
+                    </CarouselItem>
+                    ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+            </Carousel>
         </div>
       </section>
 
@@ -153,3 +182,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    
