@@ -89,60 +89,49 @@ export default function PropertyDetailPage() {
             </CardContent>
           </Card>
           
-          <Card>
-             {user ? (
-                 <>
-                    <CardHeader>
-                      <CardTitle className="font-headline text-xl">
-                        {t('property.realtorInfo')}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center gap-4">
-                        <Avatar className="h-16 w-16">
-                          <AvatarImage
-                            src={property.realtor.avatar}
-                            alt={property.realtor.name}
-                            data-ai-hint="person face"
-                          />
-                          <AvatarFallback>
-                            {property.realtor.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          
-                            <Link
-                              href={`/profile/${property.realtor.id}`}
-                              className="font-semibold text-lg hover:underline"
-                            >
-                              {property.realtor.name}
-                            </Link>
-                          
-                          <p className="text-sm text-muted-foreground">
-                            {t('property.certifiedRealtor')}
-                          </p>
-                        </div>
-                      </div>
-                      { !isOwnProperty && (
-                        <Button className="w-full" asChild>
-                            <a href={`mailto:${property.realtor.email}`}>
-                               {t('profile.contactSeller')}
-                            </a>
-                        </Button>
-                      )}
-                    </CardContent>
-                 </>
-             ) : (
-                <CardContent className="p-6 text-center">
-                    <Lock className="h-8 w-8 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="font-semibold mb-2">Inicia sesión para ver los detalles del vendedor</h3>
-                    <p className="text-sm text-muted-foreground mb-4">¡Crea una cuenta o inicia sesión para contactar con el agente!</p>
-                    <Button asChild>
-                        <Link href="/login">Iniciar Sesión</Link>
+           {user && (
+             <Card>
+                <CardHeader>
+                  <CardTitle className="font-headline text-xl">
+                    {t('property.realtorInfo')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-16 w-16">
+                      <AvatarImage
+                        src={property.realtor.avatar}
+                        alt={property.realtor.name}
+                        data-ai-hint="person face"
+                      />
+                      <AvatarFallback>
+                        {property.realtor.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      
+                        <Link
+                          href={`/profile/${property.realtor.id}`}
+                          className="font-semibold text-lg hover:underline"
+                        >
+                          {property.realtor.name}
+                        </Link>
+                      
+                      <p className="text-sm text-muted-foreground">
+                        {t('property.certifiedRealtor')}
+                      </p>
+                    </div>
+                  </div>
+                  { !isOwnProperty && (
+                    <Button className="w-full" asChild>
+                        <a href={`mailto:${property.realtor.email}`}>
+                           {t('profile.contactSeller')}
+                        </a>
                     </Button>
+                  )}
                 </CardContent>
-             )}
-          </Card>
+             </Card>
+           )}
         </div>
       </div>
       
@@ -207,7 +196,7 @@ export default function PropertyDetailPage() {
             <CardContent className="p-10 text-center">
                 <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-primary">Detalles completos de la propiedad bloqueados</h3>
-                <p className="text-muted-foreground mb-4">Inicia sesión o crea una cuenta para ver todos los detalles de la propiedad, incluidas las características, la descripción completa y más.</p>
+                <p className="text-muted-foreground mb-4 max-w-md mx-auto">Inicia sesión o crea una cuenta para ver todos los detalles de la propiedad, incluida la información del vendedor, descripción, características y más.</p>
                  <Button asChild size="lg">
                     <Link href="/login">Iniciar sesión para ver detalles</Link>
                 </Button>
@@ -220,3 +209,4 @@ export default function PropertyDetailPage() {
     </div>
   );
 }
+
