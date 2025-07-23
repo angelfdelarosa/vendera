@@ -21,11 +21,11 @@ export type Property = {
 export type UserProfile = {
   id: string;
   name: string;
-  email: string;
+  email?: string;
   avatar: string;
-  bio: string;
+  bio?: string;
   isVerifiedSeller: boolean;
-  rating: number;
+  rating?: number;
   properties: Property[];
 };
 

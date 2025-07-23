@@ -19,11 +19,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { useChatStore } from '@/components/chat/use-chat-store';
-import type { Conversation, UserProfile } from '@/types';
+import type { Conversation, UserProfile, Property } from '@/types';
 import Image from 'next/image';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
-import { mockUsers } from '@/lib/mock-data';
+import { properties as allProperties } from '@/lib/mock-data';
 
 interface ProfilePageClientProps {
     profileId: string;
@@ -31,7 +31,7 @@ interface ProfilePageClientProps {
 
 export default function ProfilePageClient({ profileId }: ProfilePageClientProps) {
   const searchParams = useSearchParams();
-  const { user: authUser, loading: authLoading } = useAuth();
+  const { user: authUser, loading: authLoading, supabase } = useAuth();
   const { getConversationByUserId, createConversation } = useChatStore();
   const { t } = useTranslation();
   const { favorites } = useFavorites();
@@ -43,58 +43,51 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
   const chatOpen = searchParams.get('chat') === 'true';
 
   useEffect(() => {
-    if (authLoading) return;
+    const fetchProfile = async () => {
+      if (authLoading) return;
+      setLoading(true);
 
-    let userToDisplay = mockUsers[profileId];
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', profileId)
+        .single();
+        
+      if (profile) {
+        // In a real app, you'd fetch properties from a DB too.
+        // For now, we'll associate them from mock data if the user is a realtor.
+        const userProperties = allProperties.filter(p => p.realtor.id === profileId);
 
-    if (!userToDisplay) {
-         if (authUser && authUser.id === profileId) {
-            userToDisplay = {
-                id: authUser.id,
-                name: authUser.user_metadata?.full_name || 'New User',
-                email: authUser.email || '',
-                avatar: authUser.user_metadata?.avatar_url || `https://placehold.co/128x128.png`,
-                bio: 'A new member of the VENDRA community.',
-                isVerifiedSeller: false,
-                rating: 0,
-                properties: [],
-            };
-        } else {
-             // Attempt to find user as a realtor in any property, for legacy support
-            const userAsRealtor = Object.values(mockUsers)
-                .flatMap(u => u.properties)
-                .find(p => p.realtor.id === profileId)?.realtor;
+        setDisplayUser({
+            id: profile.id,
+            name: profile.full_name || 'New User',
+            email: authUser?.email || '', // Email might not be in public profile
+            avatar: profile.avatar_url || `https://placehold.co/128x128.png`,
+            bio: profile.bio || 'A new member of the VENDRA community.',
+            isVerifiedSeller: profile.is_verified_seller || false,
+            rating: profile.rating || 0,
+            properties: userProperties
+        });
+      } else if (authUser?.id === profileId) {
+         // The user is new and their profile might not be in the DB yet.
+         // Let's create a temporary profile from auth data.
+         setDisplayUser({
+            id: authUser.id,
+            name: authUser.user_metadata?.full_name || 'New User',
+            email: authUser.email || '',
+            avatar: authUser.user_metadata?.avatar_url || `https://placehold.co/128x128.png`,
+            bio: 'A new member of the VENDRA community.',
+            isVerifiedSeller: false,
+            rating: 0,
+            properties: [],
+        });
+      }
 
-            if (userAsRealtor) {
-                userToDisplay = {
-                    id: userAsRealtor.id,
-                    name: userAsRealtor.name,
-                    email: '',
-                    avatar: userAsRealtor.avatar,
-                    bio: 'A VENDRA real estate agent.',
-                    isVerifiedSeller: true,
-                    rating: 4,
-                    properties: Object.values(mockUsers).flatMap(u => u.properties).filter(p => p.realtor.id === profileId)
-                }
-            } else {
-                userToDisplay = {
-                    id: profileId,
-                    name: 'New User',
-                    email: '',
-                    avatar: 'https://placehold.co/128x128.png',
-                    bio: 'A new member of the VENDRA community.',
-                    isVerifiedSeller: false,
-                    rating: 0,
-                    properties: []
-                }
-            }
-        }
-    }
-    
-    setDisplayUser(userToDisplay);
-    setLoading(false);
-    
-  }, [profileId, authUser, authLoading]);
+      setLoading(false);
+    };
+
+    fetchProfile();
+  }, [profileId, authUser, authLoading, supabase]);
 
   useEffect(() => {
     if (chatOpen && displayUser) {
@@ -105,10 +98,24 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     }
   }, [chatOpen, displayUser, getConversationByUserId]);
 
-  if (loading || !displayUser) {
+  if (loading) {
     return (
         <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+    );
+  }
+
+  if (!displayUser) {
+     return (
+        <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+           <div className="text-center">
+             <h2 className="text-2xl font-bold text-primary mb-2">User not found</h2>
+             <p className="text-muted-foreground">The profile you are looking for does not exist.</p>
+             <Button asChild className="mt-4">
+                <Link href="/">Go to Homepage</Link>
+             </Button>
+           </div>
         </div>
     );
   }
@@ -159,12 +166,12 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                   {displayUser.name}
                 </h1>
                 <p className="text-muted-foreground mt-2 max-w-md">
-                  {t(displayUser.bio)}
+                  {t(displayUser.bio || '')}
                 </p>
                 <div className="flex items-center gap-2 mt-4">
                   <div className="flex items-center text-amber-500">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-5 h-5 ${i < displayUser.rating ? 'fill-current' : 'text-muted-foreground fill-muted'}`} />
+                      <Star key={i} className={`w-5 h-5 ${i < (displayUser.rating || 0) ? 'fill-current' : 'text-muted-foreground fill-muted'}`} />
                     ))}
                   </div>
                   <span className="text-muted-foreground text-sm">
