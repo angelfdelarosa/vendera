@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import { PropertyCard } from '@/components/properties/PropertyCard';
-import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { MessageSquare, Search, Home, Star, ShieldCheck } from 'lucide-react';
 import { TestimonialCard, type Testimonial } from '@/components/layout/TestimonialCard';
 import { mockUsers, properties as mockProperties } from '@/lib/mock-data';

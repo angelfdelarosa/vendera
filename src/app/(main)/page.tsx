@@ -11,9 +11,8 @@ import { useMemo } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import LandingPage from "./landing/page";
 
-function HomePageDashboard() {
+export default function HomePage() {
   const { supabase } = useAuth();
   const setProperties = usePropertyStore((state) => state.setProperties);
   const allProperties = usePropertyStore((state) => state.properties);
@@ -131,19 +130,4 @@ function HomePageDashboard() {
       </section>
     </div>
   );
-}
-
-
-export default function HomePage() {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-     return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
-  }
-  
-  return user ? <HomePageDashboard /> : <LandingPage />;
 }
