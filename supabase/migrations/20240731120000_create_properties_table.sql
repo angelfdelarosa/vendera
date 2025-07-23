@@ -1,42 +1,37 @@
-
--- Create a table for public properties
-create table if not exists properties (
-  id uuid primary key default gen_random_uuid(),
-  realtor_id uuid not null references public.profiles(id) on delete cascade,
-  title text not null,
-  price numeric not null,
-  location text,
-  address text,
-  type text not null,
-  bedrooms integer,
-  bathrooms integer,
-  area integer,
-  description text,
-  features text[],
-  images text[]
+-- Create the public.properties table
+CREATE TABLE IF NOT EXISTS public.properties (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  realtor_id UUID REFERENCES public.profiles(id),
+  title TEXT,
+  price NUMERIC,
+  location TEXT,
+  address TEXT,
+  type TEXT,
+  bedrooms INT,
+  bathrooms INT,
+  area NUMERIC,
+  description TEXT,
+  features TEXT[],
+  images TEXT[],
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
 -- Set up Row Level Security (RLS) for the properties table
-alter table properties
-  enable row level security;
+ALTER TABLE public.properties ENABLE ROW LEVEL SECURITY;
 
--- Policy: Public properties are viewable by everyone
-drop policy if exists "Public properties are viewable by everyone." on properties;
-create policy "Public properties are viewable by everyone." on properties
-  for select using (true);
+-- Policies for properties table
+DROP POLICY IF EXISTS "Individuals can create properties." ON public.properties;
+CREATE POLICY "Individuals can create properties." ON public.properties FOR
+    INSERT WITH CHECK (auth.uid() = realtor_id);
 
--- Policy: Users can insert their own properties
-drop policy if exists "Users can insert their own properties." on properties;
-create policy "Users can insert their own properties." on properties
-  for insert with check (auth.uid() = realtor_id);
+DROP POLICY IF EXISTS "Users can view all properties." ON public.properties;
+CREATE POLICY "Users can view all properties." ON public.properties FOR
+    SELECT USING (true);
 
--- Policy: Users can update their own properties
-drop policy if exists "Users can update their own properties." on properties;
-create policy "Users can update their own properties." on properties
-  for update using (auth.uid() = realtor_id);
+DROP POLICY IF EXISTS "Users can update their own properties." ON public.properties;
+CREATE POLICY "Users can update their own properties." ON public.properties FOR
+    UPDATE USING (auth.uid() = realtor_id);
 
--- Policy: Users can delete their own properties
-drop policy if exists "Users can delete their own properties." on properties;
-create policy "Users can delete their own properties." on properties
-  for delete using (auth.uid() = realtor_id);
-
+DROP POLICY IF EXISTS "Users can delete their own properties." ON public.properties;
+CREATE POLICY "Users can delete their own properties." ON public.properties FOR
+    DELETE USING (auth.uid() = realtor_id);
