@@ -27,6 +27,7 @@ import { Label } from '../ui/label';
 import ReactCrop, { type Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { canvasPreview } from '@/lib/utils';
+import { ScrollArea } from '../ui/scroll-area';
 
 interface ProfilePageClientProps {
     profileId: string;
@@ -71,6 +72,21 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
 
   const [isUploading, setIsUploading] = useState(false);
 
+  useEffect(() => {
+    if (
+      completedCrop?.width &&
+      completedCrop.height &&
+      imgRef.current &&
+      previewCanvasRef.current
+    ) {
+      canvasPreview(
+        imgRef.current,
+        previewCanvasRef.current,
+        completedCrop
+      )
+    }
+  }, [completedCrop])
+  
   useEffect(() => {
     const fetchProfile = async () => {
       setLoading(true);
@@ -129,21 +145,6 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     }
   }, [profileId, authUser, authLoading, supabase]);
   
-
-   useEffect(() => {
-    if (
-      completedCrop?.width &&
-      completedCrop.height &&
-      imgRef.current &&
-      previewCanvasRef.current
-    ) {
-      canvasPreview(
-        imgRef.current,
-        previewCanvasRef.current,
-        completedCrop
-      )
-    }
-  }, [completedCrop])
 
   if (loading || authLoading) {
     return (
@@ -302,64 +303,65 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                      />
                   </DialogContent>
                 </Dialog>
-                  {isOwnProfile ? (
+                  {isOwnProfile && (
                      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                         <DialogTrigger asChild>
                             <Button variant="outline">
                                 <Edit className="mr-2 h-4 w-4" /> Edit Profile
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-4xl">
+                        <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
                                 <DialogTitle>{t('profile.edit.title')}</DialogTitle>
                                 <DialogDescription>{t('profile.edit.description')}</DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="grid w-full max-w-sm items-center gap-1.5">
-                                    <Label htmlFor="picture">Change Picture</Label>
-                                    <Input id="picture" type="file" accept="image/*" onChange={onSelectFile} />
-                                </div>
+                              <ScrollArea className="max-h-[70vh] p-4">
+                                <div className="grid gap-4 py-4">
+                                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                                        <Label htmlFor="picture">Change Picture</Label>
+                                        <Input id="picture" type="file" accept="image/*" onChange={onSelectFile} />
+                                    </div>
 
-                                {imgSrc && (
-                                  <div className="mt-4 flex flex-col items-center">
-                                      <ReactCrop
-                                        crop={crop}
-                                        onChange={(_, percentCrop) => setCrop(percentCrop)}
-                                        onComplete={(c) => setCompletedCrop(c)}
-                                        aspect={aspect}
-                                        circularCrop
-                                        className="max-h-[60vh]"
-                                      >
-                                        <Image
-                                          ref={imgRef}
-                                          alt="Crop me"
-                                          src={imgSrc}
-                                          width={800}
-                                          height={600}
-                                          onLoad={onImageLoad}
-                                          className="object-contain"
-                                        />
-                                      </ReactCrop>
-                                  </div>
-                                )}
-                                {!!completedCrop && (
-                                  <div className="mt-4 flex flex-col items-center">
-                                    <h3 className="text-sm font-medium mb-2">Preview</h3>
-                                      <div>
-                                          <canvas
-                                          ref={previewCanvasRef}
-                                          style={{
-                                              border: '1px solid black',
-                                              objectFit: 'contain',
-                                              width: completedCrop.width,
-                                              height: completedCrop.height,
-                                              borderRadius: '50%'
-                                          }}
-                                          />
+                                    {imgSrc && (
+                                      <div className="mt-4 flex flex-col items-center">
+                                          <ReactCrop
+                                            crop={crop}
+                                            onChange={(_, percentCrop) => setCrop(percentCrop)}
+                                            onComplete={(c) => setCompletedCrop(c)}
+                                            aspect={aspect}
+                                            circularCrop
+                                          >
+                                            <Image
+                                              ref={imgRef}
+                                              alt="Crop me"
+                                              src={imgSrc}
+                                              width={800}
+                                              height={600}
+                                              onLoad={onImageLoad}
+                                              className="object-contain"
+                                            />
+                                          </ReactCrop>
                                       </div>
-                                  </div>
-                                )}
-                            </div>
+                                    )}
+                                    {!!completedCrop && (
+                                      <div className="mt-4 flex flex-col items-center">
+                                        <h3 className="text-sm font-medium mb-2">Preview</h3>
+                                          <div>
+                                              <canvas
+                                              ref={previewCanvasRef}
+                                              style={{
+                                                  border: '1px solid black',
+                                                  objectFit: 'contain',
+                                                  width: completedCrop.width,
+                                                  height: completedCrop.height,
+                                                  borderRadius: '50%'
+                                              }}
+                                              />
+                                          </div>
+                                      </div>
+                                    )}
+                                </div>
+                              </ScrollArea>
                             <DialogFooter>
                                 <Button onClick={handleAvatarUpload} disabled={isUploading || !completedCrop}>
                                     {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
@@ -368,14 +370,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                             </DialogFooter>
                         </DialogContent>
                      </Dialog>
-                  ) : authUser ? (
-                    <Button asChild>
-                       <a href={`mailto:${displayUser.email}`}>
-                        <Mail className="h-4 w-4 mr-2" />
-                        {t('profile.contactSeller')}
-                       </a>
-                    </Button>
-                  ) : null }
+                  )}
               </div>
             </div>
           </CardContent>
@@ -454,3 +449,4 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     </div>
   );
 }
+
