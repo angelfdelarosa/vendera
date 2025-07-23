@@ -4,7 +4,7 @@ import { mockUsers } from '@/lib/mock-data';
 import { ProfilePageClient } from '@/components/users/ProfilePageClient';
 import type { UserProfile } from '@/types';
 
-export const dynamicParams = true;
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const users = Object.values(mockUsers);
