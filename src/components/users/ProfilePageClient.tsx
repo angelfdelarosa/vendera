@@ -23,8 +23,6 @@ import type { Conversation, UserProfile, Property } from '@/types';
 import Image from 'next/image';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
-import { properties as allProperties } from '@/lib/mock-data';
-import { mockUsers } from '@/lib/mock-data';
 
 interface ProfilePageClientProps {
     profileId: string;
@@ -54,9 +52,14 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
         .single();
         
       if (profile) {
-        // In a real app, you'd fetch properties from a DB too.
-        // For now, we'll associate them from mock data if the user is a realtor.
-        const userProperties = allProperties.filter(p => p.realtor.id === profileId);
+        const { data: userProperties, error: propertiesError } = await supabase
+          .from('properties')
+          .select('*')
+          .eq('realtor_id', profileId);
+
+        if (propertiesError) {
+          console.error("Error fetching user properties", propertiesError);
+        }
 
         setDisplayUser({
             id: profile.id,
@@ -66,11 +69,9 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
             bio: profile.bio || 'A new member of the VENDRA community.',
             isVerifiedSeller: profile.is_verified_seller || false,
             rating: profile.rating || 0,
-            properties: userProperties
+            properties: (userProperties || []).map(p => ({ ...p, realtor: { id: profile.id, name: profile.full_name, avatar: profile.avatar_url } })) as unknown as Property[]
         });
       } else if (authUser?.id === profileId) {
-         // The user is new and their profile might not be in the DB yet.
-         // Let's create a temporary profile from auth data.
          setDisplayUser({
             id: authUser.id,
             name: authUser.user_metadata?.full_name || 'New User',
@@ -81,9 +82,6 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
             rating: 0,
             properties: [],
         });
-      } else if (mockUsers[profileId]) {
-        // Fallback to mock data if DB call fails or for static users
-        setDisplayUser(mockUsers[profileId]);
       }
 
       setLoading(false);

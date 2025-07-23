@@ -93,7 +93,6 @@ export default function NewPropertyPage() {
 
       const newPreviews = files.map(file => URL.createObjectURL(file));
       
-      // Clean up old previews
       imagePreviews.forEach(preview => URL.revokeObjectURL(preview));
 
       setImagePreviews(newPreviews);
@@ -420,5 +419,3 @@ export default function NewPropertyPage() {
     </div>
   );
 }
-
-    

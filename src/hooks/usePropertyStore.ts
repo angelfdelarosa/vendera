@@ -2,7 +2,6 @@
 "use client";
 
 import { create } from "zustand";
-import { properties as initialProperties, mockUsers } from "@/lib/mock-data";
 import type { Property } from "@/types";
 
 interface PropertyState {
@@ -18,10 +17,5 @@ export const usePropertyStore = create<PropertyState>((set) => ({
     set((state) => ({
       properties: [property, ...state.properties],
     }));
-
-    // This part might need adjustment if mockUsers is no longer the source of truth
-    if (mockUsers[property.realtor.id]) {
-      mockUsers[property.realtor.id].properties.unshift(property);
-    }
   },
 }));
