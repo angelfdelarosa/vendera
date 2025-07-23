@@ -12,16 +12,15 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { Loader2 } from "lucide-react";
 
 export default function HomePage() {
-  const allProperties = usePropertyStore((state) => state.properties);
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>(allProperties);
+  const { allProperties, setAllProperties } = usePropertyStore();
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Since we are using a store pre-populated with mock data,
-    // we can just set loading to false.
-    if (allProperties.length > 0) {
+    // Data is now fetched in the store, just set it
+     if (allProperties.length > 0) {
       setFilteredProperties(allProperties);
       setLoading(false);
     }

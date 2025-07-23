@@ -28,7 +28,7 @@ import ReactCrop, { type Crop, PixelCrop, centerCrop, makeAspectCrop } from 'rea
 import 'react-image-crop/dist/ReactCrop.css';
 import { canvasPreview } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
-import { mockUsers } from '@/lib/mock-data';
+import { usePropertyStore } from '@/hooks/usePropertyStore';
 
 interface ProfilePageClientProps {
     profileId: string;
@@ -69,8 +69,10 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
   const { t } = useTranslation();
   const { toast } = useToast();
   const { favorites } = useFavorites();
+  const allProperties = usePropertyStore((state) => state.allProperties);
 
   const [displayUser, setDisplayUser] = useState<UserProfile | null>(null);
+  const [userProperties, setUserProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
@@ -106,30 +108,36 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     const fetchProfile = async () => {
       setLoading(true);
 
-      const profile = mockUsers[profileId];
-        
-      if (profile) {
-        setDisplayUser(profile);
-      } else if (authUser?.id === profileId) {
-         setDisplayUser({
-            id: authUser.id,
-            name: authUser.user_metadata?.full_name || 'New User',
-            email: authUser.email || '',
-            avatar: authUser.user_metadata?.avatar_url || `https://placehold.co/128x128.png`,
-            bio: 'A new member of the VENDRA community.',
-            isVerifiedSeller: false,
-            rating: 0,
-            properties: [],
+      const { data: profileData, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', profileId)
+        .single();
+      
+      if (error || !profileData) {
+        console.error('Error fetching profile:', error);
+      } else {
+        setDisplayUser({
+            id: profileData.id,
+            name: profileData.full_name,
+            email: '', // Not fetching email for privacy
+            avatar: profileData.avatar_url,
+            bio: profileData.bio,
+            isVerifiedSeller: profileData.is_verified_seller,
+            rating: profileData.rating,
+            properties: [] // will be set below
         });
+        const propertiesForUser = allProperties.filter(p => p.realtor_id === profileId);
+        setUserProperties(propertiesForUser);
       }
 
       setLoading(false);
     };
 
-    if (!authLoading) {
+    if (!authLoading && allProperties.length > 0) {
       fetchProfile();
     }
-  }, [profileId, authUser, authLoading]);
+  }, [profileId, authLoading, supabase, allProperties]);
   
 
   if (loading || authLoading) {
@@ -212,6 +220,12 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
             data: { avatar_url: publicUrl }
         });
         if (updateUserError) throw updateUserError;
+
+         const { error: updateProfileError } = await supabase
+          .from('profiles')
+          .update({ avatar_url: publicUrl })
+          .eq('id', authUser.id);
+        if (updateProfileError) throw updateProfileError;
         
         setDisplayUser(prev => prev ? { ...prev, avatar: publicUrl } : null);
         toast({ title: "Profile Picture Updated!", description: "Your new avatar is now live." });
@@ -380,9 +394,9 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
             <TabsContent value="listed">
                 <Card className="mt-4">
                 <CardContent className="p-6">
-                    {displayUser.properties.length > 0 ? (
+                    {userProperties.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {displayUser.properties.map((property) => (
+                        {userProperties.map((property) => (
                         <PropertyCard key={property.id} property={property} />
                         ))}
                     </div>
@@ -440,5 +454,3 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     </div>
   );
 }
-
-    

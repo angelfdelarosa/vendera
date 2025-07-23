@@ -25,9 +25,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setUser(session?.user ?? null);
         setLoading(false);
+
+        if (event === 'SIGNED_IN') {
+           // Ensure profile exists
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('id', session.user.id)
+                .single();
+
+            if (!profile) {
+                // Create a profile if it doesn't exist
+                await supabase.from('profiles').insert({
+                    id: session.user.id,
+                    full_name: session.user.user_metadata.full_name,
+                    avatar_url: session.user.user_metadata.avatar_url,
+                    bio: 'A new member of the VENDRA community.',
+                    is_verified_seller: false,
+                    rating: 0
+                });
+            }
+        }
       }
     );
 
@@ -42,7 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase.auth]);
+  }, [supabase, supabase.auth]);
 
   const login = async (email: string, pass: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -65,6 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       options: {
         data: {
           full_name: name,
+          avatar_url: `https://placehold.co/128x128.png?text=${name.charAt(0)}`
         },
       },
     });
@@ -82,7 +104,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

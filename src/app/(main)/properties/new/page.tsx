@@ -107,7 +107,7 @@ export default function NewPropertyPage() {
       const uploadPromises = imageFiles.map(async (file) => {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
-        const filePath = `public/${user.id}/${fileName}`;
+        const filePath = `${user.id}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('property_images')
@@ -187,12 +187,23 @@ export default function NewPropertyPage() {
 
     const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url').eq('id', user.id).single();
 
+    if (!profile) {
+        toast({
+            title: "Error fetching realtor profile",
+            description: 'Could not find realtor data after listing property.',
+            variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+    }
+
     const newProperty: Property = {
         ...data,
         realtor: {
              id: user.id,
              name: profile?.full_name || 'Anonymous',
              avatar: profile?.avatar_url || 'https://placehold.co/100x100.png',
+             email: user.email || ''
         }
     }
 
