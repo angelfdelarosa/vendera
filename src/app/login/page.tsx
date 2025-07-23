@@ -66,7 +66,6 @@ export default function LoginPage() {
         description: "Welcome back!",
       });
       router.push('/');
-      router.refresh(); // Refresh to update server-side session data
     }
   };
 

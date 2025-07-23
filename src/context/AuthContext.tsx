@@ -12,7 +12,6 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<{ error: AuthError | null }>;
   logout: () => Promise<void>;
   signup: (name: string, email: string, pass: string) => Promise<{ error: AuthError | null }>;
-  updateUser: (updates: { displayName?: string, photoURL?: string }) => Promise<void>;
   supabase: SupabaseClient;
 }
 
@@ -32,6 +31,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
+    const checkUser = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+        setLoading(false);
+    }
+
+    checkUser();
+
     return () => {
       authListener.subscription.unsubscribe();
     };
@@ -48,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     await supabase.auth.signOut();
     router.push('/');
-    router.refresh();
+    router.refresh(); // Important to re-fetch server-side data
   };
 
   const signup = async (name: string, email: string, pass: string) => {
@@ -63,23 +70,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
     return { error };
   };
-  
-  const updateUser = async (updates: { displayName?: string, photoURL?: string }) => {
-     if (!user) throw new Error("No user is logged in");
-     
-     const { data, error } = await supabase.auth.updateUser({
-        data: {
-            full_name: updates.displayName,
-            avatar_url: updates.photoURL,
-        }
-     });
-
-     if (error) throw error;
-     // Manually update user state if needed, or rely on onAuthStateChange
-     if (data.user) {
-        setUser(data.user);
-     }
-  };
 
   const value = { 
     user, 
@@ -87,7 +77,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     login, 
     logout, 
     signup,
-    updateUser,
     supabase
   };
 

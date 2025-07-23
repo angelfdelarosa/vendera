@@ -40,10 +40,16 @@ export function UserNav() {
     return (
       <div className="flex items-center gap-2">
         <Button variant="ghost" asChild>
-          <Link href="/login"><LogIn /> Login</Link>
+          <Link href="/login">
+            <LogIn className="mr-2 h-4 w-4" />
+            Login
+          </Link>
         </Button>
         <Button asChild>
-          <Link href="/signup"><UserPlus /> Sign Up</Link>
+          <Link href="/signup">
+            <UserPlus className="mr-2 h-4 w-4" />
+            Sign Up
+          </Link>
         </Button>
       </div>
     );
