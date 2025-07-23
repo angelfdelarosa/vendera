@@ -67,7 +67,7 @@ export default function NewPropertyPage() {
   
   useEffect(() => {
     setFormData(getInitialFormData());
-  }, [t]);
+  }, [locale]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>

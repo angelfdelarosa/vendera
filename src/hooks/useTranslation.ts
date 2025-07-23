@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useContext } from 'react';
+import { useContext, useCallback } from 'react';
 import { LanguageContext } from '@/context/LanguageContext';
 
 function getNestedTranslation(obj: any, key: string): string | undefined {
@@ -16,7 +17,7 @@ export const useTranslation = () => {
 
   const { translations, locale, setLocale } = context;
 
-  const t = (key: string, params?: Record<string, string | number>): string => {
+  const t = useCallback((key: string, params?: Record<string, string | number>): string => {
     let translation = getNestedTranslation(translations, key) || key;
     if (params) {
       Object.keys(params).forEach(paramKey => {
@@ -24,7 +25,7 @@ export const useTranslation = () => {
       });
     }
     return translation;
-  };
+  }, [translations]);
 
   return { t, locale, setLocale };
 };
