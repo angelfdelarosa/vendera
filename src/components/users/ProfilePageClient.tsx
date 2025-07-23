@@ -54,8 +54,18 @@ function centerAspectCrop(
   )
 }
 
+// Debounce function to limit how often a function can run.
+function debounce(fn: Function, ms = 300) {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  return function (this: any, ...args: any[]) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
+
 export default function ProfilePageClient({ profileId }: ProfilePageClientProps) {
-  const { user: authUser, loading: authLoading } = useAuth();
+  const { user: authUser, loading: authLoading, supabase } = useAuth();
   const { t } = useTranslation();
   const { toast } = useToast();
   const { favorites } = useFavorites();
@@ -72,21 +82,25 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
   const [aspect, setAspect] = useState<number | undefined>(1)
 
   const [isUploading, setIsUploading] = useState(false);
+  
+  const debouncedCanvasPreview = debounce(async () => {
+    if (
+        completedCrop?.width &&
+        completedCrop.height &&
+        imgRef.current &&
+        previewCanvasRef.current
+        ) {
+        await canvasPreview(
+            imgRef.current,
+            previewCanvasRef.current,
+            completedCrop,
+        );
+    }
+  }, 100);
 
   useEffect(() => {
-    if (
-      completedCrop?.width &&
-      completedCrop.height &&
-      imgRef.current &&
-      previewCanvasRef.current
-    ) {
-      canvasPreview(
-        imgRef.current,
-        previewCanvasRef.current,
-        completedCrop
-      )
-    }
-  }, [completedCrop])
+    debouncedCanvasPreview();
+  }, [completedCrop, debouncedCanvasPreview]);
   
   useEffect(() => {
     const fetchProfile = async () => {
@@ -157,6 +171,12 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
       setCrop(centerAspectCrop(width, height, aspect))
     }
   }
+
+  const getCroppedBlob = (canvas: HTMLCanvasElement): Promise<Blob | null> => {
+    return new Promise((resolve) => {
+        canvas.toBlob(blob => resolve(blob), 'image/png', 1);
+    });
+  };
   
   const handleAvatarUpload = async () => {
     if (!previewCanvasRef.current || !authUser || !completedCrop) {
@@ -165,17 +185,45 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     }
 
     setIsUploading(true);
-    // In a real app, this would upload to a server.
-    // Here we'll just simulate it.
-    await new Promise(resolve => setTimeout(resolve, 1500));
+
     const canvas = previewCanvasRef.current;
-    const newAvatarUrl = canvas.toDataURL('image/png');
-    
-    setDisplayUser(prev => prev ? { ...prev, avatar: newAvatarUrl } : null);
-    toast({ title: "Profile Picture Updated!", description: "Your new avatar is now live." });
-    setIsEditModalOpen(false);
-    setImgSrc('');
-    setIsUploading(false);
+    const blob = await getCroppedBlob(canvas);
+
+    if (!blob) {
+        toast({ title: "Error", description: "Could not process image.", variant: "destructive" });
+        setIsUploading(false);
+        return;
+    }
+
+    const filePath = `avatars/${authUser.id}/${Date.now()}.png`;
+
+    try {
+        const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(filePath, blob, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(filePath);
+        
+        const { error: updateUserError } = await supabase.auth.updateUser({
+            data: { avatar_url: publicUrl }
+        });
+        if (updateUserError) throw updateUserError;
+        
+        setDisplayUser(prev => prev ? { ...prev, avatar: publicUrl } : null);
+        toast({ title: "Profile Picture Updated!", description: "Your new avatar is now live." });
+
+    } catch (error: any) {
+        console.error("Error updating profile picture:", error);
+        toast({ title: "Upload Failed", description: error.message, variant: "destructive" });
+    } finally {
+        setIsUploading(false);
+        setIsEditModalOpen(false);
+        setImgSrc('');
+    }
   };
 
   const userInitial = displayUser.name.charAt(0).toUpperCase();
@@ -392,3 +440,5 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     </div>
   );
 }
+
+    
