@@ -158,7 +158,7 @@ export default function EditPropertyPage() {
     
     // This is tricky because the updated 'data' doesn't have the realtor info.
     // We need to merge it with the existing property data.
-    const fullyUpdatedProperty = { ...property, ...data };
+    const fullyUpdatedProperty: Property = { ...property, ...data };
     updateProperty(data.id, fullyUpdatedProperty);
 
     toast({
@@ -310,3 +310,5 @@ export default function EditPropertyPage() {
     </div>
   );
 }
+
+    

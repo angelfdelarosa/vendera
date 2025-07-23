@@ -147,17 +147,22 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
         setDisplayUser(null);
       } else {
         setDisplayUser(profileData);
-        const propertiesForUser = allProperties.filter(p => p.realtor_id === profileId);
-        setUserProperties(propertiesForUser);
       }
-
       setLoading(false);
     };
 
-    if (!authLoading && !propertiesLoading) {
+    if (!authLoading) {
       fetchProfile();
     }
-  }, [profileId, authLoading, propertiesLoading, supabase, allProperties]);
+  }, [profileId, authLoading, supabase]);
+
+  useEffect(() => {
+     if (!propertiesLoading && displayUser) {
+        const propertiesForUser = allProperties.filter(p => p.realtor_id === displayUser.user_id);
+        setUserProperties(propertiesForUser);
+     }
+  }, [propertiesLoading, allProperties, displayUser]);
+
   
   const handleDeleteProperty = async (propertyId: string) => {
     const { error } = await supabase
@@ -356,7 +361,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                         <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
                                 <DialogTitle>{t('profile.edit.title')}</DialogTitle>
-                                <DialogDescription>{t('profile.edit.description')}</DialogDescription>
+                                <DialogDescription>{t('profile.edit.description')}</DialogTitle>
                             </DialogHeader>
                               <ScrollArea className="max-h-[70vh] p-4">
                                 <div className="grid gap-4 py-4">
@@ -447,7 +452,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {userProperties.map(property => (
                             <div key={property.id} className="relative group">
-                              {isEditMode && (
+                              {isEditMode && isOwnProfile && (
                                 <div className="absolute top-2 right-14 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                   <Button size="icon" variant="outline" className="bg-background" asChild>
                                     <Link href={`/edit-property/${property.id}`}>
@@ -508,7 +513,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                     ) : (
                         <div className="text-center py-16">
                         <p className="text-muted-foreground mb-4">
-                            {t('profile.empty.saved.description')}
+                            {isOwnProfile ? t('profile.empty.saved.description') : `Aún no has guardado ninguna de las propiedades de ${displayUser.full_name}.`}
                         </p>
                         <Button asChild>
                             <Link href="/">{t('profile.empty.saved.button')}</Link>
@@ -535,3 +540,5 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     </div>
   );
 }
+
+    
