@@ -312,7 +312,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                         <div className="flex items-center gap-2 mt-4">
                           <div className="flex items-center text-amber-500">
                             {[...Array(5)].map((_, i) => (
-                              <Star key={i} className={`w-5 h-5 ${i < (0) ? 'fill-current' : 'text-muted-foreground fill-muted'}`} />
+                              <Star key={i} className={'w-5 h-5 text-muted-foreground fill-muted'} />
                             ))}
                           </div>
                           <span className="text-muted-foreground text-sm">
@@ -540,5 +540,3 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     </div>
   );
 }
-
-    
