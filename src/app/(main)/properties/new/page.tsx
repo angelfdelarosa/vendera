@@ -141,8 +141,8 @@ export default function NewPropertyPage() {
     if (imageFiles.length > 0) {
       const uploadPromises = imageFiles.map(async (file) => {
         const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-        const filePath = `${fileName}`;
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = `public/${user.id}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('property_images')
@@ -165,7 +165,7 @@ export default function NewPropertyPage() {
         console.error('Error uploading images:', error);
         toast({
           title: "Image Upload Failed",
-          description: error.message,
+          description: error.message || "An unknown error occurred during image upload.",
           variant: "destructive",
         });
         setIsSubmitting(false);
@@ -420,3 +420,5 @@ export default function NewPropertyPage() {
     </div>
   );
 }
+
+    
