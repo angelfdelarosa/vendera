@@ -303,6 +303,41 @@
       "content": "These Terms shall be governed and construed in accordance with the laws of the State of California, United States, without regard to its conflict of law provisions."
     }
   },
+  "landing": {
+    "hero": {
+      "title": "Your Next Home Awaits",
+      "subtitle": "The premier marketplace for discovering, buying, and selling extraordinary properties. Let's find the door to your dreams.",
+      "cta_main": "Get Started",
+      "cta_secondary": "Learn More"
+    },
+    "featured": {
+      "title": "Featured Listings",
+      "subtitle": "Explore a handpicked selection of our finest properties, from luxury villas to modern city apartments."
+    },
+    "features": {
+        "feature1_title": "Advanced Search",
+        "feature1_desc": "Easily find your ideal property with our powerful and intuitive search filters.",
+        "feature2_title": "Quality Listings",
+        "feature2_desc": "We feature a curated selection of properties to ensure you browse the best on the market.",
+        "feature3_title": "Direct Messaging",
+        "feature3_desc": "Connect directly and securely with sellers and agents to get the information you need."
+    },
+    "testimonials": {
+      "title": "What Our Clients Say",
+      "subtitle": "We're proud to have helped so many people find their perfect home. Here's what they think about VENDRA.",
+      "quote1": "VENDRA made finding our dream home an absolute breeze. The platform is so intuitive and the agents were incredibly helpful!",
+      "role1": "Happy Homebuyers",
+      "quote2": "As an agent, VENDRA is a game-changer. It connects me with serious buyers and streamlines the entire selling process.",
+      "role2": "Verified Seller",
+      "quote3": "I was overwhelmed with the process of selling my house, but VENDRA provided the tools and support I needed to get a great offer, fast.",
+      "role3": "First-time Seller"
+    },
+    "cta": {
+      "title": "Ready to Begin Your Journey?",
+      "subtitle": "Create an account today to save your favorite properties, connect with sellers, and unlock all the features of VENDRA.",
+      "button": "Sign Up for Free"
+    }
+  },
   "mock": {
     "property1_title": "Luxurious Villa in Beverly Hills",
     "property1_description": "A stunning villa offering unparalleled luxury and privacy. Features a grand staircase, gourmet kitchen, and a breathtaking infinity pool with city views. Perfect for those who demand the very best in life.",

@@ -303,6 +303,41 @@
       "content": "Estos Términos se regirán e interpretarán de acuerdo con las leyes del Estado de California, Estados Unidos, sin tener en cuenta sus disposiciones sobre conflicto de leyes."
     }
   },
+  "landing": {
+    "hero": {
+      "title": "Tu Próximo Hogar te Espera",
+      "subtitle": "El mercado principal para descubrir, comprar y vender propiedades extraordinarias. Encontremos la puerta a tus sueños.",
+      "cta_main": "Comenzar",
+      "cta_secondary": "Saber Más"
+    },
+    "featured": {
+      "title": "Listados Destacados",
+      "subtitle": "Explora una selección exclusiva de nuestras mejores propiedades, desde villas de lujo hasta modernos apartamentos en la ciudad."
+    },
+     "features": {
+        "feature1_title": "Búsqueda Avanzada",
+        "feature1_desc": "Encuentra fácilmente tu propiedad ideal con nuestros potentes e intuitivos filtros de búsqueda.",
+        "feature2_title": "Listados de Calidad",
+        "feature2_desc": "Contamos con una cuidada selección de propiedades para asegurar que explores lo mejor del mercado.",
+        "feature3_title": "Mensajería Directa",
+        "feature3_desc": "Conéctate de forma directa y segura con vendedores y agentes para obtener la información que necesitas."
+    },
+    "testimonials": {
+      "title": "Lo que Dicen Nuestros Clientes",
+      "subtitle": "Estamos orgullosos de haber ayudado a tantas personas a encontrar su hogar perfecto. Esto es lo que piensan de VENDRA.",
+      "quote1": "VENDRA hizo que encontrar la casa de nuestros sueños fuera un juego de niños. ¡La plataforma es muy intuitiva y los agentes fueron increíblemente serviciales!",
+      "role1": "Compradores Felices",
+      "quote2": "Como agente, VENDRA es revolucionario. Me conecta con compradores serios y agiliza todo el proceso de venta.",
+      "role2": "Vendedora Verificada",
+      "quote3": "Estaba abrumado con el proceso de vender mi casa, pero VENDRA me dio las herramientas y el apoyo que necesitaba para obtener una gran oferta, rápidamente.",
+      "role3": "Vendedor Primerizo"
+    },
+    "cta": {
+      "title": "¿Listo para Empezar tu Viaje?",
+      "subtitle": "Crea una cuenta hoy para guardar tus propiedades favoritas, conectarte con vendedores y desbloquear todas las funciones de VENDRA.",
+      "button": "Regístrate Gratis"
+    }
+  },
   "mock": {
     "property1_title": "Lujosa Villa en Beverly Hills",
     "property1_description": "Una impresionante villa que ofrece lujo y privacidad incomparables. Cuenta con una gran escalera, cocina gourmet y una piscina infinita impresionante con vistas a la ciudad. Perfecta para quienes exigen lo mejor de la vida.",
