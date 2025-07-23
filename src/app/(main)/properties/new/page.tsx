@@ -36,14 +36,14 @@ export default function NewPropertyPage() {
   const router = useRouter();
   const { toast } = useToast();
   const addProperty = usePropertyStore((state) => state.addProperty);
-  const { t, locale } = useTranslation();
-  const { user, supabase } = useAuth();
+  const { t } = useTranslation();
+  const { user, loading: authLoading, supabase } = useAuth();
 
   useEffect(() => {
-    if (!user) {
+    if (!authLoading && !user) {
       router.push('/login');
     }
-  }, [user, router]);
+  }, [user, authLoading, router]);
 
   const getInitialFormData = () => ({
     title: "",
@@ -64,11 +64,6 @@ export default function NewPropertyPage() {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   
-  useEffect(() => {
-    // Reset form when locale changes to re-apply placeholders if needed
-    setFormData(getInitialFormData());
-  }, [locale]);
-
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -216,7 +211,7 @@ export default function NewPropertyPage() {
   };
 
 
-  if (!user) {
+  if (authLoading || !user) {
      return (
       <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />

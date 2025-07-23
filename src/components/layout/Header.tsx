@@ -9,11 +9,13 @@ import { Search } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserNav } from "./UserNav";
+import { useAuth } from "@/context/AuthContext";
 
 export function Header() {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
+  const { user } = useAuth();
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
@@ -32,18 +34,22 @@ export function Header() {
           >
             {t('header.properties')}
           </Link>
-          <Link
-            href="/favorites"
-            className="text-foreground/60 transition-colors hover:text-accent"
-          >
-            {t('header.favorites')}
-          </Link>
-          <Link
-            href="/properties/new"
-            className="text-foreground/60 transition-colors hover:text-accent"
-          >
-            {t('header.addProperty')}
-          </Link>
+          {user && (
+            <>
+              <Link
+                href="/favorites"
+                className="text-foreground/60 transition-colors hover:text-accent"
+              >
+                {t('header.favorites')}
+              </Link>
+              <Link
+                href="/properties/new"
+                className="text-foreground/60 transition-colors hover:text-accent"
+              >
+                {t('header.addProperty')}
+              </Link>
+            </>
+          )}
         </nav>
         <div className="flex flex-1 items-center justify-center space-x-4 px-8">
            <div className="relative w-full max-w-md">

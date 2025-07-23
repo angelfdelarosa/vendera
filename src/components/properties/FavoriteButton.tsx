@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Heart } from "lucide-react";
@@ -6,6 +7,7 @@ import { useFavorites } from "@/context/FavoritesContext";
 import type { Property } from "@/types";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAuth } from "@/context/AuthContext";
 
 interface FavoriteButtonProps {
   property: Property;
@@ -14,6 +16,7 @@ interface FavoriteButtonProps {
 
 export function FavoriteButton({ property, className }: FavoriteButtonProps) {
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const { user } = useAuth();
   const isFavorited = isFavorite(property.id);
   const { t } = useTranslation();
 
@@ -26,6 +29,10 @@ export function FavoriteButton({ property, className }: FavoriteButtonProps) {
       addFavorite(property);
     }
   };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <Button
