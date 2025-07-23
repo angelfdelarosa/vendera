@@ -1,7 +1,7 @@
+
 "use client";
 
 import Link from "next/link";
-import { UserNav } from "./UserNav";
 import { Logo } from "./Logo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -9,22 +9,16 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
-import { MessageNotifications } from "./MessageNotifications";
+import { Button } from "../ui/button";
 
 export function Header() {
-  const { user } = useAuth();
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
-      if (user) {
-        router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      } else {
-        router.push(`/?q=${encodeURIComponent(searchQuery.trim())}`);
-      }
+      router.push(`/?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
@@ -39,28 +33,24 @@ export function Header() {
           >
             {t('header.properties')}
           </Link>
-          {user && (
-            <>
-              <Link
-                href="/favorites"
-                className="text-foreground/60 transition-colors hover:text-accent"
-              >
-                {t('header.favorites')}
-              </Link>
-              <Link
-                href="/properties/new"
-                className="text-foreground/60 transition-colors hover:text-accent"
-              >
-                {t('header.addProperty')}
-              </Link>
-            </>
-          )}
+          <Link
+            href="/favorites"
+            className="text-foreground/60 transition-colors hover:text-accent"
+          >
+            {t('header.favorites')}
+          </Link>
+          <Link
+            href="/properties/new"
+            className="text-foreground/60 transition-colors hover:text-accent"
+          >
+            {t('header.addProperty')}
+          </Link>
         </nav>
         <div className="flex flex-1 items-center justify-center space-x-4 px-8">
            <div className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
-              placeholder={user ? t('search.placeholder.users') : t('search.placeholder.properties')}
+              placeholder={t('search.placeholder.properties')}
               className="pl-10"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -70,8 +60,12 @@ export function Header() {
         </div>
         <div className="flex items-center justify-end space-x-2">
           <LanguageSwitcher />
-          {user && <MessageNotifications />}
-          <UserNav />
+           <Button variant="ghost" asChild>
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/signup">Sign Up</Link>
+            </Button>
         </div>
       </div>
     </header>

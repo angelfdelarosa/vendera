@@ -20,8 +20,7 @@ import { BedDouble, Bath, Ruler, MapPin, Building, MessageSquare, Lock, Loader2,
 import { SimilarProperties } from '@/components/properties/SimilarProperties';
 import { FavoriteButton } from '@/components/properties/FavoriteButton';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/context/AuthContext';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { useChatStore } from '@/components/chat/use-chat-store';
@@ -31,7 +30,6 @@ import { useTranslation } from '@/hooks/useTranslation';
 
 export default function PropertyDetailPage() {
   const params = useParams();
-  const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const properties = usePropertyStore((state) => state.properties);
@@ -39,10 +37,6 @@ export default function PropertyDetailPage() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { getConversationByPropertyId, createConversation } = useChatStore();
   const { t } = useTranslation();
-
-  const handleLoginRedirect = () => {
-    router.push(`/login?redirect=${pathname}`);
-  };
 
   if (!property) {
     notFound();
@@ -63,10 +57,6 @@ export default function PropertyDetailPage() {
   };
 
   const handleContactSeller = () => {
-    if (!user) {
-        handleLoginRedirect();
-        return;
-    }
     let convo = getConversationByPropertyId(property.id);
     if (!convo) {
       convo = createConversation({
@@ -80,14 +70,6 @@ export default function PropertyDetailPage() {
   const conversation = getConversationByPropertyId(property.id) || 
     ({ id: 'temp', user: sellerForChat, property, messages: [], unread: false, timestamp: '' } as Conversation);
 
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
-  }
   
   return (
     <div className="container mx-auto px-4 py-8">
@@ -136,7 +118,7 @@ export default function PropertyDetailPage() {
                 <p className="text-4xl font-bold text-accent">
                   ${property.price.toLocaleString()}
                 </p>
-                {user && <FavoriteButton property={property} className="h-10 w-10" />}
+                <FavoriteButton property={property} className="h-10 w-10" />
               </div>
             </CardContent>
           </Card>

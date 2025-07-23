@@ -3,7 +3,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -31,10 +30,10 @@ import { usePropertyStore } from "@/hooks/usePropertyStore";
 import type { Property } from "@/types";
 import Image from "next/image";
 import { useTranslation } from "@/hooks/useTranslation";
+import { mockUsers } from "@/lib/mock-data";
 
 
 export default function NewPropertyPage() {
-  const { user, loading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const addProperty = usePropertyStore((state) => state.addProperty);
@@ -62,12 +61,6 @@ export default function NewPropertyPage() {
   useEffect(() => {
     setFormData(getInitialFormData());
   }, [t]);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/login");
-    }
-  }, [user, loading, router]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -136,8 +129,10 @@ export default function NewPropertyPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
     setIsSubmitting(true);
+    
+    // Use a mock user since auth is disabled
+    const mockRealtor = Object.values(mockUsers)[0];
 
     const newProperty: Property = {
       id: crypto.randomUUID(),
@@ -156,10 +151,9 @@ export default function NewPropertyPage() {
         "https://placehold.co/600x400.png",
       ],
       realtor: {
-        id: user.id,
-        name: user.user_metadata?.full_name || "Anonymous Seller",
-        avatar:
-          user.user_metadata?.avatar_url || "https://placehold.co/100x100.png",
+        id: mockRealtor.id,
+        name: mockRealtor.name,
+        avatar: mockRealtor.avatar,
       },
     };
 
@@ -176,13 +170,6 @@ export default function NewPropertyPage() {
     router.push(`/properties/${newProperty.id}`);
   };
 
-  if (loading || !user) {
-    return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto px-4 py-8">

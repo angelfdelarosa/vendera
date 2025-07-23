@@ -2,8 +2,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
@@ -15,16 +13,8 @@ import Link from 'next/link';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export default function MessagesPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
   const { conversations, selectedConversation, selectConversation } = useChatStore();
   const { t } = useTranslation();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
 
   const getTimestamp = (convo: Conversation) => {
     if (convo.timestamp.includes('m ago') || convo.timestamp.includes('hace')) {
@@ -35,14 +25,6 @@ export default function MessagesPage() {
       return t('messages.timestamp.minutes', { count: convo.timestamp });
     }
     return t('messages.timestamp.hours', { count: convo.timestamp });
-  }
-
-  if (loading || !user) {
-    return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
   }
 
   if (conversations.length === 0) {

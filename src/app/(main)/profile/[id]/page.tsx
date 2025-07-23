@@ -1,9 +1,8 @@
 
 'use client';
 
-import { useParams, useRouter, notFound, useSearchParams } from 'next/navigation';
+import { useParams, notFound, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,7 +13,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, MessageSquare, Settings, Loader2, Building, Heart } from 'lucide-react';
+import { Star, MessageSquare, Loader2, Building, Heart } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -25,18 +24,6 @@ import { ChatWindow } from '@/components/chat/ChatWindow';
 import { useChatStore } from '@/components/chat/use-chat-store';
 import type { Conversation, UserProfile } from '@/types';
 import Image from 'next/image';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -45,56 +32,26 @@ import { useTranslation } from '@/hooks/useTranslation';
 export default function ProfilePage() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const { user: currentUser, loading, updateUser } = useAuth();
-  const router = useRouter();
   const profileId = params.id as string;
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { getConversationByUserId, createConversation } = useChatStore();
   const { toast } = useToast();
   const allProperties = usePropertyStore((state) => state.properties);
   const { t } = useTranslation();
-
-  const isOwnProfile = currentUser?.id === profileId;
   
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [bio, setBio] = useState('');
-  const [newAvatarUrl, setNewAvatarUrl] = useState<string | null>(null);
-
   useEffect(() => {
-    if (searchParams.get('chat') === 'true' && currentUser) {
+    if (searchParams.get('chat') === 'true') {
       const convo = getConversationByUserId(profileId);
       if (convo) {
         setIsChatOpen(true);
       }
     }
-  }, [searchParams, profileId, getConversationByUserId, currentUser]);
+  }, [searchParams, profileId, getConversationByUserId]);
 
   const displayUser: UserProfile | undefined = useMemo(() => {
-    if (isOwnProfile && currentUser) {
-        return {
-            id: currentUser.id,
-            name: currentUser.user_metadata.full_name,
-            email: currentUser.email || '',
-            avatar: currentUser.user_metadata.avatar_url,
-            bio: "Un nuevo miembro de la comunidad VENDRA.",
-            isVerifiedSeller: false,
-            rating: 0,
-            properties: allProperties.filter(p => p.realtor.id === currentUser.id)
-        }
-    }
     return mockUsers[profileId];
-  }, [profileId, isOwnProfile, currentUser, allProperties]);
+  }, [profileId]);
 
-  useEffect(() => {
-    if (displayUser && isSheetOpen) {
-      setName(displayUser.name);
-      setBio(t(displayUser.bio));
-    }
-    if (!isSheetOpen) {
-        setNewAvatarUrl(null);
-    }
-  }, [displayUser, isSheetOpen, t]);
   
   const conversation = getConversationByUserId(profileId) ||
    (displayUser && displayUser.properties.length > 0
@@ -109,10 +66,6 @@ export default function ProfilePage() {
     : null);
 
   const handleContactSeller = () => {
-    if (!currentUser) {
-        router.push(`/login?redirect=/profile/${profileId}`);
-        return;
-    }
     if (!displayUser || !displayUser.properties.length) return;
     let convo = getConversationByUserId(displayUser.id);
     if (!convo) {
@@ -126,52 +79,14 @@ export default function ProfilePage() {
 
 
   useEffect(() => {
-    if (!loading && !displayUser) {
+    if (!displayUser) {
         notFound();
     }
-  }, [loading, displayUser]);
+  }, [displayUser]);
   
   const { favorites } = useFavorites();
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewAvatarUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSaveChanges = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentUser) return;
-
-    try {
-      await updateUser({
-        displayName: name,
-        ...(newAvatarUrl && { photoURL: newAvatarUrl }),
-      });
-
-      toast({
-        title: t('profile.edit.toast.success.title'),
-        description: t('profile.edit.toast.success.description'),
-      });
-    } catch (error) {
-      console.error("Profile update error:", error);
-      toast({
-        title: t('profile.edit.toast.error.title'),
-        description: t('profile.edit.toast.error.description'),
-        variant: "destructive"
-      });
-    } finally {
-      setIsSheetOpen(false);
-    }
-  };
-
-
-  if (loading || !displayUser) {
+  if (!displayUser) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -239,59 +154,6 @@ export default function ProfilePage() {
                      />
                   </DialogContent>
                 </Dialog>
-                {isOwnProfile ? (
-                  <div className="space-x-2">
-                    <Button variant="outline" size="icon" asChild>
-                      <Link href="/messages"><MessageSquare className="h-4 w-4" /></Link>
-                    </Button>
-                    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                      <SheetTrigger asChild>
-                         <Button variant="outline" size="icon">
-                          <Settings className="h-4 w-4" />
-                        </Button>
-                      </SheetTrigger>
-                      <SheetContent>
-                       <form onSubmit={handleSaveChanges}>
-                        <SheetHeader>
-                          <SheetTitle>{t('profile.edit.title')}</SheetTitle>
-                          <SheetDescription>
-                            {t('profile.edit.description')}
-                          </SheetDescription>
-                        </SheetHeader>
-                        <div className="grid gap-4 py-4">
-                           <div className="grid grid-cols-4 items-center gap-4">
-                            <Label className="text-right">
-                              Avatar
-                            </Label>
-                            <div className="col-span-3 flex items-center gap-4">
-                               <Avatar>
-                                <AvatarImage src={newAvatarUrl || displayUser.avatar} />
-                                <AvatarFallback>{userInitial}</AvatarFallback>
-                              </Avatar>
-                              <Input id="avatar-upload" type="file" accept="image/*" onChange={handleAvatarChange} className="text-sm" />
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="name" className="text-right">
-                              {t('profile.edit.name')}
-                            </Label>
-                            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" />
-                          </div>
-                          <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="bio" className="text-right">
-                              Bio
-                            </Label>
-                            <Textarea id="bio" value={bio} onChange={(e) => setBio(e.target.value)} className="col-span-3" />
-                          </div>
-                        </div>
-                        <SheetFooter>
-                          <Button type="submit">{t('profile.edit.save')}</Button>
-                        </SheetFooter>
-                       </form>
-                      </SheetContent>
-                    </Sheet>
-                  </div>
-                ) : (
                   <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
                     <DialogTrigger asChild>
                       <Button onClick={handleContactSeller}>
@@ -303,14 +165,13 @@ export default function ProfilePage() {
                       <DialogHeader>
                         <DialogTitle>{t('chat.title')} {displayUser.name}</DialogTitle>
                       </DialogHeader>
-                      {currentUser && conversation && (
+                      {conversation && (
                         <ChatWindow
                           conversation={conversation}
                         />
                       )}
                     </DialogContent>
                   </Dialog>
-                )}
               </div>
             </div>
           </CardContent>
@@ -321,11 +182,9 @@ export default function ProfilePage() {
             <TabsTrigger value="listed">
               <Building className="mr-2" /> {t('profile.tabs.listed')}
             </TabsTrigger>
-            {isOwnProfile && (
               <TabsTrigger value="saved">
                 <Heart className="mr-2" /> {t('profile.tabs.saved')}
               </TabsTrigger>
-            )}
           </TabsList>
           <TabsContent value="listed">
             <Card className="mt-4">
@@ -339,19 +198,13 @@ export default function ProfilePage() {
                 ) : (
                   <div className="text-center py-16">
                     <p className="text-muted-foreground mb-4">
-                      {isOwnProfile ? t('profile.empty.listed.own') : t('profile.empty.listed.other', { name: displayUser.name })}
+                      {t('profile.empty.listed.other', { name: displayUser.name })}
                     </p>
-                    {isOwnProfile && (
-                      <Button asChild>
-                        <Link href="/properties/new">{t('header.addProperty')}</Link>
-                      </Button>
-                    )}
                   </div>
                 )}
               </CardContent>
             </Card>
           </TabsContent>
-          {isOwnProfile && (
             <TabsContent value="saved">
               <Card className="mt-4">
                 <CardContent className="p-6">
@@ -374,7 +227,6 @@ export default function ProfilePage() {
                 </CardContent>
               </Card>
             </TabsContent>
-          )}
         </Tabs>
       </div>
     </div>

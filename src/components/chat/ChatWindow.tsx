@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import type { Conversation, Message } from '@/types';
+import type { Conversation, Message, UserProfile } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -11,15 +11,17 @@ import { Send, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { chatAssistant } from '@/ai/flows/chat-assistant';
 import { useChatStore } from './use-chat-store';
-import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { mockUsers } from '@/lib/mock-data';
 
 interface ChatWindowProps {
   conversation: Conversation;
 }
 
 export function ChatWindow({ conversation }: ChatWindowProps) {
-  const { user: buyer } = useAuth();
+  // Since auth is disabled, we'll use a mock buyer.
+  const buyer: UserProfile = mockUsers['emily-white'];
+
   const { messages, addMessage } = useChatStore((state) => ({
     messages: state.conversations.find((c) => c.id === conversation.id)?.messages || [],
     addMessage: state.addMessage,
@@ -62,11 +64,11 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
 
     try {
         const messageHistory = [...messages, buyerMessage]
-            .map(m => `${m.sender === 'buyer' ? (buyer.user_metadata.full_name || 'Buyer') : conversation.user.name}: ${m.text}`)
+            .map(m => `${m.sender === 'buyer' ? (buyer.name || 'Buyer') : conversation.user.name}: ${m.text}`)
             .join('\n');
 
         const result = await chatAssistant({
-            buyerName: buyer.user_metadata.full_name || t('chat.potentialBuyer'),
+            buyerName: buyer.name || t('chat.potentialBuyer'),
             sellerName: conversation.user.name,
             propertyName: t(conversation.property.title),
             messageHistory: messageHistory,
@@ -96,20 +98,12 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
   };
 
   const getAvatar = (sender: 'buyer' | 'seller') => {
-    return sender === 'buyer' ? buyer?.user_metadata.avatar_url : conversation.user.avatar;
+    return sender === 'buyer' ? buyer.avatar : conversation.user.avatar;
   };
 
   const getInitial = (sender: 'buyer' | 'seller') => {
-    const name = sender === 'buyer' ? buyer?.user_metadata.full_name : conversation.user.name;
+    const name = sender === 'buyer' ? buyer.name : conversation.user.name;
     return name ? name.charAt(0).toUpperCase() : 'U';
-  }
-
-  if (!buyer) {
-      return (
-        <div className="flex flex-col h-full items-center justify-center text-muted-foreground">
-            <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      )
   }
 
   return (
