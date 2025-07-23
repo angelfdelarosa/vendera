@@ -24,7 +24,7 @@ export function Logo({ layout = 'horizontal' }: LogoProps) {
 
   return (
     <Link
-      href="/"
+      href="/landing"
       className={cn(
         'flex items-center',
         isVertical ? 'flex-col gap-4' : 'flex-row gap-2'
