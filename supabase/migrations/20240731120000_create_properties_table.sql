@@ -1,42 +1,48 @@
--- Create the public.properties table
-CREATE TABLE IF NOT EXISTS public.properties (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  realtor_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  price NUMERIC NOT NULL,
-  location TEXT,
-  address TEXT,
-  type TEXT,
-  bedrooms INT,
-  bathrooms INT,
-  area NUMERIC,
-  description TEXT,
-  features TEXT[],
-  images TEXT[],
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
+-- 1. Create the properties table
+create table
+  public.properties (
+    id uuid not null default gen_random_uuid (),
+    created_at timestamp with time zone not null default now(),
+    realtor_id uuid not null,
+    title text not null,
+    price integer not null,
+    location text null,
+    address text null,
+    type text not null,
+    bedrooms integer null,
+    bathrooms integer null,
+    area integer null,
+    description text null,
+    features text[] null,
+    images text[] null,
+    constraint properties_pkey primary key (id),
+    constraint properties_realtor_id_fkey foreign key (realtor_id) references profiles (id) on delete cascade
+  ) tablespace pg_default;
 
--- Set up Row Level Security (RLS) for the properties table
-ALTER TABLE public.properties ENABLE ROW LEVEL SECURITY;
+-- 2. Set up Row Level Security (RLS)
+-- In Supabase, RLS is enabled by default. We need to create policies to allow access.
 
--- Allow public read access to all properties
-CREATE POLICY "Allow public read-only access to properties"
-ON public.properties FOR SELECT
-USING (true);
+-- First, drop existing policies to avoid conflicts
+drop policy if exists "Users can see all properties" on public.properties;
+drop policy if exists "Users can insert their own properties" on public.properties;
+drop policy if exists "Users can update their own properties" on public.properties;
+drop policy if exists "Users can delete their own properties" on public.properties;
 
--- Allow authenticated users to insert new properties for themselves
-CREATE POLICY "Allow authenticated users to insert properties"
-ON public.properties FOR INSERT
-TO authenticated
-WITH CHECK (auth.uid() = realtor_id);
+-- Enable RLS
+alter table public.properties enable row level security;
 
--- Allow users to update their own properties
-CREATE POLICY "Allow users to update their own properties"
-ON public.properties FOR UPDATE
-USING (auth.uid() = realtor_id)
-WITH CHECK (auth.uid() = realtor_id);
+-- Policy to allow anyone to view all properties
+create policy "Users can see all properties" on public.properties
+for select using (true);
 
--- Allow users to delete their own properties
-CREATE POLICY "Allow users to delete their own properties"
-ON public.properties FOR DELETE
-USING (auth.uid() = realtor_id);
+-- Policy to allow authenticated users to insert a property for themselves
+create policy "Users can insert their own properties" on public.properties
+for insert with check (auth.uid() = realtor_id);
+
+-- Policy to allow users to update their own properties
+create policy "Users can update their own properties" on public.properties
+for update using (auth.uid() = realtor_id);
+
+-- Policy to allow users to delete their own properties
+create policy "Users can delete their own properties" on public.properties
+for delete using (auth.uid() = realtor_id);
