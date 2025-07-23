@@ -11,29 +11,35 @@ import {
   CardHeader,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, Loader2, Building, Heart, Edit, Mail, Lock } from 'lucide-react';
+import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import type { UserProfile, Property } from '@/types';
 import Image from 'next/image';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 
 interface ProfilePageClientProps {
     profileId: string;
 }
 
 export default function ProfilePageClient({ profileId }: ProfilePageClientProps) {
-  const searchParams = useSearchParams();
   const { user: authUser, loading: authLoading, supabase } = useAuth();
   const { t } = useTranslation();
+  const { toast } = useToast();
   const { favorites } = useFavorites();
 
   const [displayUser, setDisplayUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [newAvatarFile, setNewAvatarFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -115,6 +121,44 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
         </div>
     );
   }
+  
+  const handleAvatarUpload = async () => {
+    if (!newAvatarFile || !authUser) return;
+
+    setIsUploading(true);
+    const fileExt = newAvatarFile.name.split('.').pop();
+    const fileName = `${authUser.id}-${Date.now()}.${fileExt}`;
+    const filePath = `avatars/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('property_images') // Assuming you have a bucket for avatars, or reusing one
+      .upload(filePath, newAvatarFile);
+
+    if (uploadError) {
+      toast({ title: "Upload Failed", description: uploadError.message, variant: "destructive" });
+      setIsUploading(false);
+      return;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('property_images')
+      .getPublicUrl(filePath);
+
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ avatar_url: publicUrl })
+      .eq('id', authUser.id);
+    
+    if (updateError) {
+        toast({ title: "Update Failed", description: updateError.message, variant: "destructive" });
+    } else {
+        setDisplayUser(prev => prev ? { ...prev, avatar: publicUrl } : null);
+        toast({ title: "Profile Picture Updated!", description: "Your new avatar is now live." });
+        setIsEditModalOpen(false);
+    }
+    
+    setIsUploading(false);
+  };
 
   const userInitial = displayUser.name.charAt(0).toUpperCase();
   const isOwnProfile = authUser && authUser.id === displayUser.id;
@@ -184,9 +228,37 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                   </DialogContent>
                 </Dialog>
                   {isOwnProfile ? (
-                     <Button variant="outline">
-                        <Edit className="mr-2 h-4 w-4" /> Edit Profile
-                    </Button>
+                     <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="outline">
+                                <Edit className="mr-2 h-4 w-4" /> Edit Profile
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>{t('profile.edit.title')}</DialogTitle>
+                                <DialogDescription>{t('profile.edit.description')}</DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="flex items-center gap-4">
+                                    <Avatar className="h-20 w-20">
+                                        <AvatarImage src={newAvatarFile ? URL.createObjectURL(newAvatarFile) : displayUser.avatar} />
+                                        <AvatarFallback>{userInitial}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                                        <Label htmlFor="picture">Change Picture</Label>
+                                        <Input id="picture" type="file" accept="image/*" onChange={(e) => e.target.files && setNewAvatarFile(e.target.files[0])} />
+                                    </div>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button onClick={handleAvatarUpload} disabled={isUploading || !newAvatarFile}>
+                                    {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                                    Upload & Save
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                     </Dialog>
                   ) : authUser ? (
                     <Button asChild>
                        <a href={`mailto:${displayUser.email}`}>
