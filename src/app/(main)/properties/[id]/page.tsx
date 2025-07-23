@@ -103,6 +103,7 @@ export default function PropertyDetailPage() {
                         src={property.realtor.avatar}
                         alt={property.realtor.name}
                         data-ai-hint="person face"
+                        className="object-cover"
                       />
                       <AvatarFallback>
                         {property.realtor.name.charAt(0)}

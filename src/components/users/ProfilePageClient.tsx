@@ -209,6 +209,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                         src={displayUser.avatar}
                         alt="User avatar"
                         data-ai-hint="person face"
+                        className="object-cover"
                       />
                       <AvatarFallback>{userInitial}</AvatarFallback>
                     </Avatar>
@@ -242,7 +243,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                             <div className="grid gap-4 py-4">
                                 <div className="flex items-center gap-4">
                                     <Avatar className="h-20 w-20">
-                                        <AvatarImage src={newAvatarFile ? URL.createObjectURL(newAvatarFile) : displayUser.avatar} />
+                                        <AvatarImage src={newAvatarFile ? URL.createObjectURL(newAvatarFile) : displayUser.avatar} className="object-cover" />
                                         <AvatarFallback>{userInitial}</AvatarFallback>
                                     </Avatar>
                                     <div className="grid w-full max-w-sm items-center gap-1.5">
