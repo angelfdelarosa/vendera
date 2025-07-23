@@ -39,7 +39,7 @@ export default function PropertyDetailPage() {
   
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-8 mb-8">
         <div className="lg:col-span-2">
           <Card className="overflow-hidden">
             <CardContent className="p-0">
@@ -125,76 +125,76 @@ export default function PropertyDetailPage() {
                 </CardContent>
              </Card>
            )}
-            { user ? (
-                <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline text-2xl">
-                    {t('property.details')}
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-2 gap-4 text-center mb-6">
-                    <div className="bg-secondary/50 p-4 rounded-lg">
-                        <BedDouble className="mx-auto mb-2 h-8 w-8 text-primary" />
-                        <p className="font-semibold">{property.bedrooms} {t('property.bedrooms')}</p>
-                    </div>
-                    <div className="bg-secondary/50 p-4 rounded-lg">
-                        <Bath className="mx-auto mb-2 h-8 w-8 text-primary" />
-                        <p className="font-semibold">{property.bathrooms} {t('property.bathrooms')}</p>
-                    </div>
-                    <div className="bg-secondary/50 p-4 rounded-lg">
-                        <Ruler className="mx-auto mb-2 h-8 w-8 text-primary" />
-                        <p className="font-semibold">
-                        {property.area.toLocaleString()} m²
-                        </p>
-                    </div>
-                    <div className="bg-secondary/50 p-4 rounded-lg">
-                        <Building className="mx-auto mb-2 h-8 w-8 text-primary" />
-                        <p className="font-semibold">{t(`property.types.${property.type}`)}</p>
-                    </div>
-                    </div>
-
-                    <Separator className="my-6" />
-
-                    <div>
-                    <h3 className="font-headline text-xl font-semibold mb-4">
-                        {t('property.description')}
-                    </h3>
-                    <p className="text-muted-foreground leading-relaxed">
-                        {t(property.description)}
-                    </p>
-                    </div>
-
-                    <Separator className="my-6" />
-
-                    <div>
-                    <h3 className="font-headline text-xl font-semibold mb-4">
-                        {t('property.features')}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                        {property.features.map((feature, index) => (
-                        <Badge key={index} variant="outline">
-                            {feature}
-                        </Badge>
-                        ))}
-                    </div>
-                    </div>
-                </CardContent>
-                </Card>
-            ) : (
-                <Card>
-                    <CardContent className="p-10 text-center">
-                        <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                        <h3 className="text-xl font-semibold mb-2 text-primary">Detalles completos de la propiedad bloqueados</h3>
-                        <p className="text-muted-foreground mb-4 max-w-md mx-auto">Inicia sesión o crea una cuenta para ver todos los detalles de la propiedad, incluida la información del vendedor, descripción, características y más.</p>
-                        <Button asChild size="lg">
-                            <Link href="/login">Iniciar sesión para ver detalles</Link>
-                        </Button>
-                    </CardContent>
-                </Card>
-            )}
         </div>
       </div>
+      
+      { user ? (
+          <Card>
+          <CardHeader>
+              <CardTitle className="font-headline text-2xl">
+              {t('property.details')}
+              </CardTitle>
+          </CardHeader>
+          <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-6">
+              <div className="bg-secondary/50 p-4 rounded-lg">
+                  <BedDouble className="mx-auto mb-2 h-8 w-8 text-primary" />
+                  <p className="font-semibold">{property.bedrooms} {t('property.bedrooms')}</p>
+              </div>
+              <div className="bg-secondary/50 p-4 rounded-lg">
+                  <Bath className="mx-auto mb-2 h-8 w-8 text-primary" />
+                  <p className="font-semibold">{property.bathrooms} {t('property.bathrooms')}</p>
+              </div>
+              <div className="bg-secondary/50 p-4 rounded-lg">
+                  <Ruler className="mx-auto mb-2 h-8 w-8 text-primary" />
+                  <p className="font-semibold">
+                  {property.area.toLocaleString()} m²
+                  </p>
+              </div>
+              <div className="bg-secondary/50 p-4 rounded-lg">
+                  <Building className="mx-auto mb-2 h-8 w-8 text-primary" />
+                  <p className="font-semibold">{t(`property.types.${property.type}`)}</p>
+              </div>
+              </div>
+
+              <Separator className="my-6" />
+
+              <div className="grid md:grid-cols-2 gap-8">
+                  <div>
+                      <h3 className="font-headline text-xl font-semibold mb-4">
+                          {t('property.description')}
+                      </h3>
+                      <p className="text-muted-foreground leading-relaxed">
+                          {t(property.description)}
+                      </p>
+                  </div>
+                  <div>
+                      <h3 className="font-headline text-xl font-semibold mb-4">
+                          {t('property.features')}
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                          {property.features.map((feature, index) => (
+                          <Badge key={index} variant="outline">
+                              {feature}
+                          </Badge>
+                          ))}
+                      </div>
+                  </div>
+              </div>
+          </CardContent>
+          </Card>
+      ) : (
+          <Card>
+              <CardContent className="p-10 text-center">
+                  <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-xl font-semibold mb-2 text-primary">Detalles completos de la propiedad bloqueados</h3>
+                  <p className="text-muted-foreground mb-4 max-w-md mx-auto">Inicia sesión o crea una cuenta para ver todos los detalles de la propiedad, incluida la información del vendedor, descripción, características y más.</p>
+                  <Button asChild size="lg">
+                      <Link href="/login">Iniciar sesión para ver detalles</Link>
+                  </Button>
+              </CardContent>
+          </Card>
+      )}
 
       <SimilarProperties currentPropertyId={property.id} />
     </div>
