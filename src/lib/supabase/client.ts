@@ -1,11 +1,19 @@
 
 'use client';
 
-import { createBrowserClient } from '@supabase/ssr'
+import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs';
+import { SupabaseClient } from '@supabase/supabase-js';
 
-export function createClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+let supabase: SupabaseClient;
+
+function getSupabase() {
+  if (!supabase) {
+    supabase = createPagesBrowserClient({
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    });
+  }
+  return supabase;
 }
+
+export const supabaseClient = getSupabase();
