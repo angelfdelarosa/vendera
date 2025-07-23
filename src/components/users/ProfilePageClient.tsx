@@ -28,6 +28,7 @@ import ReactCrop, { type Crop, PixelCrop, centerCrop, makeAspectCrop } from 'rea
 import 'react-image-crop/dist/ReactCrop.css';
 import { canvasPreview } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
+import { mockUsers } from '@/lib/mock-data';
 
 interface ProfilePageClientProps {
     profileId: string;
@@ -54,7 +55,7 @@ function centerAspectCrop(
 }
 
 export default function ProfilePageClient({ profileId }: ProfilePageClientProps) {
-  const { user: authUser, loading: authLoading, supabase } = useAuth();
+  const { user: authUser, loading: authLoading } = useAuth();
   const { t } = useTranslation();
   const { toast } = useToast();
   const { favorites } = useFavorites();
@@ -91,39 +92,10 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     const fetchProfile = async () => {
       setLoading(true);
 
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', profileId)
-        .single();
+      const profile = mockUsers[profileId];
         
       if (profile) {
-        const { data: userProperties, error: propertiesError } = await supabase
-          .from('properties')
-          .select('*')
-          .eq('realtor_id', profileId);
-
-        if (propertiesError) {
-          console.error("Error fetching user properties", propertiesError);
-        }
-        
-        const realtorForProperties = {
-            id: profile.id,
-            name: profile.full_name || 'Anonymous',
-            avatar: profile.avatar_url || 'https://placehold.co/100x100.png',
-            email: profile.email,
-        };
-
-        setDisplayUser({
-            id: profile.id,
-            name: profile.full_name || 'New User',
-            email: profile.email || '', 
-            avatar: profile.avatar_url || `https://placehold.co/128x128.png`,
-            bio: profile.bio || 'A new member of the VENDRA community.',
-            isVerifiedSeller: profile.is_verified_seller || false,
-            rating: profile.rating || 0,
-            properties: (userProperties || []).map(p => ({ ...p, realtor: realtorForProperties })) as unknown as Property[]
-        });
+        setDisplayUser(profile);
       } else if (authUser?.id === profileId) {
          setDisplayUser({
             id: authUser.id,
@@ -143,7 +115,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     if (!authLoading) {
       fetchProfile();
     }
-  }, [profileId, authUser, authLoading, supabase]);
+  }, [profileId, authUser, authLoading]);
   
 
   if (loading || authLoading) {
@@ -192,47 +164,18 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
         return;
     }
 
+    setIsUploading(true);
+    // In a real app, this would upload to a server.
+    // Here we'll just simulate it.
+    await new Promise(resolve => setTimeout(resolve, 1500));
     const canvas = previewCanvasRef.current;
-    canvas.toBlob(async (blob) => {
-        if (!blob) {
-            toast({ title: "Canvas Error", description: "Could not get image from canvas.", variant: "destructive" });
-            return;
-        }
-
-        setIsUploading(true);
-        const fileName = `${authUser.id}-${Date.now()}.png`;
-        const filePath = `avatars/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-            .from('property_images') 
-            .upload(filePath, blob, { contentType: 'image/png' });
-
-        if (uploadError) {
-            toast({ title: "Upload Failed", description: uploadError.message, variant: "destructive" });
-            setIsUploading(false);
-            return;
-        }
-
-        const { data: { publicUrl } } = supabase.storage
-            .from('property_images')
-            .getPublicUrl(filePath);
-
-        const { error: updateError } = await supabase
-            .from('profiles')
-            .update({ avatar_url: publicUrl })
-            .eq('id', authUser.id);
-        
-        if (updateError) {
-            toast({ title: "Update Failed", description: updateError.message, variant: "destructive" });
-        } else {
-            setDisplayUser(prev => prev ? { ...prev, avatar: publicUrl } : null);
-            toast({ title: "Profile Picture Updated!", description: "Your new avatar is now live." });
-            setIsEditModalOpen(false);
-            setImgSrc('');
-        }
-        
-        setIsUploading(false);
-    }, 'image/png');
+    const newAvatarUrl = canvas.toDataURL('image/png');
+    
+    setDisplayUser(prev => prev ? { ...prev, avatar: newAvatarUrl } : null);
+    toast({ title: "Profile Picture Updated!", description: "Your new avatar is now live." });
+    setIsEditModalOpen(false);
+    setImgSrc('');
+    setIsUploading(false);
   };
 
   const userInitial = displayUser.name.charAt(0).toUpperCase();
@@ -449,4 +392,3 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     </div>
   );
 }
-

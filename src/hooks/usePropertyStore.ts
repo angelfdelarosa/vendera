@@ -3,6 +3,7 @@
 
 import { create } from "zustand";
 import type { Property } from "@/types";
+import { properties as mockProperties } from "@/lib/mock-data";
 
 interface PropertyState {
   properties: Property[];
@@ -11,7 +12,7 @@ interface PropertyState {
 }
 
 export const usePropertyStore = create<PropertyState>((set) => ({
-  properties: [], // Start with empty, will be loaded from DB
+  properties: mockProperties, // Start with mock data
   setProperties: (properties) => set({ properties }),
   addProperty: (property) => {
     set((state) => ({

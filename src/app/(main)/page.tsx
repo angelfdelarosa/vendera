@@ -10,45 +10,22 @@ import type { Property } from "@/types";
 import { useMemo } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Loader2 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
 
 export default function HomePage() {
-  const { supabase } = useAuth();
-  const setProperties = usePropertyStore((state) => state.setProperties);
   const allProperties = usePropertyStore((state) => state.properties);
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>(allProperties);
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const fetchProperties = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('properties')
-        .select(`
-          *,
-          realtor:profiles(id, full_name, avatar_url)
-        `);
-
-      if (error) {
-        console.error('Error fetching properties', error);
-      } else {
-        const formattedProperties = data.map(p => ({
-            ...p,
-            realtor: {
-                id: p.realtor.id,
-                name: p.realtor.full_name,
-                avatar: p.realtor.avatar_url
-            }
-        })) as unknown as Property[];
-        setProperties(formattedProperties);
-        setFilteredProperties(formattedProperties);
-      }
+    // Since we are using a store pre-populated with mock data,
+    // we can just set loading to false.
+    if (allProperties.length > 0) {
+      setFilteredProperties(allProperties);
       setLoading(false);
-    };
-    fetchProperties();
-  }, [supabase, setProperties]);
+    }
+  }, [allProperties]);
 
 
   useEffect(() => {

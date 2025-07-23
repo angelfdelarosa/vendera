@@ -66,6 +66,7 @@ export const properties: Property[] = [
     realtor: {
       id: "jane-doe-realtor",
       name: "Jane Doe",
+      email: "jane.doe@test.com",
       avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop"
     }
   },
@@ -89,6 +90,7 @@ export const properties: Property[] = [
     realtor: {
       id: "john-smith",
       name: "John Smith",
+      email: "john.smith@test.com",
       avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop"
     }
   },
@@ -113,6 +115,7 @@ export const properties: Property[] = [
     realtor: {
       id: "emily-white",
       name: "Emily White",
+      email: "emily.white@test.com",
       avatar: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080"
     }
   },
@@ -136,6 +139,7 @@ export const properties: Property[] = [
     realtor: {
       id: "michael-brown",
       name: "Michael Brown",
+      email: "michael.brown@test.com",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop"
     }
   },
@@ -160,6 +164,7 @@ export const properties: Property[] = [
     realtor: {
       id: "jane-doe-realtor",
       name: "Jane Doe",
+      email: "jane.doe@test.com",
       avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop"
     }
   },
@@ -183,6 +188,7 @@ export const properties: Property[] = [
     realtor: {
       id: "michael-brown",
       name: "Michael Brown",
+      email: "michael.brown@test.com",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop"
     }
   },
@@ -207,6 +213,7 @@ export const properties: Property[] = [
     realtor: {
       id: "john-smith",
       name: "John Smith",
+      email: "john.smith@test.com",
       avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop"
     }
   },
@@ -230,6 +237,7 @@ export const properties: Property[] = [
     realtor: {
       id: "emily-white",
       name: "Emily White",
+      email: "emily.white@test.com",
       avatar: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080"
     }
   }
