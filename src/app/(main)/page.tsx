@@ -2,25 +2,34 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { PropertySearchFilters } from "@/components/properties/PropertySearchFilters";
 import type { Property } from "@/types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Loader2 } from "lucide-react";
 import { usePropertyContext } from "@/context/PropertyContext";
+import { useAuth } from "@/context/AuthContext";
 
 export default function HomePage() {
-  const { properties, isLoading } = usePropertyContext();
+  const { properties, isLoading: isLoadingProperties } = usePropertyContext();
+  const { user, loading: isLoadingAuth } = useAuth();
+  const router = useRouter();
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const { t } = useTranslation();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoadingAuth && !user) {
+        router.replace('/landing');
+    }
+  }, [user, isLoadingAuth, router]);
+
+  useEffect(() => {
+    if (!isLoadingProperties) {
       setFilteredProperties(properties);
     }
-  }, [properties, isLoading]);
+  }, [properties, isLoadingProperties]);
 
 
   useEffect(() => {
@@ -63,6 +72,16 @@ export default function HomePage() {
     });
     setFilteredProperties(results);
   };
+  
+  const isLoading = isLoadingAuth || isLoadingProperties;
+
+  if (isLoading || !user) {
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
