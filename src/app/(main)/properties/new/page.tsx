@@ -54,8 +54,8 @@ export default function NewPropertyPage() {
     numBedrooms: 4,
     numBathrooms: 3,
     area: 600,
-    amenities: t("newProperty.form.amenities_placeholder"),
-    uniqueFeatures: t("newProperty.form.features_placeholder"),
+    amenities: "Swimming Pool, Garage",
+    uniqueFeatures: "Ocean view, modern architecture",
     description: "",
   });
   
@@ -66,7 +66,7 @@ export default function NewPropertyPage() {
   
   useEffect(() => {
     setFormData(getInitialFormData());
-  }, [locale, t]);
+  }, [locale]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -386,5 +386,3 @@ export default function NewPropertyPage() {
     </div>
   );
 }
-
-    
