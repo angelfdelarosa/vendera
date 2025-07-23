@@ -185,7 +185,7 @@ export default function NewPropertyPage() {
         return;
     }
 
-    const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url').eq('id', user.id).single();
+    const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url').eq('user_id', user.id).single();
 
     if (!profile) {
         toast({
@@ -200,10 +200,10 @@ export default function NewPropertyPage() {
     const newProperty: Property = {
         ...data,
         realtor: {
-             id: user.id,
-             name: profile?.full_name || 'Anonymous',
-             avatar: profile?.avatar_url || 'https://placehold.co/100x100.png',
-             email: user.email || ''
+             user_id: user.id,
+             full_name: profile?.full_name || 'Anonymous',
+             avatar_url: profile?.avatar_url || 'https://placehold.co/100x100.png',
+             username: user.email || ''
         }
     }
 

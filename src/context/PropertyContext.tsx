@@ -39,8 +39,8 @@ export const PropertyProvider = ({ children }: { children: ReactNode }) => {
       const realtorIds = [...new Set(propertiesData.map(p => p.realtor_id))];
       const { data: realtorsData, error: realtorsError } = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url')
-        .in('id', realtorIds);
+        .select('user_id, full_name, avatar_url, username')
+        .in('user_id', realtorIds);
       
       if (realtorsError) {
           console.error("Error fetching realtors:", realtorsError);
@@ -48,17 +48,17 @@ export const PropertyProvider = ({ children }: { children: ReactNode }) => {
           return;
       }
 
-      const realtorsMap = new Map(realtorsData.map(r => [r.id, r]));
+      const realtorsMap = new Map(realtorsData.map(r => [r.user_id, r]));
 
       const formattedProperties: Property[] = propertiesData.map(p => {
           const realtor = realtorsMap.get(p.realtor_id);
           return {
               ...p,
               realtor: {
-                  id: p.realtor_id,
-                  name: realtor?.full_name || 'Anonymous',
-                  avatar: realtor?.avatar_url || 'https://placehold.co/100x100.png',
-                  email: '', // Not fetched
+                  user_id: p.realtor_id,
+                  full_name: realtor?.full_name || 'Anonymous',
+                  avatar_url: realtor?.avatar_url || 'https://placehold.co/100x100.png',
+                  username: realtor?.username || '',
               }
           }
       });

@@ -15,7 +15,7 @@ interface UserCardProps {
 }
 
 export function UserCard({ user }: UserCardProps) {
-  const userInitial = user.name.charAt(0).toUpperCase();
+  const userInitial = user.full_name?.charAt(0).toUpperCase() || '?';
   const { t } = useTranslation();
   const { user: authUser } = useAuth();
 
@@ -24,23 +24,23 @@ export function UserCard({ user }: UserCardProps) {
     <Card className="flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <CardHeader className="items-center text-center p-6">
         <Avatar className="h-24 w-24 mb-4 border-4 border-background">
-          <AvatarImage src={user.avatar} alt={user.name} data-ai-hint="person face" className="object-cover" />
+          <AvatarImage src={user.avatar_url || undefined} alt={user.full_name || ''} data-ai-hint="person face" className="object-cover" />
           <AvatarFallback>{userInitial}</AvatarFallback>
         </Avatar>
-        <h3 className="font-headline text-xl font-bold text-primary">{user.name}</h3>
-        {user.isVerifiedSeller && (
+        <h3 className="font-headline text-xl font-bold text-primary">{user.full_name}</h3>
+        {/* {user.isVerifiedSeller && (
           <Badge variant="secondary" className="mt-1">{t('profile.sellerBadge')}</Badge>
-        )}
+        )} */}
       </CardHeader>
       <CardContent className="p-6 pt-0 flex-grow flex flex-col">
         {authUser ? (
             <>
                 <p className="text-muted-foreground text-sm text-center flex-grow">
-                {t(user.bio)}
+                  {/* Bio does not exist on new schema */}
                 </p>
                 <div className="flex items-center justify-center gap-2 mt-4 text-amber-500">
                 {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`w-5 h-5 ${i < user.rating ? 'fill-current' : 'text-muted-foreground fill-muted'}`} />
+                    <Star key={i} className={`w-5 h-5 ${i < 0 ? 'fill-current' : 'text-muted-foreground fill-muted'}`} />
                 ))}
                 </div>
             </>
@@ -50,7 +50,7 @@ export function UserCard({ user }: UserCardProps) {
             </div>
         )}
         <Button asChild className="w-full mt-6">
-          <Link href={`/profile/${user.id}`}>
+          <Link href={`/profile/${user.user_id}`}>
             {t('userCard.viewProfile')} <ArrowRight className="ml-2" />
           </Link>
         </Button>

@@ -13,22 +13,19 @@ export type Property = {
   images: string[];
   realtor_id: string;
   realtor: {
-    id: string;
-    name: string;
-    avatar: string;
-    email: string;
+    user_id: string;
+    full_name: string | null;
+    avatar_url: string | null;
+    username: string | null;
   };
 };
 
 export type UserProfile = {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  bio?: string;
-  isVerifiedSeller: boolean;
-  rating?: number;
-  properties: Property[];
+  user_id: string;
+  username: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+  updated_at?: string | null;
 };
 
 export interface Message {
@@ -46,5 +43,3 @@ export interface Conversation {
   timestamp: string;
   unread: boolean;
 }
-
-    

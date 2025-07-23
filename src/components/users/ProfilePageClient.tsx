@@ -115,7 +115,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
       const { data: profileData, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', profileId)
+        .eq('user_id', profileId)
         .single();
       
       if (error || !profileData) {
@@ -123,14 +123,11 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
         setDisplayUser(null);
       } else {
         setDisplayUser({
-            id: profileData.id,
-            name: profileData.full_name,
-            email: '', // Not fetching email for privacy
-            avatar: profileData.avatar_url,
-            bio: profileData.bio,
-            isVerifiedSeller: profileData.is_verified_seller,
-            rating: profileData.rating,
-            properties: [] // will be set below
+            user_id: profileData.user_id,
+            username: profileData.username,
+            full_name: profileData.full_name,
+            avatar_url: profileData.avatar_url,
+            updated_at: profileData.updated_at
         });
         const propertiesForUser = allProperties.filter(p => p.realtor_id === profileId);
         setUserProperties(propertiesForUser);
@@ -230,11 +227,11 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
 
          const { error: updateProfileError } = await supabase
           .from('profiles')
-          .update({ avatar_url: publicUrl })
-          .eq('id', authUser.id);
+          .update({ avatar_url: publicUrl, updated_at: new Date().toISOString() })
+          .eq('user_id', authUser.id);
         if (updateProfileError) throw updateProfileError;
         
-        setDisplayUser(prev => prev ? { ...prev, avatar: publicUrl } : null);
+        setDisplayUser(prev => prev ? { ...prev, avatar_url: publicUrl } : null);
         toast({ title: "Profile Picture Updated!", description: "Your new avatar is now live." });
 
     } catch (error: any) {
@@ -247,8 +244,8 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     }
   };
 
-  const userInitial = displayUser.name.charAt(0).toUpperCase();
-  const isOwnProfile = authUser && authUser.id === displayUser.id;
+  const userInitial = displayUser.full_name?.charAt(0).toUpperCase() || '?';
+  const isOwnProfile = authUser && authUser.id === displayUser.user_id;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -260,23 +257,23 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
           <CardContent className="p-6">
             <div className="flex justify-between items-start -mt-20">
               <div className="flex-grow pt-8">
-                {displayUser.isVerifiedSeller && (
+                {/* {displayUser.isVerifiedSeller && (
                   <Badge variant="secondary" className="mb-2">
                     {t('profile.sellerBadge')}
                   </Badge>
-                )}
+                )} */}
                 <h1 className="text-3xl font-headline font-bold text-primary">
-                  {displayUser.name}
+                  {displayUser.full_name}
                 </h1>
                  { authUser ? (
                      <>
                         <p className="text-muted-foreground mt-2 max-w-md">
-                        {t(displayUser.bio || '')}
+                        {/* Bio field does not exist in the new schema */}
                         </p>
                         <div className="flex items-center gap-2 mt-4">
                           <div className="flex items-center text-amber-500">
                             {[...Array(5)].map((_, i) => (
-                              <Star key={i} className={`w-5 h-5 ${i < (displayUser.rating || 0) ? 'fill-current' : 'text-muted-foreground fill-muted'}`} />
+                              <Star key={i} className={`w-5 h-5 ${i < (0) ? 'fill-current' : 'text-muted-foreground fill-muted'}`} />
                             ))}
                           </div>
                           <span className="text-muted-foreground text-sm">
@@ -293,7 +290,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                   <DialogTrigger asChild>
                     <Avatar className="h-32 w-32 border-4 border-background bg-background cursor-pointer hover:ring-4 hover:ring-primary transition-all duration-300">
                       <AvatarImage
-                        src={displayUser.avatar}
+                        src={displayUser.avatar_url || undefined}
                         alt="User avatar"
                         data-ai-hint="person face"
                         className="object-cover"
@@ -303,10 +300,10 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                   </DialogTrigger>
                   <DialogContent className="p-0 border-0 bg-transparent shadow-none max-w-2xl">
                      <DialogHeader>
-                      <DialogTitle className="sr-only">{t('profile.avatarAlt', { name: displayUser.name })}</DialogTitle>
+                      <DialogTitle className="sr-only">{t('profile.avatarAlt', { name: displayUser.full_name })}</DialogTitle>
                     </DialogHeader>
                      <Image 
-                        src={displayUser.avatar} 
+                        src={displayUser.avatar_url || 'https://placehold.co/800x800.png'} 
                         alt="User avatar enlarged"
                         width={800}
                         height={800}
@@ -410,7 +407,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                     ) : (
                     <div className="text-center py-16">
                         <p className="text-muted-foreground mb-4">
-                        {isOwnProfile ? t('profile.empty.listed.own') : t('profile.empty.listed.other', { name: displayUser.name })}
+                        {isOwnProfile ? t('profile.empty.listed.own') : t('profile.empty.listed.other', { name: displayUser.full_name })}
                         </p>
                         {isOwnProfile && 
                             <Button asChild>

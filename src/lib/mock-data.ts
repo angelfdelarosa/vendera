@@ -3,44 +3,28 @@ import type { Property, UserProfile, Conversation, Message } from "@/types";
 
 export const mockUsers: Record<string, UserProfile> = {
   'jane-doe-realtor': {
-    id: "jane-doe-realtor",
-    name: "Jane Doe",
-    email: "jane.doe@test.com",
-    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop",
-    bio: "mock.user1_bio",
-    isVerifiedSeller: true,
-    rating: 5,
-    properties: [] // Populated below
+    user_id: "jane-doe-realtor",
+    full_name: "Jane Doe",
+    username: "jane.doe@test.com",
+    avatar_url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop",
   },
   'john-smith': {
-    id: "john-smith",
-    name: "John Smith",
-    email: "john.smith@test.com",
-    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop",
-    bio: "mock.user2_bio",
-    isVerifiedSeller: true,
-    rating: 4,
-    properties: [] // Populated below
+    user_id: "john-smith",
+    full_name: "John Smith",
+    username: "john.smith@test.com",
+    avatar_url: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop",
   },
   'emily-white': {
-    id: "emily-white",
-    name: "Emily White",
-    email: "emily.white@test.com",
-    avatar: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    bio: "mock.user3_bio",
-    isVerifiedSeller: true,
-    rating: 5,
-    properties: [] // Populated below
+    user_id: "emily-white",
+    full_name: "Emily White",
+    username: "emily.white@test.com",
+    avatar_url: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
   },
    'michael-brown': {
-    id: "michael-brown",
-    name: "Michael Brown",
-    email: "michael.brown@test.com",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop",
-    bio: "mock.user4_bio",
-    isVerifiedSeller: false,
-    rating: 4,
-    properties: [] // Populated below
+    user_id: "michael-brown",
+    full_name: "Michael Brown",
+    username: "michael.brown@test.com",
+    avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop",
   }
 };
 
@@ -64,10 +48,10 @@ export const properties: Property[] = [
     ],
     realtor_id: 'jane-doe-realtor',
     realtor: {
-      id: "jane-doe-realtor",
-      name: "Jane Doe",
-      email: "jane.doe@test.com",
-      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop"
+      user_id: "jane-doe-realtor",
+      full_name: "Jane Doe",
+      username: "jane.doe@test.com",
+      avatar_url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop"
     }
   },
   {
@@ -88,10 +72,10 @@ export const properties: Property[] = [
     ],
     realtor_id: 'john-smith',
     realtor: {
-      id: "john-smith",
-      name: "John Smith",
-      email: "john.smith@test.com",
-      avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop"
+      user_id: "john-smith",
+      full_name: "John Smith",
+      username: "john.smith@test.com",
+      avatar_url: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop"
     }
   },
   {
@@ -113,10 +97,10 @@ export const properties: Property[] = [
     ],
     realtor_id: 'emily-white',
     realtor: {
-      id: "emily-white",
-      name: "Emily White",
-      email: "emily.white@test.com",
-      avatar: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080"
+      user_id: "emily-white",
+      full_name: "Emily White",
+      username: "emily.white@test.com",
+      avatar_url: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080"
     }
   },
   {
@@ -137,10 +121,10 @@ export const properties: Property[] = [
     ],
     realtor_id: 'michael-brown',
     realtor: {
-      id: "michael-brown",
-      name: "Michael Brown",
-      email: "michael.brown@test.com",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop"
+      user_id: "michael-brown",
+      full_name: "Michael Brown",
+      username: "michael.brown@test.com",
+      avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop"
     }
   },
   {
@@ -162,10 +146,10 @@ export const properties: Property[] = [
     ],
     realtor_id: 'jane-doe-realtor',
     realtor: {
-      id: "jane-doe-realtor",
-      name: "Jane Doe",
-      email: "jane.doe@test.com",
-      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop"
+      user_id: "jane-doe-realtor",
+      full_name: "Jane Doe",
+      username: "jane.doe@test.com",
+      avatar_url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop"
     }
   },
   {
@@ -186,10 +170,10 @@ export const properties: Property[] = [
     ],
     realtor_id: 'michael-brown',
     realtor: {
-      id: "michael-brown",
-      name: "Michael Brown",
-      email: "michael.brown@test.com",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop"
+      user_id: "michael-brown",
+      full_name: "Michael Brown",
+      username: "michael.brown@test.com",
+      avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop"
     }
   },
   {
@@ -211,10 +195,10 @@ export const properties: Property[] = [
     ],
     realtor_id: 'john-smith',
     realtor: {
-      id: "john-smith",
-      name: "John Smith",
-      email: "john.smith@test.com",
-      avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop"
+      user_id: "john-smith",
+      full_name: "John Smith",
+      username: "john.smith@test.com",
+      avatar_url: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop"
     }
   },
   {
@@ -235,17 +219,17 @@ export const properties: Property[] = [
     ],
     realtor_id: 'emily-white',
     realtor: {
-      id: "emily-white",
-      name: "Emily White",
-      email: "emily.white@test.com",
-      avatar: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080"
+      user_id: "emily-white",
+      full_name: "Emily White",
+      username: "emily.white@test.com",
+      avatar_url: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080"
     }
   }
 ];
 
 // Populate user properties
 Object.values(mockUsers).forEach(user => {
-  user.properties = properties.filter(p => p.realtor_id === user.id);
+  // user.properties = properties.filter(p => p.realtor_id === user.user_id);
 });
 
 

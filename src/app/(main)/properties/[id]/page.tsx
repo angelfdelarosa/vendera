@@ -31,7 +31,12 @@ export default function PropertyDetailPage() {
   const { t } = useTranslation();
 
   if (!property) {
-    notFound();
+    // This could happen if properties are not yet loaded
+    return (
+       <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    )
   }
 
   const isOwnProperty = user && user.id === property.realtor_id;
@@ -100,22 +105,22 @@ export default function PropertyDetailPage() {
                   <div className="flex items-center gap-4">
                     <Avatar className="h-16 w-16">
                       <AvatarImage
-                        src={property.realtor.avatar}
-                        alt={property.realtor.name}
+                        src={property.realtor.avatar_url || undefined}
+                        alt={property.realtor.full_name || ''}
                         data-ai-hint="person face"
                         className="object-cover"
                       />
                       <AvatarFallback>
-                        {property.realtor.name.charAt(0)}
+                        {property.realtor.full_name?.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       
                         <Link
-                          href={`/profile/${property.realtor.id}`}
+                          href={`/profile/${property.realtor.user_id}`}
                           className="font-semibold text-lg hover:underline"
                         >
-                          {property.realtor.name}
+                          {property.realtor.full_name}
                         </Link>
                       
                       <p className="text-sm text-muted-foreground">
