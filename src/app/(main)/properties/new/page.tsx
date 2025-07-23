@@ -149,6 +149,11 @@ export default function NewPropertyPage() {
     }
 
 
+    const features = [
+        ...formData.amenities.split(",").map((f) => f.trim()),
+        ...formData.uniqueFeatures.split(",").map((f) => f.trim())
+    ].filter(Boolean);
+
     const newPropertyData = {
       realtor_id: user.id,
       title: formData.title,
@@ -160,7 +165,7 @@ export default function NewPropertyPage() {
       bathrooms: formData.numBathrooms,
       area: formData.area,
       description: formData.description,
-      features: formData.amenities.split(",").map((f) => f.trim()),
+      features: features,
       images: imageUrls,
     };
 
@@ -379,3 +384,5 @@ export default function NewPropertyPage() {
     </div>
   );
 }
+
+    
