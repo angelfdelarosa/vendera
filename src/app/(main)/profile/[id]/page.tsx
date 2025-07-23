@@ -29,6 +29,13 @@ import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
 
+export async function generateStaticParams() {
+  const users = Object.values(mockUsers);
+  return users.map((user) => ({
+    id: user.id,
+  }));
+}
+
 export default function ProfilePage() {
   const params = useParams();
   const searchParams = useSearchParams();
