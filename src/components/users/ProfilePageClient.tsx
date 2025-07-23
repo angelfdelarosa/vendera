@@ -11,7 +11,7 @@ import {
   CardHeader,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, Loader2, Building, Heart, Edit, Mail } from 'lucide-react';
+import { Star, Loader2, Building, Heart, Edit, Mail, Lock } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -59,12 +59,13 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
             id: profile.id,
             name: profile.full_name || 'Anonymous',
             avatar: profile.avatar_url || 'https://placehold.co/100x100.png',
+            email: profile.email,
         };
 
         setDisplayUser({
             id: profile.id,
             name: profile.full_name || 'New User',
-            email: authUser?.email || '', // Email might not be in public profile
+            email: profile.email || '', 
             avatar: profile.avatar_url || `https://placehold.co/128x128.png`,
             bio: profile.bio || 'A new member of the VENDRA community.',
             isVerifiedSeller: profile.is_verified_seller || false,
@@ -136,19 +137,25 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                 <h1 className="text-3xl font-headline font-bold text-primary">
                   {displayUser.name}
                 </h1>
-                <p className="text-muted-foreground mt-2 max-w-md">
-                  {t(displayUser.bio || '')}
-                </p>
-                <div className="flex items-center gap-2 mt-4">
-                  <div className="flex items-center text-amber-500">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-5 h-5 ${i < (displayUser.rating || 0) ? 'fill-current' : 'text-muted-foreground fill-muted'}`} />
-                    ))}
-                  </div>
-                  <span className="text-muted-foreground text-sm">
-                    ({Math.floor(Math.random() * 200)} {t('profile.ratings')})
-                  </span>
-                </div>
+                 { authUser ? (
+                     <>
+                        <p className="text-muted-foreground mt-2 max-w-md">
+                        {t(displayUser.bio || '')}
+                        </p>
+                        <div className="flex items-center gap-2 mt-4">
+                          <div className="flex items-center text-amber-500">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className={`w-5 h-5 ${i < (displayUser.rating || 0) ? 'fill-current' : 'text-muted-foreground fill-muted'}`} />
+                            ))}
+                          </div>
+                          <span className="text-muted-foreground text-sm">
+                            ({Math.floor(Math.random() * 200)} {t('profile.ratings')})
+                          </span>
+                        </div>
+                     </>
+                 ) : (
+                    <p className="text-muted-foreground mt-2">Inicia sesión para ver más detalles.</p>
+                 )}
               </div>
               <div className="flex flex-col items-center space-y-2">
                  <Dialog>
@@ -180,75 +187,88 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                      <Button variant="outline">
                         <Edit className="mr-2 h-4 w-4" /> Edit Profile
                     </Button>
-                  ) : (
+                  ) : authUser ? (
                     <Button asChild>
                        <a href={`mailto:${displayUser.email}`}>
                         <Mail className="h-4 w-4 mr-2" />
                         {t('profile.contactSeller')}
                        </a>
                     </Button>
-                  )}
+                  ) : null }
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="listed" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="listed">
-              <Building className="mr-2" /> {t('profile.tabs.listed')}
-            </TabsTrigger>
-              <TabsTrigger value="saved">
-                <Heart className="mr-2" /> {t('profile.tabs.saved')}
-              </TabsTrigger>
-          </TabsList>
-          <TabsContent value="listed">
-            <Card className="mt-4">
-              <CardContent className="p-6">
-                {displayUser.properties.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {displayUser.properties.map((property) => (
-                      <PropertyCard key={property.id} property={property} />
-                    ))}
-                  </div>
-                ) : (
-                   <div className="text-center py-16">
-                    <p className="text-muted-foreground mb-4">
-                      {isOwnProfile ? t('profile.empty.listed.own') : t('profile.empty.listed.other', { name: displayUser.name })}
-                    </p>
-                    {isOwnProfile && 
-                        <Button asChild>
-                            <Link href="/properties/new">List a property</Link>
-                        </Button>
-                    }
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-            <TabsContent value="saved">
-              <Card className="mt-4">
+        { authUser ? (
+            <Tabs defaultValue="listed" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="listed">
+                <Building className="mr-2" /> {t('profile.tabs.listed')}
+                </TabsTrigger>
+                <TabsTrigger value="saved">
+                    <Heart className="mr-2" /> {t('profile.tabs.saved')}
+                </TabsTrigger>
+            </TabsList>
+            <TabsContent value="listed">
+                <Card className="mt-4">
                 <CardContent className="p-6">
-                  {favorites.length > 0 ? (
+                    {displayUser.properties.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {favorites.map((property) => (
+                        {displayUser.properties.map((property) => (
                         <PropertyCard key={property.id} property={property} />
-                      ))}
+                        ))}
                     </div>
-                  ) : (
+                    ) : (
                     <div className="text-center py-16">
-                      <p className="text-muted-foreground mb-4">
-                        {t('profile.empty.saved.description')}
-                      </p>
-                      <Button asChild>
-                        <Link href="/">{t('profile.empty.saved.button')}</Link>
-                      </Button>
+                        <p className="text-muted-foreground mb-4">
+                        {isOwnProfile ? t('profile.empty.listed.own') : t('profile.empty.listed.other', { name: displayUser.name })}
+                        </p>
+                        {isOwnProfile && 
+                            <Button asChild>
+                                <Link href="/properties/new">List a property</Link>
+                            </Button>
+                        }
                     </div>
-                  )}
+                    )}
                 </CardContent>
-              </Card>
+                </Card>
             </TabsContent>
-        </Tabs>
+                <TabsContent value="saved">
+                <Card className="mt-4">
+                    <CardContent className="p-6">
+                    {favorites.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {favorites.map((property) => (
+                            <PropertyCard key={property.id} property={property} />
+                        ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-16">
+                        <p className="text-muted-foreground mb-4">
+                            {t('profile.empty.saved.description')}
+                        </p>
+                        <Button asChild>
+                            <Link href="/">{t('profile.empty.saved.button')}</Link>
+                        </Button>
+                        </div>
+                    )}
+                    </CardContent>
+                </Card>
+                </TabsContent>
+            </Tabs>
+        ) : (
+            <Card>
+                <CardContent className="p-10 text-center">
+                    <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-xl font-semibold mb-2 text-primary">Contenido exclusivo para miembros</h3>
+                    <p className="text-muted-foreground mb-4">Inicia sesión para ver las propiedades listadas y guardadas de este usuario.</p>
+                     <Button asChild size="lg">
+                        <Link href="/login">Iniciar Sesión</Link>
+                    </Button>
+                </CardContent>
+            </Card>
+        )}
       </div>
     </div>
   );

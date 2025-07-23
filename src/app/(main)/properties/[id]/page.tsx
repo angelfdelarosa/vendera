@@ -88,47 +88,60 @@ export default function PropertyDetailPage() {
               </div>
             </CardContent>
           </Card>
-
+          
           <Card>
-            <CardHeader>
-              <CardTitle className="font-headline text-xl">
-                {t('property.realtorInfo')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage
-                    src={property.realtor.avatar}
-                    alt={property.realtor.name}
-                    data-ai-hint="person face"
-                  />
-                  <AvatarFallback>
-                    {property.realtor.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  
-                    <Link
-                      href={`/profile/${property.realtor.id}`}
-                      className="font-semibold text-lg hover:underline"
-                    >
-                      {property.realtor.name}
-                    </Link>
-                  
-                  <p className="text-sm text-muted-foreground">
-                    {t('property.certifiedRealtor')}
-                  </p>
-                </div>
-              </div>
-              { !isOwnProperty && (
-                <Button className="w-full" asChild>
-                    <Link href={`/profile/${property.realtor.id}?contact=true`}>
-                       {t('profile.contactSeller')}
-                    </Link>
-                </Button>
-              )}
-            </CardContent>
+             {user ? (
+                 <>
+                    <CardHeader>
+                      <CardTitle className="font-headline text-xl">
+                        {t('property.realtorInfo')}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center gap-4">
+                        <Avatar className="h-16 w-16">
+                          <AvatarImage
+                            src={property.realtor.avatar}
+                            alt={property.realtor.name}
+                            data-ai-hint="person face"
+                          />
+                          <AvatarFallback>
+                            {property.realtor.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          
+                            <Link
+                              href={`/profile/${property.realtor.id}`}
+                              className="font-semibold text-lg hover:underline"
+                            >
+                              {property.realtor.name}
+                            </Link>
+                          
+                          <p className="text-sm text-muted-foreground">
+                            {t('property.certifiedRealtor')}
+                          </p>
+                        </div>
+                      </div>
+                      { !isOwnProperty && (
+                        <Button className="w-full" asChild>
+                            <a href={`mailto:${property.realtor.email}`}>
+                               {t('profile.contactSeller')}
+                            </a>
+                        </Button>
+                      )}
+                    </CardContent>
+                 </>
+             ) : (
+                <CardContent className="p-6 text-center">
+                    <Lock className="h-8 w-8 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="font-semibold mb-2">Inicia sesión para ver los detalles del vendedor</h3>
+                    <p className="text-sm text-muted-foreground mb-4">¡Crea una cuenta o inicia sesión para contactar con el agente!</p>
+                    <Button asChild>
+                        <Link href="/login">Iniciar Sesión</Link>
+                    </Button>
+                </CardContent>
+             )}
           </Card>
         </div>
       </div>
