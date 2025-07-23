@@ -361,7 +361,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                         <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
                                 <DialogTitle>{t('profile.edit.title')}</DialogTitle>
-                                <DialogDescription>{t('profile.edit.description')}</DialogTitle>
+                                <DialogDescription>{t('profile.edit.description')}</DialogDescription>
                             </DialogHeader>
                               <ScrollArea className="max-h-[70vh] p-4">
                                 <div className="grid gap-4 py-4">
