@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     await supabase.auth.signOut();
-    router.push('/');
+    router.push('/landing');
     router.refresh(); // Important to re-fetch server-side data
   };
 
