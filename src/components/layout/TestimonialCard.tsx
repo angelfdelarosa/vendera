@@ -17,6 +17,8 @@ interface TestimonialCardProps {
 }
 
 export function TestimonialCard({ testimonial }: TestimonialCardProps) {
+  const fallbackInitial = testimonial.name ? testimonial.name.charAt(0) : '?';
+  
   return (
     <Card className="h-full flex flex-col justify-between shadow-lg">
       <CardContent className="p-6">
@@ -30,7 +32,7 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
       <div className="bg-card p-6 pt-0 flex items-center gap-4 mt-auto">
         <Avatar className="h-12 w-12">
           <AvatarImage src={testimonial.avatar} alt={testimonial.name} className="object-cover" />
-          <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
+          <AvatarFallback>{fallbackInitial}</AvatarFallback>
         </Avatar>
         <div>
           <p className="font-semibold text-primary">{testimonial.name}</p>

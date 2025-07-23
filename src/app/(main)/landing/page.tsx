@@ -33,9 +33,9 @@ export default function LandingPage() {
     },
     {
       quote: t('landing.testimonials.quote2'),
-      name: mockUsers['jane-doe-realtor'].name,
+      name: 'Jane Doe',
       role: t('landing.testimonials.role2'),
-      avatar: mockUsers['jane-doe-realtor'].avatar,
+      avatar: mockUsers['jane-doe-realtor'].avatar_url || 'https://placehold.co/100x100.png',
     },
      {
       quote: t('landing.testimonials.quote3'),
