@@ -9,7 +9,7 @@ import { PropertyCard } from '@/components/properties/PropertyCard';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { MessageSquare, Search, Home, Star, ShieldCheck } from 'lucide-react';
 import { TestimonialCard, type Testimonial } from '@/components/layout/TestimonialCard';
-import { mockUsers } from '@/lib/mock-data';
+import { mockUsers, properties as mockProperties } from '@/lib/mock-data';
 import {
   Carousel,
   CarouselContent,
@@ -23,8 +23,7 @@ import React from 'react';
 
 export default function LandingPage() {
   const { t } = useTranslation();
-  const allProperties = usePropertyStore((state) => state.properties);
-  const featuredProperties = allProperties.slice(0, 6);
+  const featuredProperties = mockProperties.slice(0, 6);
   
   const testimonials: Testimonial[] = [
     {
@@ -182,5 +181,4 @@ export default function LandingPage() {
     </div>
   );
 }
-
     
