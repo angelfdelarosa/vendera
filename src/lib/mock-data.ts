@@ -1,6 +1,49 @@
 
 import type { Property, UserProfile, Conversation, Message } from "@/types";
 
+export const mockUsers: Record<string, UserProfile> = {
+  'jane-doe-realtor': {
+    id: "jane-doe-realtor",
+    name: "Jane Doe",
+    email: "jane.doe@test.com",
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop",
+    bio: "mock.user1_bio",
+    isVerifiedSeller: true,
+    rating: 5,
+    properties: [] // Populated below
+  },
+  'john-smith': {
+    id: "john-smith",
+    name: "John Smith",
+    email: "john.smith@test.com",
+    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop",
+    bio: "mock.user2_bio",
+    isVerifiedSeller: true,
+    rating: 4,
+    properties: [] // Populated below
+  },
+  'emily-white': {
+    id: "emily-white",
+    name: "Emily White",
+    email: "emily.white@test.com",
+    avatar: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    bio: "mock.user3_bio",
+    isVerifiedSeller: true,
+    rating: 5,
+    properties: [] // Populated below
+  },
+   'michael-brown': {
+    id: "michael-brown",
+    name: "Michael Brown",
+    email: "michael.brown@test.com",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop",
+    bio: "mock.user4_bio",
+    isVerifiedSeller: false,
+    rating: 4,
+    properties: [] // Populated below
+  }
+};
+
 export const properties: Property[] = [
   {
     id: "1",
@@ -19,6 +62,7 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png",
       "https://placehold.co/600x400.png"
     ],
+    realtor_id: 'jane-doe-realtor',
     realtor: {
       id: "jane-doe-realtor",
       name: "Jane Doe",
@@ -41,6 +85,7 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxhcGFydG1lbnR8ZW58MHx8fHwxNzUzMTE5NDMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "https://placehold.co/600x400.png"
     ],
+    realtor_id: 'john-smith',
     realtor: {
       id: "john-smith",
       name: "John Smith",
@@ -64,6 +109,7 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png",
       "https://placehold.co/600x400.png"
     ],
+    realtor_id: 'emily-white',
     realtor: {
       id: "emily-white",
       name: "Emily White",
@@ -86,8 +132,9 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1580041065738-e72023775cdc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb25kb3xlbnwwfHx8fDE3NTMxMTk2MDV8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "https://placehold.co/600x400.png"
     ],
+    realtor_id: 'michael-brown',
     realtor: {
-      id: "k1OaP2yL9aWcE5xQyRzFp8sT7uJ3",
+      id: "michael-brown",
       name: "Michael Brown",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop"
     }
@@ -109,6 +156,7 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png",
       "https://placehold.co/600x400.png"
     ],
+    realtor_id: 'jane-doe-realtor',
     realtor: {
       id: "jane-doe-realtor",
       name: "Jane Doe",
@@ -131,8 +179,9 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxob3VzZXxlbnwwfHx8fDE3NTMwODk5OTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "https://placehold.co/600x400.png"
     ],
+    realtor_id: 'michael-brown',
     realtor: {
-      id: "k1OaP2yL9aWcE5xQyRzFp8sT7uJ3",
+      id: "michael-brown",
       name: "Michael Brown",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop"
     }
@@ -154,6 +203,7 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png",
       "https://placehold.co/600x400.png"
     ],
+    realtor_id: 'john-smith',
     realtor: {
       id: "john-smith",
       name: "John Smith",
@@ -176,6 +226,7 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1574362848149-11496d93a7c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y29uZG98ZW58MHx8fHwxNzUzMTE5NjA1fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "https://placehold.co/600x400.png"
     ],
+    realtor_id: 'emily-white',
     realtor: {
       id: "emily-white",
       name: "Emily White",
@@ -184,50 +235,10 @@ export const properties: Property[] = [
   }
 ];
 
-const michaelBrownId = "k1OaP2yL9aWcE5xQyRzFp8sT7uJ3";
-
-export const mockUsers: Record<string, UserProfile> = {
-  'jane-doe-realtor': {
-    id: "jane-doe-realtor",
-    name: "Jane Doe",
-    email: "jane.doe@test.com",
-    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop",
-    bio: "mock.user1_bio",
-    isVerifiedSeller: true,
-    rating: 5,
-    properties: properties.filter(p => p.realtor.id === "jane-doe-realtor")
-  },
-  'john-smith': {
-    id: "john-smith",
-    name: "John Smith",
-    email: "john.smith@test.com",
-    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop",
-    bio: "mock.user2_bio",
-    isVerifiedSeller: true,
-    rating: 4,
-    properties: properties.filter(p => p.realtor.id === "john-smith")
-  },
-  'emily-white': {
-    id: "emily-white",
-    name: "Emily White",
-    email: "emily.white@test.com",
-    avatar: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    bio: "mock.user3_bio",
-    isVerifiedSeller: true,
-    rating: 5,
-    properties: properties.filter(p => p.realtor.id === "emily-white")
-  },
-   [michaelBrownId]: {
-    id: michaelBrownId,
-    name: "Michael Brown",
-    email: "michael.brown@test.com",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop",
-    bio: "mock.user4_bio",
-    isVerifiedSeller: false,
-    rating: 4,
-    properties: properties.filter(p => p.realtor.id === michaelBrownId)
-  }
-};
+// Populate user properties
+Object.values(mockUsers).forEach(user => {
+  user.properties = properties.filter(p => p.realtor_id === user.id);
+});
 
 
 export const mockConversations: Conversation[] = [

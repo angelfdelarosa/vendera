@@ -65,6 +65,7 @@ export default function NewPropertyPage() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   
   useEffect(() => {
+    // Reset form when locale changes to re-apply placeholders if needed
     setFormData(getInitialFormData());
   }, [locale]);
 
@@ -89,10 +90,10 @@ export default function NewPropertyPage() {
       const files = Array.from(e.target.files);
       setImageFiles(files);
 
-      const newPreviews = files.map(file => URL.createObjectURL(file));
-      
+      // Free up memory from old previews
       imagePreviews.forEach(preview => URL.revokeObjectURL(preview));
 
+      const newPreviews = files.map(file => URL.createObjectURL(file));
       setImagePreviews(newPreviews);
     }
   };
@@ -150,8 +151,8 @@ export default function NewPropertyPage() {
 
 
     const features = [
-        ...formData.amenities.split(",").map((f) => f.trim()),
-        ...formData.uniqueFeatures.split(",").map((f) => f.trim())
+      ...formData.amenities.split(",").map((f) => f.trim()),
+      ...formData.uniqueFeatures.split(",").map((f) => f.trim()),
     ].filter(Boolean);
 
     const newPropertyData = {

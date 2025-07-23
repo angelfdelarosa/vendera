@@ -8,9 +8,6 @@ interface ChatState {
   selectedConversation: Conversation | null;
   selectConversation: (conversationId: string | null) => void;
   addMessage: (conversationId: string, message: Message) => void;
-  getConversationByPropertyId: (propertyId: string) => Conversation | undefined;
-  getConversationByUserId: (userId: string) => Conversation | undefined;
-  createConversation: (data: { user: UserProfile, property: Property }) => Conversation;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -43,42 +40,5 @@ export const useChatStore = create<ChatState>((set, get) => ({
           : c
       ),
     }));
-  },
-  getConversationByPropertyId: (propertyId) => {
-    return get().conversations.find(c => c.property.id === propertyId);
-  },
-  getConversationByUserId: (userId: string) => {
-    return get().conversations.find(c => c.user.id === userId);
-  },
-  createConversation: ({ user, property }) => {
-    // Check if a conversation with this user and property already exists
-    let existingConvo = get().conversations.find(c => c.user.id === user.id && c.property.id === property.id);
-    if (existingConvo) {
-      set({ selectedConversation: existingConvo });
-      return existingConvo;
-    }
-
-    // Check if a conversation with this user already exists
-    existingConvo = get().getConversationByUserId(user.id);
-    if (existingConvo) {
-        set({ selectedConversation: existingConvo });
-        return existingConvo;
-    }
-
-    const newConversation: Conversation = {
-      id: `convo-${crypto.randomUUID()}`,
-      user,
-      property,
-      messages: [],
-      timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-      unread: true,
-    };
-    
-    set(state => ({
-      conversations: [newConversation, ...state.conversations],
-      selectedConversation: newConversation,
-    }));
-    
-    return newConversation;
   },
 }));
