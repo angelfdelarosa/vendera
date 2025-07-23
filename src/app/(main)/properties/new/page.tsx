@@ -22,10 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-import { generatePropertyDescription } from "@/ai/flows/property-description-generator";
 import { usePropertyStore } from "@/hooks/usePropertyStore";
 import type { Property } from "@/types";
 import Image from "next/image";
@@ -60,7 +59,6 @@ export default function NewPropertyPage() {
     description: "",
   });
   
-  const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState(getInitialFormData());
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -68,7 +66,7 @@ export default function NewPropertyPage() {
   
   useEffect(() => {
     setFormData(getInitialFormData());
-  }, [locale]);
+  }, [locale, t]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -99,34 +97,6 @@ export default function NewPropertyPage() {
     }
   };
 
-
-  const handleGenerateDescription = async () => {
-    setIsGenerating(true);
-    try {
-      const result = await generatePropertyDescription({
-        propertyType: t(`property.types.${formData.propertyType}`),
-        location: formData.location,
-        numBedrooms: formData.numBedrooms,
-        numBathrooms: formData.numBathrooms,
-        amenities: formData.amenities,
-        uniqueFeatures: formData.uniqueFeatures,
-        locale: locale,
-      });
-      setFormData((prev) => ({ ...prev, description: result.description }));
-      toast({
-        title: t('newProperty.toast.generated.title'),
-        description: t('newProperty.toast.generated.description'),
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: t('newProperty.toast.error'),
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -212,12 +182,14 @@ export default function NewPropertyPage() {
         return;
     }
 
+    const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url').eq('id', user.id).single();
+
     const newProperty: Property = {
         ...data,
         realtor: {
              id: user.id,
-             name: user.user_metadata?.full_name || 'Anonymous',
-             avatar: user.user_metadata?.avatar_url || 'https://placehold.co/100x100.png',
+             name: profile?.full_name || 'Anonymous',
+             avatar: profile?.avatar_url || 'https://placehold.co/100x100.png',
         }
     }
 
@@ -368,19 +340,7 @@ export default function NewPropertyPage() {
               />
             </div>
             <div className="md:col-span-2 space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="description">{t('property.description')}</Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleGenerateDescription}
-                  disabled={isGenerating}
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  {isGenerating ? t('newProperty.form.generating') : t('newProperty.form.generate_ai')}
-                </Button>
-              </div>
+              <Label htmlFor="description">{t('property.description')}</Label>
               <Textarea
                 id="description"
                 placeholder={t('newProperty.form.description_placeholder')}
