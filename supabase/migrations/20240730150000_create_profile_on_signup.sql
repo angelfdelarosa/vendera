@@ -11,13 +11,16 @@ create table if not exists profiles (
 alter table profiles
   enable row level security;
 
-create policy if not exists "Public profiles are viewable by everyone." on profiles
+drop policy if exists "Public profiles are viewable by everyone." on profiles;
+create policy "Public profiles are viewable by everyone." on profiles
   for select using (true);
 
-create policy if not exists "Users can insert their own profile." on profiles
+drop policy if exists "Users can insert their own profile." on profiles;
+create policy "Users can insert their own profile." on profiles
   for insert with check (auth.uid() = id);
 
-create policy if not exists "Users can update own profile." on profiles
+drop policy if exists "Users can update own profile." on profiles;
+create policy "Users can update own profile." on profiles
   for update using (auth.uid() = id);
 
 -- This trigger automatically creates a profile for new users.
