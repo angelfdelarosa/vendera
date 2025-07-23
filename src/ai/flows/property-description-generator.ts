@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -75,6 +76,7 @@ ${englishPrompt}
 const generatePropertyDescriptionFlow = ai.defineFlow(
   {name: 'generatePropertyDescriptionFlow', inputSchema: GeneratePropertyDescriptionInputSchema, outputSchema: GeneratePropertyDescriptionOutputSchema},
   async input => {
+    console.log('Generating property description with input: ', JSON.stringify(input, null, 2));
     const {output} = await prompt(input);
     return output!;
   }
