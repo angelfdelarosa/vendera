@@ -9,7 +9,6 @@ import { Search } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserNav } from "./UserNav";
-import { MessageNotifications } from "./MessageNotifications";
 
 export function Header() {
   const { t } = useTranslation();
@@ -59,7 +58,6 @@ export function Header() {
           </div>
         </div>
         <div className="flex items-center justify-end space-x-2">
-          <MessageNotifications />
           <UserNav />
         </div>
       </div>

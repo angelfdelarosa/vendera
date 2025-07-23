@@ -4,7 +4,6 @@
 import { notFound, useRouter, usePathname, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { mockUsers } from '@/lib/mock-data';
 import {
   Carousel,
   CarouselContent,
@@ -16,59 +15,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { BedDouble, Bath, Ruler, MapPin, Building, MessageSquare, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { BedDouble, Bath, Ruler, MapPin, Building, Lock, Loader2, ArrowRight } from 'lucide-react';
 import { SimilarProperties } from '@/components/properties/SimilarProperties';
 import { FavoriteButton } from '@/components/properties/FavoriteButton';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ChatWindow } from '@/components/chat/ChatWindow';
-import { useChatStore } from '@/components/chat/use-chat-store';
-import type { Conversation } from '@/types';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/context/AuthContext';
 
 export default function PropertyDetailPage() {
   const params = useParams();
-  const router = useRouter();
-  const pathname = usePathname();
   const properties = usePropertyStore((state) => state.properties);
+  const { user } = useAuth();
   const property = properties.find((p) => p.id === params.id);
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const { getConversationByPropertyId, createConversation } = useChatStore();
   const { t } = useTranslation();
 
   if (!property) {
     notFound();
   }
 
-  const realtorProfile = Object.values(mockUsers).find(
-    (user) => user.id === property.realtor.id
-  );
-  
-  const sellerForChat = realtorProfile || { 
-      id: property.realtor.id,
-      name: property.realtor.name,
-      avatar: property.realtor.avatar,
-      bio: "Un apasionado profesional inmobiliario.",
-      isVerifiedSeller: true,
-      rating: 5,
-      properties: [property]
-  };
-
-  const handleContactSeller = () => {
-    let convo = getConversationByPropertyId(property.id);
-    if (!convo) {
-      convo = createConversation({
-        user: sellerForChat,
-        property: property,
-      });
-    }
-    setIsChatOpen(true);
-  };
-
-  const conversation = getConversationByPropertyId(property.id) || 
-    ({ id: 'temp', user: sellerForChat, property, messages: [], unread: false, timestamp: '' } as Conversation);
+  const isOwnProperty = user && user.id === property.realtor_id;
 
   
   return (
@@ -142,39 +108,26 @@ export default function PropertyDetailPage() {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  {realtorProfile ? (
+                  
                     <Link
-                      href={`/profile/${realtorProfile.id}`}
+                      href={`/profile/${property.realtor.id}`}
                       className="font-semibold text-lg hover:underline"
                     >
                       {property.realtor.name}
                     </Link>
-                  ) : (
-                    <p className="font-semibold text-lg">
-                      {property.realtor.name}
-                    </p>
-                  )}
+                  
                   <p className="text-sm text-muted-foreground">
                     {t('property.certifiedRealtor')}
                   </p>
                 </div>
               </div>
-               <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
-                <DialogTrigger asChild>
-                    <Button className="w-full" onClick={handleContactSeller}>
-                        <MessageSquare className="mr-2" />
-                        {t('profile.contactSeller')}
-                    </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px] h-3/4 flex flex-col">
-                  <DialogHeader>
-                    <DialogTitle>{t('chat.titleProperty', { title: t(property.title) })}</DialogTitle>
-                  </DialogHeader>
-                   <ChatWindow
-                      conversation={conversation}
-                    />
-                </DialogContent>
-              </Dialog>
+              { !isOwnProperty && (
+                <Button className="w-full" asChild>
+                    <Link href={`/profile/${property.realtor.id}?contact=true`}>
+                       {t('profile.contactSeller')}
+                    </Link>
+                </Button>
+              )}
             </CardContent>
           </Card>
         </div>

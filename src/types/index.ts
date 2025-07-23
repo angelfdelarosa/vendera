@@ -22,7 +22,7 @@ export type Property = {
 export type UserProfile = {
   id: string;
   name: string;
-  email?: string;
+  email: string;
   avatar: string;
   bio?: string;
   isVerifiedSeller: boolean;

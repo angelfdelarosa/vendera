@@ -11,15 +11,13 @@ import {
   CardHeader,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, MessageSquare, Loader2, Building, Heart, Edit } from 'lucide-react';
+import { Star, Loader2, Building, Heart, Edit, Mail } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ChatWindow } from '@/components/chat/ChatWindow';
-import { useChatStore } from '@/components/chat/use-chat-store';
-import type { Conversation, UserProfile, Property } from '@/types';
+import type { UserProfile, Property } from '@/types';
 import Image from 'next/image';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
@@ -31,15 +29,11 @@ interface ProfilePageClientProps {
 export default function ProfilePageClient({ profileId }: ProfilePageClientProps) {
   const searchParams = useSearchParams();
   const { user: authUser, loading: authLoading, supabase } = useAuth();
-  const { getConversationByUserId, createConversation } = useChatStore();
   const { t } = useTranslation();
   const { favorites } = useFavorites();
 
   const [displayUser, setDisplayUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isChatOpen, setIsChatOpen] = useState(false);
-
-  const chatOpen = searchParams.get('chat') === 'true';
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -60,6 +54,12 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
         if (propertiesError) {
           console.error("Error fetching user properties", propertiesError);
         }
+        
+        const realtorForProperties = {
+            id: profile.id,
+            name: profile.full_name || 'Anonymous',
+            avatar: profile.avatar_url || 'https://placehold.co/100x100.png',
+        };
 
         setDisplayUser({
             id: profile.id,
@@ -69,7 +69,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
             bio: profile.bio || 'A new member of the VENDRA community.',
             isVerifiedSeller: profile.is_verified_seller || false,
             rating: profile.rating || 0,
-            properties: (userProperties || []).map(p => ({ ...p, realtor: { id: profile.id, name: profile.full_name, avatar: profile.avatar_url } })) as unknown as Property[]
+            properties: (userProperties || []).map(p => ({ ...p, realtor: realtorForProperties })) as unknown as Property[]
         });
       } else if (authUser?.id === profileId) {
          setDisplayUser({
@@ -91,15 +91,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
       fetchProfile();
     }
   }, [profileId, authUser, authLoading, supabase]);
-
-  useEffect(() => {
-    if (chatOpen && displayUser) {
-      const convo = getConversationByUserId(displayUser.id);
-      if (convo) {
-        setIsChatOpen(true);
-      }
-    }
-  }, [chatOpen, displayUser, getConversationByUserId]);
+  
 
   if (loading || authLoading) {
     return (
@@ -122,30 +114,6 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
         </div>
     );
   }
-
-  const conversation = getConversationByUserId(displayUser.id) ||
-   (displayUser && displayUser.properties.length > 0
-    ? ({
-        id: 'temp',
-        user: displayUser,
-        property: displayUser.properties[0],
-        messages: [],
-        unread: false,
-        timestamp: ''
-      } as Conversation)
-    : null);
-
-  const handleContactSeller = () => {
-    if (!displayUser || !displayUser.properties.length) return;
-    let convo = getConversationByUserId(displayUser.id);
-    if (!convo) {
-       convo = createConversation({
-        user: displayUser,
-        property: displayUser.properties[0],
-      });
-    }
-    setIsChatOpen(true);
-  };
 
   const userInitial = displayUser.name.charAt(0).toUpperCase();
   const isOwnProfile = authUser && authUser.id === displayUser.id;
@@ -213,24 +181,12 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                         <Edit className="mr-2 h-4 w-4" /> Edit Profile
                     </Button>
                   ) : (
-                    <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
-                        <DialogTrigger asChild>
-                        <Button onClick={handleContactSeller}>
-                            <MessageSquare className="h-4 w-4 mr-2" />
-                            {t('profile.contactSeller')}
-                        </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px] h-3/4 flex flex-col">
-                        <DialogHeader>
-                            <DialogTitle>{t('chat.title')} {displayUser.name}</DialogTitle>
-                        </DialogHeader>
-                        {conversation && (
-                            <ChatWindow
-                            conversation={conversation}
-                            />
-                        )}
-                        </DialogContent>
-                    </Dialog>
+                    <Button asChild>
+                       <a href={`mailto:${displayUser.email}`}>
+                        <Mail className="h-4 w-4 mr-2" />
+                        {t('profile.contactSeller')}
+                       </a>
+                    </Button>
                   )}
               </div>
             </div>
