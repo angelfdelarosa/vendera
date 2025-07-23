@@ -1,55 +1,51 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from 'next/navigation';
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { PropertySearchFilters } from "@/components/properties/PropertySearchFilters";
-import { usePropertyStore } from "@/hooks/usePropertyStore";
 import type { Property } from "@/types";
-import { useMemo } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Loader2 } from "lucide-react";
+import { usePropertyContext } from "@/context/PropertyContext";
 
 export default function HomePage() {
-  const { allProperties, setAllProperties } = usePropertyStore();
+  const { properties, isLoading } = usePropertyContext();
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Data is now fetched in the store, just set it
-     if (allProperties.length > 0) {
-      setFilteredProperties(allProperties);
-      setLoading(false);
+    if (!isLoading) {
+      setFilteredProperties(properties);
     }
-  }, [allProperties]);
+  }, [properties, isLoading]);
 
 
   useEffect(() => {
     const searchQuery = searchParams.get('q');
     if (searchQuery) {
-      const results = allProperties.filter(p => 
+      const results = properties.filter(p => 
         p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredProperties(results);
     } else {
-        setFilteredProperties(allProperties);
+        setFilteredProperties(properties);
     }
-  }, [searchParams, allProperties]);
+  }, [searchParams, properties]);
 
   const locations = useMemo(() => {
-    const locationSet = new Set(allProperties.map(p => p.location));
+    const locationSet = new Set(properties.map(p => p.location));
     return Array.from(locationSet);
-  }, [allProperties]);
+  }, [properties]);
 
   const propertyTypes = useMemo(() => {
-    const typeSet = new Set(allProperties.map(p => p.type));
+    const typeSet = new Set(properties.map(p => p.type));
     return Array.from(typeSet);
-  }, [allProperties]);
+  }, [properties]);
 
   const handleSearch = (filters: {
     location: string;
@@ -59,7 +55,7 @@ export default function HomePage() {
     const { location, type, priceRange } = filters;
     const [minPrice, maxPrice] = priceRange;
 
-    const results = allProperties.filter(property => {
+    const results = properties.filter(property => {
       const matchesLocation = !location || property.location === location;
       const matchesType = !type || property.type === type;
       const matchesPrice = property.price >= minPrice && property.price <= maxPrice;
@@ -88,7 +84,7 @@ export default function HomePage() {
         <h2 className="font-headline text-3xl font-semibold mb-8 text-primary">
           {t('home.featuredListings')}
         </h2>
-        {loading ? (
+        {isLoading ? (
             <div className="flex justify-center items-center h-64">
                 <Loader2 className="h-16 w-16 animate-spin text-primary" />
             </div>

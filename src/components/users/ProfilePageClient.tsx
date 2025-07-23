@@ -28,7 +28,7 @@ import ReactCrop, { type Crop, PixelCrop, centerCrop, makeAspectCrop } from 'rea
 import 'react-image-crop/dist/ReactCrop.css';
 import { canvasPreview } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
-import { usePropertyStore } from '@/hooks/usePropertyStore';
+import { usePropertyContext } from '@/context/PropertyContext';
 
 interface ProfilePageClientProps {
     profileId: string;
@@ -66,11 +66,11 @@ function debounce(fn: Function, ms = 300) {
 
 export default function ProfilePageClient({ profileId }: ProfilePageClientProps) {
   const { user: authUser, loading: authLoading, supabase } = useAuth();
+  const { properties: allProperties, isLoading: propertiesLoading } = usePropertyContext();
   const { t } = useTranslation();
   const { toast } = useToast();
   const { favorites } = useFavorites();
-  const allProperties = usePropertyStore((state) => state.allProperties);
-
+  
   const [displayUser, setDisplayUser] = useState<UserProfile | null>(null);
   const [userProperties, setUserProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -134,13 +134,15 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
       setLoading(false);
     };
 
-    if (!authLoading && allProperties.length > 0) {
+    if (!authLoading && !propertiesLoading) {
       fetchProfile();
     }
-  }, [profileId, authLoading, supabase, allProperties]);
+  }, [profileId, authLoading, propertiesLoading, supabase, allProperties]);
   
 
-  if (loading || authLoading) {
+  const isLoading = loading || authLoading || propertiesLoading;
+
+  if (isLoading) {
     return (
         <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
