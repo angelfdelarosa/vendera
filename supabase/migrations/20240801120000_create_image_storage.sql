@@ -1,29 +1,19 @@
--- Create a bucket for property images
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('property_images', 'property_images', true)
-ON CONFLICT (id) DO NOTHING;
+-- Create the storage bucket for property images
+insert into storage.buckets
+  (id, name, public)
+values
+  ('property_images', 'property_images', true)
+on conflict (id) do nothing;
 
--- Set up policies for the property_images bucket
+-- Set up security policies for the property_images bucket
+-- Allow public read access
+create policy "Allow public read access" on storage.objects for select using ( bucket_id = 'property_images' );
 
--- Allow public read access to all files in the bucket
-CREATE POLICY "Public read access for property images"
-ON storage.objects FOR SELECT
-USING ( bucket_id = 'property_images' );
+-- Allow authenticated users to upload images
+create policy "Allow authenticated uploads" on storage.objects for insert to authenticated with check ( bucket_id = 'property_images' );
 
--- Allow authenticated users to upload files
-CREATE POLICY "Authenticated users can upload images"
-ON storage.objects FOR INSERT
-TO authenticated
-WITH CHECK ( bucket_id = 'property_images' );
+-- Allow users to update their own images
+create policy "Allow own image update" on storage.objects for update using ( auth.uid() = owner ) with check ( bucket_id = 'property_images' );
 
--- Allow authenticated users to update their own images
-CREATE POLICY "Authenticated users can update their own images"
-ON storage.objects FOR UPDATE
-TO authenticated
-USING ( auth.uid() = owner );
-
--- Allow authenticated users to delete their own images
-CREATE POLICY "Authenticated users can delete their own images"
-ON storage.objects FOR DELETE
-TO authenticated
-USING ( auth.uid() = owner );
+-- Allow users to delete their own images
+create policy "Allow own image delete" on storage.objects for delete using ( auth.uid() = owner );
