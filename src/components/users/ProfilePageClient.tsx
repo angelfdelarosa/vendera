@@ -106,6 +106,10 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
   
   useEffect(() => {
     const fetchProfile = async () => {
+      if (!profileId) {
+          setLoading(false);
+          return;
+      }
       setLoading(true);
 
       const { data: profileData, error } = await supabase
@@ -116,6 +120,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
       
       if (error || !profileData) {
         console.error('Error fetching profile:', error);
+        setDisplayUser(null);
       } else {
         setDisplayUser({
             id: profileData.id,
