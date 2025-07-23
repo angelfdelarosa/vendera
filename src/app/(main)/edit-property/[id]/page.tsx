@@ -122,7 +122,7 @@ export default function EditPropertyPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !property) return;
     setIsSubmitting(true);
 
     const updatedPropertyData = {
@@ -156,7 +156,10 @@ export default function EditPropertyPage() {
       return;
     }
     
-    updateProperty(data.id, data);
+    // This is tricky because the updated 'data' doesn't have the realtor info.
+    // We need to merge it with the existing property data.
+    const fullyUpdatedProperty = { ...property, ...data };
+    updateProperty(data.id, fullyUpdatedProperty);
 
     toast({
       title: 'Propiedad actualizada',

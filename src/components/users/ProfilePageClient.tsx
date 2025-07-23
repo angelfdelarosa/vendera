@@ -450,7 +450,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                               {isEditMode && (
                                 <div className="absolute top-2 right-14 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                   <Button size="icon" variant="outline" className="bg-background" asChild>
-                                    <Link href={`/properties/edit/${property.id}`}>
+                                    <Link href={`/edit-property/${property.id}`}>
                                       <Edit className="h-4 w-4" />
                                     </Link>
                                   </Button>
