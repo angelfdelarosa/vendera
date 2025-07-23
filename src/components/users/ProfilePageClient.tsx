@@ -169,6 +169,21 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
       setCrop(centerAspectCrop(width, height, aspect))
     }
   }
+
+   useEffect(() => {
+    if (
+      completedCrop?.width &&
+      completedCrop.height &&
+      imgRef.current &&
+      previewCanvasRef.current
+    ) {
+      canvasPreview(
+        imgRef.current,
+        previewCanvasRef.current,
+        completedCrop
+      )
+    }
+  }, [completedCrop])
   
   const handleAvatarUpload = async () => {
     if (!previewCanvasRef.current || !authUser || !completedCrop) {
@@ -294,7 +309,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                                 <Edit className="mr-2 h-4 w-4" /> Edit Profile
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[625px]">
+                        <DialogContent className="sm:max-w-4xl">
                             <DialogHeader>
                                 <DialogTitle>{t('profile.edit.title')}</DialogTitle>
                                 <DialogDescription>{t('profile.edit.description')}</DialogDescription>
@@ -313,15 +328,16 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                                         onComplete={(c) => setCompletedCrop(c)}
                                         aspect={aspect}
                                         circularCrop
+                                        className="max-h-[60vh]"
                                       >
                                         <Image
                                           ref={imgRef}
                                           alt="Crop me"
                                           src={imgSrc}
-                                          width={500}
-                                          height={500}
+                                          width={800}
+                                          height={600}
                                           onLoad={onImageLoad}
-                                          className="max-h-[60vh] object-contain"
+                                          className="object-contain"
                                         />
                                       </ReactCrop>
                                   </div>
