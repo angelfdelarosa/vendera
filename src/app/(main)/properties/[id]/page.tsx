@@ -4,7 +4,7 @@
 import { notFound, useRouter, usePathname, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { mockUsers, properties as allMockProperties } from '@/lib/mock-data';
+import { mockUsers } from '@/lib/mock-data';
 import {
   Carousel,
   CarouselContent,
@@ -27,12 +27,6 @@ import { useChatStore } from '@/components/chat/use-chat-store';
 import type { Conversation } from '@/types';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { useTranslation } from '@/hooks/useTranslation';
-
-export async function generateStaticParams() {
-  return allMockProperties.map((property) => ({
-    id: property.id,
-  }));
-}
 
 export default function PropertyDetailPage() {
   const params = useParams();
