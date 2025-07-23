@@ -3,7 +3,6 @@
 
 import Link from "next/link";
 import { Logo } from "./Logo";
-import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
@@ -60,7 +59,6 @@ export function Header() {
           </div>
         </div>
         <div className="flex items-center justify-end space-x-2">
-          <LanguageSwitcher />
           <MessageNotifications />
           <UserNav />
         </div>
