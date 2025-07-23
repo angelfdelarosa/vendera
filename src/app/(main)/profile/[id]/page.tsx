@@ -1,40 +1,16 @@
-import { mockUsers } from '@/lib/mock-data';
-import type { UserProfile } from '@/types';
+
+'use client';
+
+import { useParams } from 'next/navigation';
 import ProfilePageClient from '@/components/users/ProfilePageClient';
 
-export async function generateStaticParams() {
-  const users = Object.keys(mockUsers);
-  return users.map((id) => ({
-    id,
-  }));
-}
+// This is a server-component-first approach, but we need the client to handle dynamic user data.
+// The page will pass the ID to a client component which will handle all fetching and state.
+// We keep generateStaticParams to satisfy the `output: 'export'` requirement for existing users.
 
-function getUser(id: string): UserProfile | null {
-    if (mockUsers[id]) {
-        return mockUsers[id];
-    }
-    const userProperties = Object.values(mockUsers).flatMap(u => u.properties).filter(p => p.realtor.id === id);
-    const firstProperty = userProperties[0];
+export default function ProfilePage() {
+  const params = useParams();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
-    if (firstProperty) {
-         return {
-            id: id,
-            name: firstProperty.realtor.name,
-            email: '',
-            avatar: firstProperty.realtor.avatar,
-            bio: 'A new member of the VENDRA community.',
-            isVerifiedSeller: false,
-            rating: 0,
-            properties: userProperties
-        }
-    }
-    return null;
-}
-
-
-export default function ProfilePage({ params }: { params: { id: string } }) {
-  const { id } = params;
-  const user = getUser(id);
-
-  return <ProfilePageClient user={user} profileId={id} />;
+  return <ProfilePageClient profileId={id} />;
 }

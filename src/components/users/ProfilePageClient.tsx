@@ -1,15 +1,14 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, MessageSquare, Loader2, Building, Heart, Edit } from 'lucide-react';
@@ -27,19 +26,17 @@ import { useAuth } from '@/context/AuthContext';
 import { mockUsers } from '@/lib/mock-data';
 
 interface ProfilePageClientProps {
-    user: UserProfile | null;
     profileId: string;
 }
 
-export default function ProfilePageClient({ user: initialUser, profileId }: ProfilePageClientProps) {
+export default function ProfilePageClient({ profileId }: ProfilePageClientProps) {
   const searchParams = useSearchParams();
   const { user: authUser, loading: authLoading } = useAuth();
   const { getConversationByUserId, createConversation } = useChatStore();
   const { t } = useTranslation();
   const { favorites } = useFavorites();
-  const router = useRouter();
 
-  const [displayUser, setDisplayUser] = useState<UserProfile | null>(initialUser);
+  const [displayUser, setDisplayUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -48,7 +45,7 @@ export default function ProfilePageClient({ user: initialUser, profileId }: Prof
   useEffect(() => {
     if (authLoading) return;
 
-    let userToDisplay = initialUser;
+    let userToDisplay = mockUsers[profileId];
 
     if (!userToDisplay) {
          if (authUser && authUser.id === profileId) {
@@ -63,15 +60,33 @@ export default function ProfilePageClient({ user: initialUser, profileId }: Prof
                 properties: [],
             };
         } else {
-             userToDisplay = {
-                id: profileId,
-                name: 'New User',
-                email: '',
-                avatar: 'https://placehold.co/128x128.png',
-                bio: 'A new member of the VENDRA community.',
-                isVerifiedSeller: false,
-                rating: 0,
-                properties: []
+             // Attempt to find user as a realtor in any property, for legacy support
+            const userAsRealtor = Object.values(mockUsers)
+                .flatMap(u => u.properties)
+                .find(p => p.realtor.id === profileId)?.realtor;
+
+            if (userAsRealtor) {
+                userToDisplay = {
+                    id: userAsRealtor.id,
+                    name: userAsRealtor.name,
+                    email: '',
+                    avatar: userAsRealtor.avatar,
+                    bio: 'A VENDRA real estate agent.',
+                    isVerifiedSeller: true,
+                    rating: 4,
+                    properties: Object.values(mockUsers).flatMap(u => u.properties).filter(p => p.realtor.id === profileId)
+                }
+            } else {
+                userToDisplay = {
+                    id: profileId,
+                    name: 'New User',
+                    email: '',
+                    avatar: 'https://placehold.co/128x128.png',
+                    bio: 'A new member of the VENDRA community.',
+                    isVerifiedSeller: false,
+                    rating: 0,
+                    properties: []
+                }
             }
         }
     }
@@ -79,7 +94,7 @@ export default function ProfilePageClient({ user: initialUser, profileId }: Prof
     setDisplayUser(userToDisplay);
     setLoading(false);
     
-  }, [profileId, authUser, authLoading, initialUser]);
+  }, [profileId, authUser, authLoading]);
 
   useEffect(() => {
     if (chatOpen && displayUser) {
