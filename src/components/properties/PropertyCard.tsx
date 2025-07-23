@@ -1,12 +1,15 @@
 
+'use client';
+
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Property } from "@/types";
-import { MapPin, BedDouble, Bath, Ruler } from "lucide-react";
+import { MapPin, BedDouble, Bath, Ruler, Lock } from "lucide-react";
 import { FavoriteButton } from "./FavoriteButton";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAuth } from "@/context/AuthContext";
 
 interface PropertyCardProps {
   property: Property;
@@ -14,6 +17,7 @@ interface PropertyCardProps {
 
 export function PropertyCard({ property }: PropertyCardProps) {
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   return (
     <Link href={`/properties/${property.id}`} className="group block">
@@ -44,22 +48,31 @@ export function PropertyCard({ property }: PropertyCardProps) {
               <span>{property.location}</span>
             </div>
           </CardContent>
-          <CardFooter className="p-4 pt-0 flex items-start">
-            <div className="flex justify-between w-full text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <BedDouble className="w-4 h-4" />
-                <span>{property.bedrooms} {t('property.beds')}</span>
+          {user ? (
+            <CardFooter className="p-4 pt-0 flex items-start">
+              <div className="flex justify-between w-full text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <BedDouble className="w-4 h-4" />
+                  <span>{property.bedrooms} {t('property.beds')}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Bath className="w-4 h-4" />
+                  <span>{property.bathrooms} {t('property.baths')}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Ruler className="w-4 h-4" />
+                  <span>{property.area.toLocaleString()} {t('property.sqft')}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Bath className="w-4 h-4" />
-                <span>{property.bathrooms} {t('property.baths')}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Ruler className="w-4 h-4" />
-                <span>{property.area.toLocaleString()} {t('property.sqft')}</span>
-              </div>
-            </div>
-          </CardFooter>
+            </CardFooter>
+          ) : (
+            <CardFooter className="p-4 pt-0 flex items-start bg-secondary/30">
+                <div className="flex items-center text-xs text-muted-foreground gap-2">
+                    <Lock className="h-3 w-3" />
+                    <span>Inicia sesión para ver más detalles</span>
+                </div>
+            </CardFooter>
+          )}
         </Card>
     </Link>
   );
