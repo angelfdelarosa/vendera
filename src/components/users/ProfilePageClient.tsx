@@ -24,6 +24,7 @@ import Image from 'next/image';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
 import { properties as allProperties } from '@/lib/mock-data';
+import { mockUsers } from '@/lib/mock-data';
 
 interface ProfilePageClientProps {
     profileId: string;
@@ -44,7 +45,6 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (authLoading) return;
       setLoading(true);
 
       const { data: profile, error } = await supabase
@@ -81,12 +81,17 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
             rating: 0,
             properties: [],
         });
+      } else if (mockUsers[profileId]) {
+        // Fallback to mock data if DB call fails or for static users
+        setDisplayUser(mockUsers[profileId]);
       }
 
       setLoading(false);
     };
 
-    fetchProfile();
+    if (!authLoading) {
+      fetchProfile();
+    }
   }, [profileId, authUser, authLoading, supabase]);
 
   useEffect(() => {
@@ -98,7 +103,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     }
   }, [chatOpen, displayUser, getConversationByUserId]);
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
         <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
