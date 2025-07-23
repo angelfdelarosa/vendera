@@ -17,24 +17,28 @@ import {
   CardFooter
 } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, LogIn } from 'lucide-react';
+import { AlertCircle, LogIn, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    try {
-      await login(email, password);
+    setLoading(true);
+    const { error: loginError } = await login(email, password);
+    setLoading(false);
+    
+    if (loginError) {
+      setError(loginError.message);
+    } else {
       router.push('/');
-    } catch (err: any) {
-      setError('Failed to log in. Please check your credentials.');
-      console.error(err);
+      router.refresh(); // Ensure the layout re-renders with the new auth state
     }
   };
 
@@ -77,8 +81,9 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <Button type="submit" className="w-full">
-              <LogIn /> Login
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? <Loader2 className="animate-spin" /> : <LogIn />} 
+              Login
             </Button>
           </CardContent>
           <CardFooter className="text-sm">

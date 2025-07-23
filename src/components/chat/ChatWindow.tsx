@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import type { User } from 'firebase/auth';
 import type { Conversation, Message } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -63,11 +62,11 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
 
     try {
         const messageHistory = [...messages, buyerMessage]
-            .map(m => `${m.sender === 'buyer' ? buyer.displayName : conversation.user.name}: ${m.text}`)
+            .map(m => `${m.sender === 'buyer' ? (buyer.user_metadata.full_name || 'Buyer') : conversation.user.name}: ${m.text}`)
             .join('\n');
 
         const result = await chatAssistant({
-            buyerName: buyer.displayName || t('chat.potentialBuyer'),
+            buyerName: buyer.user_metadata.full_name || t('chat.potentialBuyer'),
             sellerName: conversation.user.name,
             propertyName: t(conversation.property.title),
             messageHistory: messageHistory,
@@ -97,11 +96,11 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
   };
 
   const getAvatar = (sender: 'buyer' | 'seller') => {
-    return sender === 'buyer' ? buyer?.photoURL : conversation.user.avatar;
+    return sender === 'buyer' ? buyer?.user_metadata.avatar_url : conversation.user.avatar;
   };
 
   const getInitial = (sender: 'buyer' | 'seller') => {
-    const name = sender === 'buyer' ? buyer?.displayName : conversation.user.name;
+    const name = sender === 'buyer' ? buyer?.user_metadata.full_name : conversation.user.name;
     return name ? name.charAt(0).toUpperCase() : 'U';
   }
 

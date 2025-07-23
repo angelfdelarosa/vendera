@@ -156,10 +156,10 @@ export default function NewPropertyPage() {
         "https://placehold.co/600x400.png",
       ],
       realtor: {
-        id: user.uid,
-        name: user.displayName || "Anonymous Seller",
+        id: user.id,
+        name: user.user_metadata?.full_name || "Anonymous Seller",
         avatar:
-          user.photoURL || "https://placehold.co/100x100.png",
+          user.user_metadata?.avatar_url || "https://placehold.co/100x100.png",
       },
     };
 

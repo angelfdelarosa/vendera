@@ -54,7 +54,7 @@ export default function ProfilePage() {
   const allProperties = usePropertyStore((state) => state.properties);
   const { t } = useTranslation();
 
-  const isOwnProfile = currentUser?.uid === profileId;
+  const isOwnProfile = currentUser?.id === profileId;
   
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [name, setName] = useState('');
@@ -71,8 +71,20 @@ export default function ProfilePage() {
   }, [searchParams, profileId, getConversationByUserId, currentUser]);
 
   const displayUser: UserProfile | undefined = useMemo(() => {
+    if (isOwnProfile && currentUser) {
+        return {
+            id: currentUser.id,
+            name: currentUser.user_metadata.full_name,
+            email: currentUser.email || '',
+            avatar: currentUser.user_metadata.avatar_url,
+            bio: "Un nuevo miembro de la comunidad VENDRA.",
+            isVerifiedSeller: false,
+            rating: 0,
+            properties: allProperties.filter(p => p.realtor.id === currentUser.id)
+        }
+    }
     return mockUsers[profileId];
-  }, [profileId]);
+  }, [profileId, isOwnProfile, currentUser, allProperties]);
 
   useEffect(() => {
     if (displayUser && isSheetOpen) {

@@ -17,29 +17,36 @@ import {
   CardFooter
 } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, UserPlus } from 'lucide-react';
+import { AlertCircle, UserPlus, Loader2 } from 'lucide-react';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
   const router = useRouter();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
+    
     if (password.length < 6) {
       setError("Password must be at least 6 characters long.");
+      setLoading(false);
       return;
     }
-    try {
-      await signup(name, email, password);
+
+    const { error: signupError } = await signup(name, email, password);
+    setLoading(false);
+
+    if (signupError) {
+      setError(signupError.message);
+    } else {
       router.push('/');
-    } catch (err: any) {
-      setError('Failed to create an account. The email might already be in use.');
-      console.error(err);
+      router.refresh();
     }
   };
 
@@ -93,8 +100,9 @@ export default function SignupPage() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <Button type="submit" className="w-full">
-              <UserPlus /> Sign Up
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? <Loader2 className="animate-spin" /> : <UserPlus />} 
+              Sign Up
             </Button>
           </CardContent>
           <CardFooter className="text-sm">
