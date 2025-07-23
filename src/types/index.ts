@@ -11,6 +11,7 @@ export type Property = {
   description: string;
   features: string[];
   images: string[];
+  realtor_id: string;
   realtor: {
     id: string;
     name: string;

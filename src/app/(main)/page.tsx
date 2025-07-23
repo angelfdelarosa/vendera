@@ -10,16 +10,46 @@ import type { Property } from "@/types";
 import { useMemo } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function HomePage() {
+  const { supabase } = useAuth();
+  const setProperties = usePropertyStore((state) => state.setProperties);
   const allProperties = usePropertyStore((state) => state.properties);
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>(allProperties);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    setFilteredProperties(allProperties);
-  }, [allProperties]);
+    const fetchProperties = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('properties')
+        .select(`
+          *,
+          realtor:profiles(id, full_name, avatar_url)
+        `);
+
+      if (error) {
+        console.error('Error fetching properties', error);
+      } else {
+        const formattedProperties = data.map(p => ({
+            ...p,
+            realtor: {
+                id: p.realtor.id,
+                name: p.realtor.full_name,
+                avatar: p.realtor.avatar_url
+            }
+        })) as unknown as Property[];
+        setProperties(formattedProperties);
+        setFilteredProperties(formattedProperties);
+      }
+      setLoading(false);
+    };
+    fetchProperties();
+  }, [supabase, setProperties]);
+
 
   useEffect(() => {
     const searchQuery = searchParams.get('q');
@@ -82,7 +112,11 @@ export default function HomePage() {
         <h2 className="font-headline text-3xl font-semibold mb-8 text-primary">
           {t('home.featuredListings')}
         </h2>
-        {filteredProperties.length > 0 ? (
+        {loading ? (
+            <div className="flex justify-center items-center h-64">
+                <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            </div>
+        ) : filteredProperties.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredProperties.map((property) => (
               <PropertyCard key={property.id} property={property} />
