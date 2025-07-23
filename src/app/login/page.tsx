@@ -27,6 +27,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -73,10 +74,15 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-secondary">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline">Login</CardTitle>
-          <CardDescription>
-            Enter your email below to login to your account.
-          </CardDescription>
+          <div className="flex justify-between items-start">
+             <div>
+                <CardTitle className="text-2xl font-headline">{t('login.title')}</CardTitle>
+                <CardDescription>
+                    {t('login.subtitle')}
+                </CardDescription>
+             </div>
+             <LanguageSwitcher />
+          </div>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -86,7 +92,7 @@ export default function LoginPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t('contact.form.email')}</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="m@example.com"
@@ -103,7 +109,7 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>{t('login.password')}</FormLabel>
                     <FormControl>
                       <Input type="password" {...field} />
                     </FormControl>
@@ -115,15 +121,15 @@ export default function LoginPage() {
                 {isSubmitting ? (
                   <Loader2 className="animate-spin" />
                 ) : (
-                  'Login'
+                  t('login.button')
                 )}
               </Button>
             </form>
           </Form>
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{' '}
+            {t('login.noAccount')}{' '}
             <Link href="/signup" className="underline">
-              Sign up
+              {t('signup.title')}
             </Link>
           </div>
         </CardContent>

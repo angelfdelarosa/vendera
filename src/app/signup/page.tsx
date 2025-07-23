@@ -27,6 +27,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
 
 const signupSchema = z
   .object({
@@ -67,14 +68,14 @@ export default function SignupPage() {
 
     if (error) {
       toast({
-        title: 'Sign Up Failed',
+        title: t('signup.toast.error.title'),
         description: error.message,
         variant: 'destructive',
       });
     } else {
       toast({
-        title: 'Sign Up Successful',
-        description: 'Please check your email to verify your account.',
+        title: t('signup.toast.success.title'),
+        description: t('signup.toast.success.description'),
       });
       router.push('/');
     }
@@ -84,10 +85,15 @@ export default function SignupPage() {
     <div className="flex items-center justify-center min-h-screen bg-secondary">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline">Sign Up</CardTitle>
-          <CardDescription>
-            Enter your information to create an account
-          </CardDescription>
+           <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="text-2xl font-headline">{t('signup.title')}</CardTitle>
+                <CardDescription>
+                  {t('signup.subtitle')}
+                </CardDescription>
+              </div>
+              <LanguageSwitcher />
+            </div>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -97,7 +103,7 @@ export default function SignupPage() {
                 name="fullName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel>{t('signup.name')}</FormLabel>
                     <FormControl>
                       <Input placeholder="John Doe" {...field} />
                     </FormControl>
@@ -110,7 +116,7 @@ export default function SignupPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t('contact.form.email')}</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="m@example.com"
@@ -127,7 +133,7 @@ export default function SignupPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>{t('login.password')}</FormLabel>
                     <FormControl>
                       <Input type="password" {...field} />
                     </FormControl>
@@ -140,7 +146,7 @@ export default function SignupPage() {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
+                    <FormLabel>{t('signup.confirmPassword')}</FormLabel>
                     <FormControl>
                       <Input type="password" {...field} />
                     </FormControl>
@@ -152,15 +158,15 @@ export default function SignupPage() {
                 {isSubmitting ? (
                   <Loader2 className="animate-spin" />
                 ) : (
-                  'Create an account'
+                  t('signup.button')
                 )}
               </Button>
             </form>
           </Form>
           <div className="mt-4 text-center text-sm">
-            Already have an account?{' '}
+            {t('signup.hasAccount')}{' '}
             <Link href="/login" className="underline">
-              Login
+              {t('login.title')}
             </Link>
           </div>
         </CardContent>

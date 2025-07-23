@@ -37,7 +37,41 @@
   },
   "userNav": {
     "avatarAlt": "Avatar del usuario",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "logout": "Cerrar sesión"
+  },
+  "login": {
+    "title": "Iniciar Sesión",
+    "subtitle": "Introduce tu correo para acceder a tu cuenta.",
+    "password": "Contraseña",
+    "button": "Iniciar Sesión",
+    "noAccount": "¿No tienes una cuenta?",
+    "toast": {
+      "error": {
+        "title": "Fallo de Inicio de Sesión"
+      },
+      "success": {
+        "title": "Inicio de Sesión Exitoso",
+        "description": "¡Bienvenido de nuevo!"
+      }
+    }
+  },
+  "signup": {
+    "title": "Registrarse",
+    "subtitle": "Introduce tu información para crear una cuenta",
+    "name": "Nombre Completo",
+    "confirmPassword": "Confirmar Contraseña",
+    "button": "Crear una cuenta",
+    "hasAccount": "¿Ya tienes una cuenta?",
+    "toast": {
+      "error": {
+        "title": "Fallo en el Registro"
+      },
+      "success": {
+        "title": "Registro Exitoso",
+        "description": "Por favor, revisa tu correo para verificar tu cuenta."
+      }
+    }
   },
   "favorites": {
     "title": "Tus Propiedades Favoritas",

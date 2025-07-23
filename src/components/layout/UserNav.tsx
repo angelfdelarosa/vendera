@@ -42,13 +42,13 @@ export function UserNav() {
         <Button variant="ghost" asChild>
           <Link href="/login">
             <LogIn className="mr-2 h-4 w-4" />
-            Login
+            {t('login.title')}
           </Link>
         </Button>
         <Button asChild>
           <Link href="/signup">
             <UserPlus className="mr-2 h-4 w-4" />
-            Sign Up
+            {t('signup.title')}
           </Link>
         </Button>
       </div>
@@ -102,7 +102,7 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
+          <span>{t('userNav.logout')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

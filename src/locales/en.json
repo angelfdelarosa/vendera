@@ -37,7 +37,41 @@
   },
   "userNav": {
     "avatarAlt": "User avatar",
-    "profile": "Profile"
+    "profile": "Profile",
+    "logout": "Log out"
+  },
+  "login": {
+    "title": "Login",
+    "subtitle": "Enter your email below to login to your account.",
+    "password": "Password",
+    "button": "Login",
+    "noAccount": "Don't have an account?",
+    "toast": {
+      "error": {
+        "title": "Login Failed"
+      },
+      "success": {
+        "title": "Login Successful",
+        "description": "Welcome back!"
+      }
+    }
+  },
+  "signup": {
+    "title": "Sign Up",
+    "subtitle": "Enter your information to create an account",
+    "name": "Full Name",
+    "confirmPassword": "Confirm Password",
+    "button": "Create an account",
+    "hasAccount": "Already have an account?",
+    "toast": {
+      "error": {
+        "title": "Sign Up Failed"
+      },
+      "success": {
+        "title": "Sign Up Successful",
+        "description": "Please check your email to verify your account."
+      }
+    }
   },
   "favorites": {
     "title": "Your Favorite Properties",
