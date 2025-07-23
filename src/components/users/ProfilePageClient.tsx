@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,6 +25,7 @@ import type { Conversation, UserProfile } from '@/types';
 import Image from 'next/image';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
+import { mockUsers } from '@/lib/mock-data';
 
 interface ProfilePageClientProps {
   user: UserProfile;
