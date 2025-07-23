@@ -2,21 +2,41 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload } from 'lucide-react';
+import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2 } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import type { UserProfile, Property } from '@/types';
 import Image from 'next/image';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -29,6 +49,7 @@ import 'react-image-crop/dist/ReactCrop.css';
 import { canvasPreview } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import { usePropertyContext } from '@/context/PropertyContext';
+import { usePropertyStore } from '@/hooks/usePropertyStore';
 
 interface ProfilePageClientProps {
     profileId: string;
@@ -67,14 +88,17 @@ function debounce(fn: Function, ms = 300) {
 export default function ProfilePageClient({ profileId }: ProfilePageClientProps) {
   const { user: authUser, loading: authLoading, supabase } = useAuth();
   const { properties: allProperties, isLoading: propertiesLoading } = usePropertyContext();
+  const { deleteProperty } = usePropertyStore();
   const { t } = useTranslation();
   const { toast } = useToast();
+  const router = useRouter();
   const { favorites } = useFavorites();
   
   const [displayUser, setDisplayUser] = useState<UserProfile | null>(null);
   const [userProperties, setUserProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   
   const [imgSrc, setImgSrc] = useState('')
   const previewCanvasRef = useRef<HTMLCanvasElement>(null)
@@ -122,13 +146,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
         console.error('Error fetching profile:', error);
         setDisplayUser(null);
       } else {
-        setDisplayUser({
-            user_id: profileData.user_id,
-            username: profileData.username,
-            full_name: profileData.full_name,
-            avatar_url: profileData.avatar_url,
-            updated_at: profileData.updated_at
-        });
+        setDisplayUser(profileData);
         const propertiesForUser = allProperties.filter(p => p.realtor_id === profileId);
         setUserProperties(propertiesForUser);
       }
@@ -141,6 +159,27 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     }
   }, [profileId, authLoading, propertiesLoading, supabase, allProperties]);
   
+  const handleDeleteProperty = async (propertyId: string) => {
+    const { error } = await supabase
+      .from('properties')
+      .delete()
+      .eq('id', propertyId);
+
+    if (error) {
+      toast({
+        title: 'Error al eliminar',
+        description: 'No se pudo eliminar la propiedad.',
+        variant: 'destructive',
+      });
+    } else {
+      deleteProperty(propertyId);
+      toast({
+        title: 'Propiedad eliminada',
+        description: 'Tu propiedad ha sido eliminada exitosamente.',
+      });
+    }
+  };
+
 
   const isLoading = loading || authLoading || propertiesLoading;
 
@@ -156,10 +195,10 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
      return (
         <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
            <div className="text-center">
-             <h2 className="text-2xl font-bold text-primary mb-2">User not found</h2>
-             <p className="text-muted-foreground">The profile you are looking for does not exist.</p>
+             <h2 className="text-2xl font-bold text-primary mb-2">Usuario no encontrado</h2>
+             <p className="text-muted-foreground">El perfil que buscas no existe.</p>
              <Button asChild className="mt-4">
-                <Link href="/">Go to Homepage</Link>
+                <Link href="/">Ir al Inicio</Link>
              </Button>
            </div>
         </div>
@@ -257,11 +296,6 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
           <CardContent className="p-6">
             <div className="flex justify-between items-start -mt-20">
               <div className="flex-grow pt-8">
-                {/* {displayUser.isVerifiedSeller && (
-                  <Badge variant="secondary" className="mb-2">
-                    {t('profile.sellerBadge')}
-                  </Badge>
-                )} */}
                 <h1 className="text-3xl font-headline font-bold text-primary">
                   {displayUser.full_name}
                 </h1>
@@ -396,28 +430,71 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                 </TabsTrigger>
             </TabsList>
             <TabsContent value="listed">
-                <Card className="mt-4">
-                <CardContent className="p-6">
-                    {userProperties.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {userProperties.map((property) => (
-                        <PropertyCard key={property.id} property={property} />
-                        ))}
-                    </div>
-                    ) : (
-                    <div className="text-center py-16">
-                        <p className="text-muted-foreground mb-4">
-                        {isOwnProfile ? t('profile.empty.listed.own') : t('profile.empty.listed.other', { name: displayUser.full_name })}
-                        </p>
-                        {isOwnProfile && 
+                 <Card className="mt-4">
+                    <CardHeader>
+                      <div className="flex justify-between items-center">
+                        <CardTitle>Tus Propiedades Listadas</CardTitle>
+                        {isOwnProfile && (
+                          <Button variant="outline" size="sm" onClick={() => setIsEditMode(!isEditMode)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            {isEditMode ? 'Salir del Modo Edición' : 'Editar Propiedades'}
+                          </Button>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {userProperties.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {userProperties.map(property => (
+                            <div key={property.id} className="relative group">
+                              {isEditMode && (
+                                <div className="absolute top-2 right-14 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button size="icon" variant="outline" className="bg-background" asChild>
+                                    <Link href={`/properties/edit/${property.id}`}>
+                                      <Edit className="h-4 w-4" />
+                                    </Link>
+                                  </Button>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button size="icon" variant="destructive">
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Esta acción no se puede deshacer. Esto eliminará permanentemente la propiedad de los servidores.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteProperty(property.id)}>
+                                          Sí, eliminar propiedad
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
+                              )}
+                              <PropertyCard property={property} />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-16">
+                          <p className="text-muted-foreground mb-4">
+                            {isOwnProfile ? t('profile.empty.listed.own') : t('profile.empty.listed.other', { name: displayUser.full_name })}
+                          </p>
+                          {isOwnProfile && (
                             <Button asChild>
-                                <Link href="/properties/new">List a property</Link>
+                              <Link href="/properties/new">Listar una propiedad</Link>
                             </Button>
-                        }
-                    </div>
-                    )}
-                </CardContent>
-                </Card>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
             </TabsContent>
                 <TabsContent value="saved">
                 <Card className="mt-4">

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { Property } from '@/types';
+import type { Property, UserProfile } from '@/types';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { createClient } from '@/lib/supabase/client';
 
@@ -14,8 +14,7 @@ interface PropertyContextType {
 const PropertyContext = createContext<PropertyContextType | undefined>(undefined);
 
 export const PropertyProvider = ({ children }: { children: ReactNode }) => {
-  const { properties, setProperties } = usePropertyStore();
-  const [isLoading, setIsLoading] = useState(true);
+  const { properties, setProperties, isLoading, setIsLoading } = usePropertyStore();
   const supabase = createClient();
 
   useEffect(() => {
@@ -32,11 +31,15 @@ export const PropertyProvider = ({ children }: { children: ReactNode }) => {
       }
       if (!propertiesData) {
         setProperties([]);
-        setIsLoading(false);
         return;
       }
       
       const realtorIds = [...new Set(propertiesData.map(p => p.realtor_id))];
+      if (realtorIds.length === 0) {
+        setProperties([]);
+        return;
+      }
+      
       const { data: realtorsData, error: realtorsError } = await supabase
         .from('profiles')
         .select('user_id, full_name, avatar_url, username')
@@ -64,11 +67,12 @@ export const PropertyProvider = ({ children }: { children: ReactNode }) => {
       });
 
       setProperties(formattedProperties);
-      setIsLoading(false);
     };
 
-    fetchAllProperties();
-  }, [setProperties, supabase]);
+    if (properties.length === 0) {
+        fetchAllProperties();
+    }
+  }, [setProperties, supabase, setIsLoading, properties.length]);
 
   return (
     <PropertyContext.Provider value={{ properties, isLoading }}>
