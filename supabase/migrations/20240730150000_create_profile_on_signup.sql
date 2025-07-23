@@ -1,9 +1,8 @@
 -- Create a table for public profiles
-create table profiles (
+create table if not exists profiles (
   id uuid not null references auth.users on delete cascade,
   full_name text,
   avatar_url text,
-  
   primary key (id)
 );
 
@@ -12,18 +11,18 @@ create table profiles (
 alter table profiles
   enable row level security;
 
-create policy "Public profiles are viewable by everyone." on profiles
+create policy if not exists "Public profiles are viewable by everyone." on profiles
   for select using (true);
 
-create policy "Users can insert their own profile." on profiles
+create policy if not exists "Users can insert their own profile." on profiles
   for insert with check (auth.uid() = id);
 
-create policy "Users can update own profile." on profiles
+create policy if not exists "Users can update own profile." on profiles
   for update using (auth.uid() = id);
 
 -- This trigger automatically creates a profile for new users.
 -- See https://supabase.com/docs/guides/auth/managing-user-data#creating-a-profile-for-each-user
-create function public.handle_new_user()
+create or replace function public.handle_new_user()
 returns trigger as $$
 begin
   insert into public.profiles (id, full_name, avatar_url)
@@ -31,7 +30,10 @@ begin
   return new;
 end;
 $$ language plpgsql security definer;
+
+-- Drop the existing trigger if it exists
+drop trigger if exists on_auth_user_created on auth.users;
+
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
-
