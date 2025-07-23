@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, MessageSquare, Loader2, Building, Heart } from 'lucide-react';
+import { Star, MessageSquare, Loader2, Building, Heart, Edit } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -27,12 +27,14 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { useTranslation } from '@/hooks/useTranslation';
-
+import { useAuth } from '@/context/AuthContext';
 
 export default function ProfilePage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const profileId = params.id as string;
+  const { user } = useAuth();
+  
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { getConversationByUserId, createConversation } = useChatStore();
   const { toast } = useToast();
@@ -95,6 +97,7 @@ export default function ProfilePage() {
   }
 
   const userInitial = displayUser.name.charAt(0).toUpperCase();
+  const isOwnProfile = user && user.id === profileId;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -154,24 +157,30 @@ export default function ProfilePage() {
                      />
                   </DialogContent>
                 </Dialog>
-                  <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
-                    <DialogTrigger asChild>
-                      <Button onClick={handleContactSeller}>
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        {t('profile.contactSeller')}
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px] h-3/4 flex flex-col">
-                      <DialogHeader>
-                        <DialogTitle>{t('chat.title')} {displayUser.name}</DialogTitle>
-                      </DialogHeader>
-                      {conversation && (
-                        <ChatWindow
-                          conversation={conversation}
-                        />
-                      )}
-                    </DialogContent>
-                  </Dialog>
+                  {isOwnProfile ? (
+                     <Button variant="outline">
+                        <Edit className="mr-2 h-4 w-4" /> Edit Profile
+                    </Button>
+                  ) : (
+                    <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
+                        <DialogTrigger asChild>
+                        <Button onClick={handleContactSeller}>
+                            <MessageSquare className="h-4 w-4 mr-2" />
+                            {t('profile.contactSeller')}
+                        </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px] h-3/4 flex flex-col">
+                        <DialogHeader>
+                            <DialogTitle>{t('chat.title')} {displayUser.name}</DialogTitle>
+                        </DialogHeader>
+                        {conversation && (
+                            <ChatWindow
+                            conversation={conversation}
+                            />
+                        )}
+                        </DialogContent>
+                    </Dialog>
+                  )}
               </div>
             </div>
           </CardContent>
@@ -196,10 +205,15 @@ export default function ProfilePage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-16">
+                   <div className="text-center py-16">
                     <p className="text-muted-foreground mb-4">
-                      {t('profile.empty.listed.other', { name: displayUser.name })}
+                      {isOwnProfile ? t('profile.empty.listed.own') : t('profile.empty.listed.other', { name: displayUser.name })}
                     </p>
+                    {isOwnProfile && 
+                        <Button asChild>
+                            <Link href="/properties/new">List a property</Link>
+                        </Button>
+                    }
                   </div>
                 )}
               </CardContent>

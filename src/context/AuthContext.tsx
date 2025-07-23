@@ -3,7 +3,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import type { User, AuthError } from '@supabase/supabase-js';
+import type { User, AuthError, SupabaseClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
@@ -13,33 +13,80 @@ interface AuthContextType {
   logout: () => Promise<void>;
   signup: (name: string, email: string, pass: string) => Promise<{ error: AuthError | null }>;
   updateUser: (updates: { displayName?: string, photoURL?: string }) => Promise<void>;
+  supabase: SupabaseClient;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const supabase = createClientComponentClient();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Mock functions since auth is disabled
-  const login = async (email: string, pass: string): Promise<{ error: AuthError | null }> => {
-    console.log("Login attempt (auth disabled)");
-    return { error: null };
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setLoading(false);
+    };
+
+    getSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [supabase.auth]);
+
+  const login = async (email: string, pass: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password: pass,
+    });
+    return { error };
   };
 
   const logout = async () => {
-    console.log("Logout attempt (auth disabled)");
+    await supabase.auth.signOut();
     router.push('/');
+    router.refresh();
   };
 
-  const signup = async (name: string, email: string, pass: string): Promise<{ error: AuthError | null }> => {
-     console.log("Signup attempt (auth disabled)");
-    return { error: null };
+  const signup = async (name: string, email: string, pass: string) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password: pass,
+      options: {
+        data: {
+          full_name: name,
+        },
+      },
+    });
+    return { error };
   };
   
   const updateUser = async (updates: { displayName?: string, photoURL?: string }) => {
-     console.log("Update user attempt (auth disabled)");
+     if (!user) throw new Error("No user is logged in");
+     
+     const { data, error } = await supabase.auth.updateUser({
+        data: {
+            full_name: updates.displayName,
+            avatar_url: updates.photoURL,
+        }
+     });
+
+     if (error) throw error;
+     // Manually update user state if needed, or rely on onAuthStateChange
+     if (data.user) {
+        setUser(data.user);
+     }
   };
 
   const value = { 
@@ -48,10 +95,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     login, 
     logout, 
     signup,
-    updateUser
+    updateUser,
+    supabase
   };
 
-  // We don't need a real provider if auth is disabled, but we keep it for components that might still use the hook.
   return (
     <AuthContext.Provider value={value}>
       {children}

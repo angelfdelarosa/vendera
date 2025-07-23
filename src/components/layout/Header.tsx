@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "../ui/button";
+import { UserNav } from "./UserNav";
+import { MessageNotifications } from "./MessageNotifications";
 
 export function Header() {
   const { t } = useTranslation();
@@ -60,12 +61,8 @@ export function Header() {
         </div>
         <div className="flex items-center justify-end space-x-2">
           <LanguageSwitcher />
-           <Button variant="ghost" asChild>
-              <Link href="/login">Login</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/signup">Sign Up</Link>
-            </Button>
+          <MessageNotifications />
+          <UserNav />
         </div>
       </div>
     </header>

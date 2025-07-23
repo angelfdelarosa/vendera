@@ -1,6 +1,7 @@
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { FavoritesProvider } from '@/context/FavoritesContext';
+import { AuthProvider } from '@/context/AuthContext';
 
 export default function MainLayout({
   children,

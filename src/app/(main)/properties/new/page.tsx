@@ -30,7 +30,7 @@ import { usePropertyStore } from "@/hooks/usePropertyStore";
 import type { Property } from "@/types";
 import Image from "next/image";
 import { useTranslation } from "@/hooks/useTranslation";
-import { mockUsers } from "@/lib/mock-data";
+import { useAuth } from "@/context/AuthContext";
 
 
 export default function NewPropertyPage() {
@@ -38,6 +38,13 @@ export default function NewPropertyPage() {
   const { toast } = useToast();
   const addProperty = usePropertyStore((state) => state.addProperty);
   const { t, locale } = useTranslation();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+    }
+  }, [user, router]);
 
   const getInitialFormData = () => ({
     title: "",
@@ -129,11 +136,12 @@ export default function NewPropertyPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+        toast({ title: "Authentication Error", description: "You must be logged in to list a property.", variant: "destructive"});
+        return;
+    }
     setIsSubmitting(true);
     
-    // Use a mock user since auth is disabled
-    const mockRealtor = Object.values(mockUsers)[0];
-
     const newProperty: Property = {
       id: crypto.randomUUID(),
       title: formData.title,
@@ -151,9 +159,9 @@ export default function NewPropertyPage() {
         "https://placehold.co/600x400.png",
       ],
       realtor: {
-        id: mockRealtor.id,
-        name: mockRealtor.name,
-        avatar: mockRealtor.avatar,
+        id: user.id,
+        name: user.user_metadata?.full_name || 'Anonymous',
+        avatar: user.user_metadata?.avatar_url || 'https://placehold.co/100x100.png',
       },
     };
 
@@ -170,6 +178,14 @@ export default function NewPropertyPage() {
     router.push(`/properties/${newProperty.id}`);
   };
 
+  if (!user) {
+     return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        <p className="ml-4">Redirecting to login...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
