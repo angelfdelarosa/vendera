@@ -16,7 +16,7 @@ interface PropertyCardProps {
   isClickable?: boolean;
 }
 
-const PropertyCardContent = ({ property }: { property: Property }) => {
+const PropertyCardContent = ({ property, isClickable = true }: { property: Property, isClickable?: boolean }) => {
     const { t } = useTranslation();
     const { user } = useAuth();
     return (
@@ -47,30 +47,32 @@ const PropertyCardContent = ({ property }: { property: Property }) => {
                 <span>{property.location}</span>
                 </div>
             </CardContent>
-            {user ? (
-                <CardFooter className="p-4 pt-0 flex items-start">
-                <div className="flex justify-between w-full text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                    <BedDouble className="w-4 h-4" />
-                    <span>{property.bedrooms} {t('property.beds')}</span>
+            {isClickable && (
+                user ? (
+                    <CardFooter className="p-4 pt-0 flex items-start">
+                    <div className="flex justify-between w-full text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                        <BedDouble className="w-4 h-4" />
+                        <span>{property.bedrooms} {t('property.beds')}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                        <Bath className="w-4 h-4" />
+                        <span>{property.bathrooms} {t('property.baths')}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                        <Ruler className="w-4 h-4" />
+                        <span>{property.area.toLocaleString()} {t('property.sqft')}</span>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                    <Bath className="w-4 h-4" />
-                    <span>{property.bathrooms} {t('property.baths')}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                    <Ruler className="w-4 h-4" />
-                    <span>{property.area.toLocaleString()} {t('property.sqft')}</span>
-                    </div>
-                </div>
-                </CardFooter>
-            ) : (
-                <CardFooter className="p-4 pt-0 flex items-start bg-secondary/30">
-                    <div className="flex items-center text-xs text-muted-foreground gap-2">
-                        <Lock className="h-3 w-3" />
-                        <span>Inicia sesión para ver más detalles</span>
-                    </div>
-                </CardFooter>
+                    </CardFooter>
+                ) : (
+                    <CardFooter className="p-4 pt-0 flex items-start bg-secondary/30">
+                        <div className="flex items-center text-xs text-muted-foreground gap-2">
+                            <Lock className="h-3 w-3" />
+                            <span>Inicia sesión para ver más detalles</span>
+                        </div>
+                    </CardFooter>
+                )
             )}
         </Card>
     );
@@ -80,14 +82,14 @@ export function PropertyCard({ property, isClickable = true }: PropertyCardProps
   if (isClickable) {
     return (
       <Link href={`/properties/${property.id}`} className="group block h-full">
-        <PropertyCardContent property={property} />
+        <PropertyCardContent property={property} isClickable={isClickable} />
       </Link>
     );
   }
 
   return (
     <div className="group block h-full">
-      <PropertyCardContent property={property} />
+      <PropertyCardContent property={property} isClickable={isClickable} />
     </div>
   );
 }
