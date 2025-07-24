@@ -178,26 +178,25 @@
       "house": "House",
       "apartment": "Apartment",
       "condo": "Condo",
-      "villa": "Villa"
+      "villa": "Villa",
+      "lot": "Lot / Land"
     }
   },
   "newProperty": {
     "title": "List a New Property",
     "subtitle": "Fill out the details below to put your property on the market.",
     "form": {
-      "title": "Property Title",
-      "title_placeholder": "e.g., Luxurious Villa in Beverly Hills",
-      "price": "Price (USD)",
+      "name": "Property Name",
+      "name_placeholder": "e.g., Luxurious Villa with Ocean View",
+      "price": "Price",
       "location": "Location",
       "address": "Full Address",
       "type_placeholder": "Select a type",
       "bedrooms": "Bedrooms",
       "bathrooms": "Bathrooms",
       "area": "Area (m²)",
-      "amenities": "Amenities",
-      "amenities_placeholder": "e.g., Swimming Pool, Garage",
       "amenities_note": "Comma-separated list.",
-      "features": "Unique Features",
+      "features": "Features",
       "features_placeholder": "e.g., Ocean view, modern architecture",
       "generating": "Generating...",
       "generate_ai": "Generate with AI",

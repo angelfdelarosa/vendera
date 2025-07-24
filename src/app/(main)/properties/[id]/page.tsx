@@ -57,7 +57,7 @@ async function getPropertyData(propertyId: string): Promise<Property | null> {
         console.error("Error fetching realtor for property:", realtorError);
         // Return property without realtor info if realtor fetch fails
         return {
-            ...propertyData,
+            ...(propertyData as unknown as Property),
             realtor: {
                 user_id: propertyData.realtor_id,
                 full_name: 'Anonymous',
@@ -68,7 +68,7 @@ async function getPropertyData(propertyId: string): Promise<Property | null> {
     }
 
     return {
-        ...propertyData,
+        ...(propertyData as unknown as Property),
         realtor: {
             user_id: realtorData.user_id,
             full_name: realtorData.full_name,
@@ -100,6 +100,14 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
     notFound();
   }
   
+  const priceDisplay = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: property.currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(property.price).replace('US$', 'USD $').replace('DOP', 'DOP $');
+
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid lg:grid-cols-3 gap-8 mb-8">
@@ -145,7 +153,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
             <CardContent>
               <div className="flex items-center justify-between">
                 <p className="text-4xl font-bold text-accent">
-                  ${property.price.toLocaleString()}
+                  {priceDisplay}
                 </p>
                 <FavoriteButton property={property} className="h-10 w-10" />
               </div>

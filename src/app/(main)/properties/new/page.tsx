@@ -48,6 +48,7 @@ export default function NewPropertyPage() {
   const getInitialFormData = () => ({
     title: "",
     price: 3500000,
+    currency: "USD" as Property["currency"],
     location: "Beverly Hills",
     address: "123 Rodeo Drive, Beverly Hills, CA",
     propertyType: "villa" as Property["type"],
@@ -75,8 +76,8 @@ export default function NewPropertyPage() {
     setFormData((prev) => ({ ...prev, [id]: parseInt(value) || 0 }));
   };
 
-  const handleSelectChange = (value: Property["type"]) => {
-    setFormData((prev) => ({ ...prev, propertyType: value }));
+  const handleSelectChange = (id: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [id]: value }));
   };
   
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,6 +151,7 @@ export default function NewPropertyPage() {
       realtor_id: user.id,
       title: formData.title,
       price: formData.price,
+      currency: formData.currency,
       location: formData.location,
       address: formData.address,
       type: formData.propertyType,
@@ -241,31 +243,46 @@ export default function NewPropertyPage() {
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="title">{t('newProperty.form.title')}</Label>
+              <Label htmlFor="title">{t('newProperty.form.name')}</Label>
               <Input
                 id="title"
-                placeholder={t('newProperty.form.title_placeholder')}
+                placeholder={t('newProperty.form.name_placeholder')}
                 value={formData.title}
                 onChange={handleInputChange}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="price">{t('newProperty.form.price')}</Label>
-              <Input
-                id="price"
-                type="number"
-                placeholder="e.g., 3500000"
-                value={formData.price}
-                onChange={handleNumberInputChange}
-                required
-              />
+                <Label htmlFor="price">{t('newProperty.form.price')}</Label>
+                <div className="flex gap-2">
+                    <Input
+                        id="price"
+                        type="number"
+                        placeholder="e.g., 3500000"
+                        value={formData.price}
+                        onChange={handleNumberInputChange}
+                        required
+                        className="flex-grow"
+                    />
+                    <Select
+                        value={formData.currency}
+                        onValueChange={(value) => handleSelectChange('currency', value)}
+                    >
+                        <SelectTrigger className="w-[100px]">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="USD">USD</SelectItem>
+                            <SelectItem value="DOP">DOP</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="location">{t('newProperty.form.location')}</Label>
               <Input
                 id="location"
-                placeholder="e.g., Beverly Hills"
+                placeholder="e.g., Santo Domingo"
                 value={formData.location}
                 onChange={handleInputChange}
               />
@@ -274,7 +291,7 @@ export default function NewPropertyPage() {
               <Label htmlFor="address">{t('newProperty.form.address')}</Label>
               <Input
                 id="address"
-                placeholder="e.g., 123 Rodeo Drive"
+                placeholder="e.g., Av. Winston Churchill #123"
                 value={formData.address}
                 onChange={handleInputChange}
               />
@@ -282,7 +299,7 @@ export default function NewPropertyPage() {
             <div className="space-y-2">
               <Label htmlFor="property-type">{t('search.propertyType')}</Label>
               <Select
-                onValueChange={handleSelectChange}
+                onValueChange={(value) => handleSelectChange('propertyType', value)}
                 value={formData.propertyType}
               >
                 <SelectTrigger id="property-type">
@@ -293,6 +310,7 @@ export default function NewPropertyPage() {
                   <SelectItem value="apartment">{t('property.types.apartment')}</SelectItem>
                   <SelectItem value="condo">{t('property.types.condo')}</SelectItem>
                   <SelectItem value="villa">{t('property.types.villa')}</SelectItem>
+                  <SelectItem value="lot">{t('property.types.lot')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

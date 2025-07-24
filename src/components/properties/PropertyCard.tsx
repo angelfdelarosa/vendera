@@ -19,6 +19,14 @@ interface PropertyCardProps {
 const PropertyCardContent = ({ property, isClickable = true }: { property: Property, isClickable?: boolean }) => {
     const { t } = useTranslation();
     const { user } = useAuth();
+
+    const priceDisplay = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: property.currency,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(property.price).replace('US$', 'USD $').replace('DOP', 'DOP $');
+
     return (
         <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
             <CardHeader className="p-0 relative">
@@ -26,7 +34,7 @@ const PropertyCardContent = ({ property, isClickable = true }: { property: Prope
                     <FavoriteButton property={property} />
                 </div>
                 <div className="absolute top-2 left-2 z-10 bg-primary/90 text-primary-foreground py-1.5 px-3 rounded-lg">
-                    <p className="font-bold text-lg">${property.price.toLocaleString()}</p>
+                    <p className="font-bold text-lg">{priceDisplay}</p>
                 </div>
                 <Image
                 src={property.images[0]}

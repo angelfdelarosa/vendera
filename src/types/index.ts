@@ -2,9 +2,10 @@ export type Property = {
   id: string;
   title: string;
   price: number;
+  currency: 'USD' | 'DOP';
   location: string;
   address: string;
-  type: 'house' | 'apartment' | 'condo' | 'villa';
+  type: 'house' | 'apartment' | 'condo' | 'villa' | 'lot';
   bedrooms: number;
   bathrooms: number;
   area: number; 
@@ -69,5 +70,6 @@ export type ConversationFromDB = {
   messages: {
     content: string;
     created_at: string;
+    sender_id: string;
   }[];
 };

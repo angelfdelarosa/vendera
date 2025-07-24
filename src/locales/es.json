@@ -178,26 +178,25 @@
       "house": "Casa",
       "apartment": "Apartamento",
       "condo": "Condominio",
-      "villa": "Villa"
+      "villa": "Villa",
+      "lot": "Solar / Terreno"
     }
   },
   "newProperty": {
     "title": "Listar una Nueva Propiedad",
     "subtitle": "Rellena los detalles a continuación para poner tu propiedad en el mercado.",
     "form": {
-      "title": "Título de la Propiedad",
-      "title_placeholder": "Ej: Lujosa Villa en Beverly Hills",
-      "price": "Precio (USD)",
+      "name": "Nombre de la Propiedad",
+      "name_placeholder": "Ej: Villa de lujo con vista al mar",
+      "price": "Precio",
       "location": "Ubicación",
       "address": "Dirección Completa",
       "type_placeholder": "Selecciona un tipo",
       "bedrooms": "Dormitorios",
       "bathrooms": "Baños",
       "area": "Área (m²)",
-      "amenities": "Comodidades",
-      "amenities_placeholder": "Ej: Piscina, Garaje",
       "amenities_note": "Lista separada por comas.",
-      "features": "Características Únicas",
+      "features": "Características",
       "features_placeholder": "Ej: Vista al mar, arquitectura moderna",
       "generating": "Generando...",
       "generate_ai": "Generar con IA",
@@ -309,10 +308,6 @@
       "subtitle": "El mercado principal para descubrir, comprar y vender propiedades extraordinarias. Encontremos la puerta a tus sueños.",
       "cta_main": "Comenzar",
       "cta_secondary": "Saber Más"
-    },
-    "featured": {
-      "title": "Listados Destacados",
-      "subtitle": "Explora una selección exclusiva de nuestras mejores propiedades, desde villas de lujo hasta modernos apartamentos en la ciudad."
     },
      "features": {
         "feature1_title": "Búsqueda Avanzada",
