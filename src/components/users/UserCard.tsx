@@ -28,21 +28,13 @@ export function UserCard({ user }: UserCardProps) {
           <AvatarFallback>{userInitial}</AvatarFallback>
         </Avatar>
         <h3 className="font-headline text-xl font-bold text-primary">{user.full_name}</h3>
-        {/* {user.isVerifiedSeller && (
-          <Badge variant="secondary" className="mt-1">{t('profile.sellerBadge')}</Badge>
-        )} */}
       </CardHeader>
       <CardContent className="p-6 pt-0 flex-grow flex flex-col">
         {authUser ? (
             <>
                 <p className="text-muted-foreground text-sm text-center flex-grow">
-                  {/* Bio does not exist on new schema */}
+                  {/* Bio can be added here if available in the future */}
                 </p>
-                <div className="flex items-center justify-center gap-2 mt-4 text-amber-500">
-                {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`w-5 h-5 ${i < 0 ? 'fill-current' : 'text-muted-foreground fill-muted'}`} />
-                ))}
-                </div>
             </>
         ) : (
              <div className="text-muted-foreground text-sm text-center flex-grow">

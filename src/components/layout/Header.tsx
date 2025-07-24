@@ -4,25 +4,14 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
 import { useTranslation } from "@/hooks/useTranslation";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { UserNav } from "./UserNav";
 import { useAuth } from "@/context/AuthContext";
 import { MessageNotifications } from "./MessageNotifications";
+import { GlobalSearch } from "../search/GlobalSearch";
 
 export function Header() {
   const { t } = useTranslation();
-  const [searchQuery, setSearchQuery] = useState("");
-  const router = useRouter();
   const { user } = useAuth();
-
-  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && searchQuery.trim()) {
-      router.push(`/?q=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
 
   const logoHref = user ? "/" : "/landing";
 
@@ -63,16 +52,7 @@ export function Header() {
           )}
         </nav>
         <div className="flex flex-1 items-center justify-center space-x-4 px-8">
-           <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder={t('search.placeholder.properties')}
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleSearch}
-            />
-          </div>
+           { user && <GlobalSearch /> }
         </div>
         <div className="flex items-center justify-end space-x-2">
           {user && <MessageNotifications />}
