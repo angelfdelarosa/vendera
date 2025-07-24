@@ -21,6 +21,7 @@ import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 import type { Property } from '@/types';
 import { getTranslations } from '@/lib/get-translation';
+import { ContactRealtorButton } from '@/components/properties/ContactRealtorButton';
 
 async function getPropertyData(propertyId: string): Promise<Property | null> {
     const cookieStore = cookies();
@@ -172,7 +173,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                         {property.realtor.full_name?.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
+                    <div className="flex-grow">
                       
                         <Link
                           href={`/profile/${property.realtor.user_id}`}
@@ -185,6 +186,12 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                         {t('property.certifiedRealtor')}
                       </p>
                     </div>
+                     {user.id !== property.realtor.user_id && (
+                        <ContactRealtorButton
+                            realtorId={property.realtor.user_id}
+                            propertyId={property.id}
+                        />
+                    )}
                   </div>
                 </CardContent>
              </Card>
