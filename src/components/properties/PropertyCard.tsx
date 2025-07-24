@@ -76,23 +76,9 @@ const PropertyCardContent = ({ property }: { property: Property }) => {
 };
 
 export function PropertyCard({ property }: PropertyCardProps) {
-  const { user } = useAuth();
-  
-  // A property card is only clickable if the user is logged in.
-  const isClickable = !!user;
-
-  if (isClickable) {
-    return (
-      <Link href={`/properties/${property.id}`} className="group block h-full">
-        <PropertyCardContent property={property} />
-      </Link>
-    );
-  }
-
-  // If not clickable, render the content but wrap it in a div instead of a Link.
   return (
-    <div className="group block h-full">
-        <PropertyCardContent property={property} />
-    </div>
+    <Link href={`/properties/${property.id}`} className="group block h-full">
+      <PropertyCardContent property={property} />
+    </Link>
   );
 }
