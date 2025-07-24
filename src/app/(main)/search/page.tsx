@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense } from 'react';
@@ -31,13 +32,14 @@ function SearchComponent() {
       setLoading(true);
 
       const searchResults: SearchResults = { properties: [], users: [] };
+      const searchQuery = `%${query}%`;
 
       // Search properties
       if (category === 'all' || category === 'properties') {
         const { data, error } = await supabase
           .from('properties')
           .select('*, realtor:realtor_id(user_id, full_name, avatar_url, username)')
-          .textSearch('title', query, { type: 'plain' });
+          .or(`title.ilike.${searchQuery},location.ilike.${searchQuery},address.ilike.${searchQuery},description.ilike.${searchQuery}`);
 
         if (data) {
           searchResults.properties = data as unknown as Property[];
@@ -52,7 +54,7 @@ function SearchComponent() {
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
-          .textSearch('full_name', query, { type: 'plain' });
+          .or(`full_name.ilike.${searchQuery},username.ilike.${searchQuery}`);
         
         if (data) {
           searchResults.users = data as UserProfile[];
