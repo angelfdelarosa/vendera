@@ -156,6 +156,7 @@ export default function EditPropertyPage() {
       return;
     }
     
+    // Ensure realtor data is preserved
     const fullyUpdatedProperty: Property = { ...property, ...data };
     updateProperty(fullyUpdatedProperty.id, fullyUpdatedProperty);
 
