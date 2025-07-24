@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { BedDouble, Bath, Ruler, MapPin, Building, Lock } from 'lucide-react';
+import { BedDouble, Bath, Ruler, MapPin, Building, Lock, ArrowRight } from 'lucide-react';
 import { SimilarProperties } from '@/components/properties/SimilarProperties';
 import { FavoriteButton } from '@/components/properties/FavoriteButton';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,6 @@ import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 import type { Property } from '@/types';
 import { getTranslations } from '@/lib/get-translation';
-import { ContactRealtorButton } from '@/components/properties/ContactRealtorButton';
 
 async function getPropertyData(propertyId: string): Promise<Property | null> {
     const cookieStore = cookies();
@@ -187,10 +186,12 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                       </p>
                     </div>
                      {user.id !== property.realtor.user_id && (
-                        <ContactRealtorButton
-                            realtorId={property.realtor.user_id}
-                            propertyId={property.id}
-                        />
+                        <Button asChild>
+                           <Link href={`/profile/${property.realtor.user_id}`}>
+                                {t('userCard.viewProfile')}
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                        </Button>
                     )}
                   </div>
                 </CardContent>
