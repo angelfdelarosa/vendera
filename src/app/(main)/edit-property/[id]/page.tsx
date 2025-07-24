@@ -36,9 +36,7 @@ export default function EditPropertyPage() {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
-  const {
-    updateProperty,
-  } = usePropertyStore();
+  const { updateProperty } = usePropertyStore();
   const { t } = useTranslation();
   const { user, loading: authLoading, supabase } = useAuth();
 
@@ -93,8 +91,10 @@ export default function EditPropertyPage() {
         setPageLoading(false);
     };
     
-    fetchProperty();
-  }, [propertyId, supabase]);
+    if (!authLoading) {
+      fetchProperty();
+    }
+  }, [propertyId, supabase, authLoading]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -120,7 +120,6 @@ export default function EditPropertyPage() {
     router.push(`/properties/${property.id}`);
     return null; // Render nothing while redirecting
   }
-
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -167,7 +166,7 @@ export default function EditPropertyPage() {
       console.error('Error updating property:', error);
       toast({
         title: 'Error al actualizar',
-        description: error.message,
+        description: error.message || "No se pudo guardar la propiedad. Verifique que todos los campos sean válidos.",
         variant: 'destructive',
       });
       setIsSubmitting(false);
