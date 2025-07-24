@@ -1,0 +1,18 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/login/page": "/login",
+  "/signup/page": "/signup",
+  "/(main)/about/page": "/about",
+  "/(main)/contact/page": "/contact",
+  "/(main)/edit-property/[id]/page": "/edit-property/[id]",
+  "/(main)/favorites/page": "/favorites",
+  "/(main)/landing/page": "/landing",
+  "/(main)/messages/page": "/messages",
+  "/(main)/page": "/",
+  "/(main)/profile/[id]/page": "/profile/[id]",
+  "/(main)/properties/[id]/page": "/properties/[id]",
+  "/(main)/properties/new/page": "/properties/new",
+  "/(main)/search/page": "/search",
+  "/(main)/terms/page": "/terms"
+}
