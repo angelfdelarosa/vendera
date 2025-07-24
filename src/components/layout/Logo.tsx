@@ -16,19 +16,17 @@ export function Logo({ layout = 'horizontal' }: LogoProps) {
         isVertical ? 'flex-col gap-4' : 'flex-row gap-2'
       )}
     >
-      {/* 
-        Asegúrate de subir tu logo (p. ej., 'logo.png') a la carpeta /public.
-        Si tu archivo tiene un nombre diferente, actualiza la propiedad 'src' a continuación.
-      */}
-      <img
-        src="/logo12.svg" // Apunta al logo en la carpeta /public
+      <Image
+        src="https://noyztbqdgfniixzmpuac.supabase.co/storage/v1/object/public/logo//logo2.png"
         alt="VENDRA Logo"
-        className={cn(isVertical ? 'h-24 w-24' : 'h-8 w-8', 'object-contain')}
+        width={isVertical ? 128 : 48}
+        height={isVertical ? 128 : 48}
+        className="object-contain"
       />
       <span
         className={cn(
           'font-bold tracking-tighter text-primary font-headline',
-          isVertical ? 'text-5xl' : 'text-xl'
+          isVertical ? 'text-5xl' : 'text-2xl'
         )}
       >
         VENDRA
