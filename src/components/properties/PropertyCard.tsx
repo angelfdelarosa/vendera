@@ -22,7 +22,7 @@ const PropertyCardContent = ({ property, isClickable = true }: { property: Prope
 
     const priceDisplay = new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency: property.currency,
+        currency: property.currency || 'USD',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
     }).format(property.price).replace('US$', 'USD $').replace('DOP', 'DOP $');
