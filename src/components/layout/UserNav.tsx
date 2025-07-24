@@ -27,6 +27,7 @@ export function UserNav() {
     try {
       await logout();
       router.refresh();
+      router.push('/landing');
     } catch (error) {
       console.error('Logout failed', error);
     }

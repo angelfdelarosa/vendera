@@ -20,6 +20,12 @@ export default function HomePage() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    if (!isLoadingAuth && !user) {
+      router.push('/landing');
+    }
+  }, [isLoadingAuth, user, router]);
+
+  useEffect(() => {
     if (!isLoadingProperties) {
       setFilteredProperties(properties);
     }
@@ -35,10 +41,10 @@ export default function HomePage() {
         p.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredProperties(results);
-    } else {
+    } else if (!isLoadingProperties) {
         setFilteredProperties(properties);
     }
-  }, [searchParams, properties]);
+  }, [searchParams, properties, isLoadingProperties]);
 
   const locations = useMemo(() => {
     const locationSet = new Set(properties.map(p => p.location));
@@ -97,11 +103,7 @@ export default function HomePage() {
         <h2 className="font-headline text-3xl font-semibold mb-8 text-primary">
           {t('home.featuredListings')}
         </h2>
-        {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-                <Loader2 className="h-16 w-16 animate-spin text-primary" />
-            </div>
-        ) : filteredProperties.length > 0 ? (
+        {filteredProperties.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredProperties.map((property) => (
               <PropertyCard key={property.id} property={property} />

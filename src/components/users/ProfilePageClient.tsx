@@ -11,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2 } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
@@ -98,7 +97,6 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
   const [userProperties, setUserProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
   
   const [imgSrc, setImgSrc] = useState('')
   const previewCanvasRef = useRef<HTMLCanvasElement>(null)
@@ -187,6 +185,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
 
 
   const isLoading = loading || authLoading || propertiesLoading;
+  const isOwnProfile = authUser && authUser.id === displayUser?.user_id;
 
   if (isLoading) {
     return (
@@ -289,7 +288,6 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
   };
 
   const userInitial = displayUser.full_name?.charAt(0).toUpperCase() || '?';
-  const isOwnProfile = authUser && authUser.id === displayUser.user_id;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -437,23 +435,15 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
             <TabsContent value="listed">
                  <Card className="mt-4">
                     <CardHeader>
-                      <div className="flex justify-between items-center">
                         <CardTitle>Tus Propiedades Listadas</CardTitle>
-                        {isOwnProfile && (
-                          <Button variant="outline" size="sm" onClick={() => setIsEditMode(!isEditMode)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            {isEditMode ? 'Salir del Modo Edición' : 'Editar Propiedades'}
-                          </Button>
-                        )}
-                      </div>
                     </CardHeader>
                     <CardContent>
                       {userProperties.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {userProperties.map(property => (
                             <div key={property.id} className="relative group">
-                              {isEditMode && isOwnProfile && (
-                                <div className="absolute top-2 right-14 z-20 flex gap-2 transition-opacity">
+                              {isOwnProfile && (
+                                <div className="absolute top-2 right-14 z-20 flex gap-2">
                                   <Button size="icon" variant="outline" className="bg-background" asChild>
                                     <Link href={`/edit-property/${property.id}`}>
                                       <Edit className="h-4 w-4" />
