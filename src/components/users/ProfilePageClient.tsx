@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -51,10 +51,6 @@ import { ScrollArea } from '../ui/scroll-area';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { Textarea } from '../ui/textarea';
 
-interface ProfilePageClientProps {
-    profileId: string;
-}
-
 function centerAspectCrop(
   mediaWidth: number,
   mediaHeight: number,
@@ -85,12 +81,14 @@ function debounce(fn: Function, ms = 300) {
 }
 
 
-export default function ProfilePageClient({ profileId }: ProfilePageClientProps) {
+export default function ProfilePageClient() {
   const { user: authUser, loading: authLoading, supabase } = useAuth();
   const { deleteProperty } = usePropertyStore();
   const { t } = useTranslation();
   const { toast } = useToast();
   const router = useRouter();
+  const params = useParams();
+  const profileId = params.id as string;
   const { favorites } = useFavorites();
   
   const [displayUser, setDisplayUser] = useState<UserProfile | null>(null);

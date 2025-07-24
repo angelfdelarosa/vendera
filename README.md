@@ -1,4 +1,4 @@
-# VENDRA - Real Estate Marketplace
+n# VENDRA - Real Estate Marketplace
 
 This is a Next.js application built with Firebase Studio, creating a modern and interactive real estate marketplace called VENDRA.
 
