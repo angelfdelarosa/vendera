@@ -156,10 +156,8 @@ export default function EditPropertyPage() {
       return;
     }
     
-    // This is tricky because the updated 'data' doesn't have the realtor info.
-    // We need to merge it with the existing property data.
     const fullyUpdatedProperty: Property = { ...property, ...data };
-    updateProperty(data.id, fullyUpdatedProperty);
+    updateProperty(fullyUpdatedProperty.id, fullyUpdatedProperty);
 
     toast({
       title: 'Propiedad actualizada',
@@ -167,7 +165,7 @@ export default function EditPropertyPage() {
     });
 
     setIsSubmitting(false);
-    router.push(`/properties/${property.id}`);
+    router.push(`/profile/${property.realtor_id}`);
   };
 
   return (
@@ -310,5 +308,3 @@ export default function EditPropertyPage() {
     </div>
   );
 }
-
-    
