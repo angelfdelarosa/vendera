@@ -29,19 +29,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const currentUser = session?.user ?? null;
         setUser(currentUser);
         setLoading(false);
-        if (event === 'SIGNED_IN') {
-          router.push('/');
+        if (event === 'SIGNED_IN' && router) {
+          router.refresh();
         }
       }
     );
-
-    const checkUser = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-        setLoading(false);
-    }
-
-    checkUser();
 
     return () => {
       subscription.unsubscribe();
