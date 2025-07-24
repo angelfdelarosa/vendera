@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { PropertySearchFilters } from "@/components/properties/PropertySearchFilters";
@@ -17,7 +17,6 @@ export default function HomePage() {
   const router = useRouter();
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const { t } = useTranslation();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!isLoadingAuth && !user) {
@@ -30,21 +29,6 @@ export default function HomePage() {
       setFilteredProperties(properties);
     }
   }, [properties, isLoadingProperties]);
-
-
-  useEffect(() => {
-    const searchQuery = searchParams.get('q');
-    if (searchQuery) {
-      const results = properties.filter(p => 
-        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredProperties(results);
-    } else if (!isLoadingProperties) {
-        setFilteredProperties(properties);
-    }
-  }, [searchParams, properties, isLoadingProperties]);
 
   const locations = useMemo(() => {
     const locationSet = new Set(properties.map(p => p.location));
@@ -82,6 +66,70 @@ export default function HomePage() {
       </div>
     );
   }
+
+  return (
+    <Suspense fallback={<div>Loading search parameters...</div>}>
+      <HomePageContent 
+        properties={properties}
+        isLoadingProperties={isLoadingProperties}
+        user={user}
+        isLoadingAuth={isLoadingAuth}
+        router={router}
+        filteredProperties={filteredProperties}
+        setFilteredProperties={setFilteredProperties}
+        t={t}
+        locations={locations}
+        propertyTypes={propertyTypes}
+        handleSearch={handleSearch}
+      />
+    </Suspense>
+  );
+}
+
+function HomePageContent({
+  properties,
+  isLoadingProperties,
+  user,
+  isLoadingAuth,
+  router,
+  filteredProperties,
+  setFilteredProperties,
+  t,
+  locations,
+  propertyTypes,
+  handleSearch,
+}: {
+  properties: Property[];
+  isLoadingProperties: boolean;
+  user: any;
+  isLoadingAuth: boolean;
+  router: any;
+  filteredProperties: Property[];
+  setFilteredProperties: React.Dispatch<React.SetStateAction<Property[]>>;
+  t: (key: string) => string;
+  locations: string[];
+  propertyTypes: string[];
+  handleSearch: (filters: {
+    location: string;
+    type: string;
+    priceRange: [number, number];
+  }) => void;
+}) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const searchQuery = searchParams.get('q');
+    if (searchQuery) {
+      const results = properties.filter(p => 
+        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredProperties(results);
+    } else if (!isLoadingProperties) {
+        setFilteredProperties(properties);
+    }
+  }, [searchParams, properties, isLoadingProperties, setFilteredProperties]);
 
   return (
     <div className="container mx-auto px-4 py-8">

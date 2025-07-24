@@ -3,7 +3,6 @@
   "/favicon.ico/route": "/favicon.ico",
   "/login/page": "/login",
   "/signup/page": "/signup",
-  "/(main)/about/page": "/about",
   "/(main)/contact/page": "/contact",
   "/(main)/edit-property/[id]/page": "/edit-property/[id]",
   "/(main)/favorites/page": "/favorites",
@@ -14,5 +13,6 @@
   "/(main)/properties/[id]/page": "/properties/[id]",
   "/(main)/properties/new/page": "/properties/new",
   "/(main)/search/page": "/search",
-  "/(main)/terms/page": "/terms"
+  "/(main)/terms/page": "/terms",
+  "/(main)/about/page": "/about"
 }
