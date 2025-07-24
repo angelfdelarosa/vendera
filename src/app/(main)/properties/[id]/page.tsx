@@ -22,21 +22,25 @@ import { Button } from '@/components/ui/button';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
+import { usePropertyContext } from '@/context/PropertyContext';
 
 export default function PropertyDetailPage() {
   const params = useParams();
-  const properties = usePropertyStore((state) => state.properties);
+  const { properties, isLoading } = usePropertyContext();
   const { user } = useAuth();
   const property = properties.find((p) => p.id === params.id);
   const { t } = useTranslation();
 
-  if (!property) {
-    // This could happen if properties are not yet loaded
+  if (isLoading) {
     return (
        <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
       </div>
     )
+  }
+
+  if (!property) {
+    return notFound();
   }
 
   const isOwnProperty = user && user.id === property.realtor_id;

@@ -13,7 +13,6 @@ import { useAuth } from "@/context/AuthContext";
 
 interface PropertyCardProps {
   property: Property;
-  isClickable?: boolean;
 }
 
 const PropertyCardContent = ({ property }: { property: Property }) => {
@@ -76,11 +75,13 @@ const PropertyCardContent = ({ property }: { property: Property }) => {
     );
 };
 
-export function PropertyCard({ property, isClickable = true }: PropertyCardProps) {
+export function PropertyCard({ property }: PropertyCardProps) {
   const { user } = useAuth();
-  const canClick = user || isClickable;
+  
+  // A property card is only clickable if the user is logged in.
+  const isClickable = !!user;
 
-  if (canClick) {
+  if (isClickable) {
     return (
       <Link href={`/properties/${property.id}`} className="group block h-full">
         <PropertyCardContent property={property} />
@@ -88,6 +89,7 @@ export function PropertyCard({ property, isClickable = true }: PropertyCardProps
     );
   }
 
+  // If not clickable, render the content but wrap it in a div instead of a Link.
   return (
     <div className="group block h-full">
         <PropertyCardContent property={property} />

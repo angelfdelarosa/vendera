@@ -20,12 +20,6 @@ export default function HomePage() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!isLoadingAuth && !user) {
-        router.replace('/landing');
-    }
-  }, [user, isLoadingAuth, router]);
-
-  useEffect(() => {
     if (!isLoadingProperties) {
       setFilteredProperties(properties);
     }
@@ -75,7 +69,7 @@ export default function HomePage() {
   
   const isLoading = isLoadingAuth || isLoadingProperties;
 
-  if (isLoading || !user) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
