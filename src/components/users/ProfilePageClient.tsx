@@ -58,7 +58,7 @@ interface ProfilePageClientProps {
 function centerAspectCrop(
   mediaWidth: number,
   mediaHeight: number,
-  aspect: number,
+  aspect: number
 ) {
   return centerCrop(
     makeAspectCrop(
@@ -68,11 +68,11 @@ function centerAspectCrop(
       },
       aspect,
       mediaWidth,
-      mediaHeight,
+      mediaHeight
     ),
     mediaWidth,
-    mediaHeight,
-  )
+    mediaHeight
+  );
 }
 
 // Debounce function to limit how often a function can run.
@@ -453,7 +453,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                           {userProperties.map(property => (
                             <div key={property.id} className="relative group">
                               {isEditMode && isOwnProfile && (
-                                <div className="absolute top-2 right-14 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="absolute top-2 right-14 z-20 flex gap-2 transition-opacity">
                                   <Button size="icon" variant="outline" className="bg-background" asChild>
                                     <Link href={`/edit-property/${property.id}`}>
                                       <Edit className="h-4 w-4" />
