@@ -21,7 +21,7 @@ export function Logo({ layout = 'horizontal' }: LogoProps) {
         Si tu archivo tiene un nombre diferente, actualiza la propiedad 'src' a continuación.
       */}
       <Image
-        src="/logo.png" // Apunta al logo en la carpeta /public
+        src="/logo12.svg" // Apunta al logo en la carpeta /public
         alt="VENDRA Logo"
         width={isVertical ? 96 : 32}
         height={isVertical ? 96 : 32}
