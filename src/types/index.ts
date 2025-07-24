@@ -45,9 +45,10 @@ export interface Conversation {
 }
 
 export interface Rating {
-  id: number;
+  id?: number;
   created_at: string;
   rated_user_id: string;
   rater_user_id: string;
   rating: number;
+  comment?: string | null;
 }

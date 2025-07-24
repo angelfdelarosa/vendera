@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2 } from 'lucide-react';
+import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageCircle } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -49,6 +49,7 @@ import 'react-image-crop/dist/ReactCrop.css';
 import { canvasPreview, cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
+import { Textarea } from '../ui/textarea';
 
 interface ProfilePageClientProps {
     profileId: string;
@@ -94,6 +95,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
   
   const [displayUser, setDisplayUser] = useState<UserProfile | null>(null);
   const [userProperties, setUserProperties] = useState<Property[]>([]);
+  const [ratings, setRatings] = useState<Rating[]>([]);
   const [ratingData, setRatingData] = useState<{ average: number, count: number }>({ average: 0, count: 0 });
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -106,23 +108,31 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
   const [aspect, setAspect] = useState<number | undefined>(1)
 
   const [isUploading, setIsUploading] = useState(false);
+  
+  // Rating state
   const [isRating, setIsRating] = useState(false);
   const [currentRating, setCurrentRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
+  const [ratingComment, setRatingComment] = useState("");
+  const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false);
+
 
   const fetchRatingData = async (userId: string) => {
       if (!supabase) return;
       const { data, error } = await supabase
         .from('ratings')
-        .select('rating')
-        .eq('rated_user_id', userId);
+        .select('rating, comment, created_at')
+        .eq('rated_user_id', userId)
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching ratings:', error);
         setRatingData({ average: 0, count: 0 });
+        setRatings([]);
         return;
       }
       
+      setRatings(data as Rating[]);
       const count = data.length;
       const average = count > 0 ? data.reduce((acc, item) => acc + item.rating, 0) / count : 0;
       setRatingData({ average, count });
@@ -337,6 +347,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
             rated_user_id: displayUser.user_id,
             rater_user_id: authUser.id,
             rating: currentRating,
+            comment: ratingComment,
         }, { onConflict: 'rated_user_id, rater_user_id' });
 
     if (error) {
@@ -345,10 +356,13 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     } else {
         toast({ title: "¡Gracias!", description: "Tu calificación ha sido guardada." });
         await fetchRatingData(displayUser.user_id); // Refresh ratings
+        setIsRatingDialogOpen(false); // Close dialog on success
+        setCurrentRating(0);
+        setHoverRating(0);
+        setRatingComment("");
     }
     
     setIsRating(false);
-    return true; // Indicate success to close dialog
   };
 
   const userInitial = displayUser.full_name?.charAt(0).toUpperCase() || '?';
@@ -380,7 +394,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                               </span>
                           </div>
                           {!isOwnProfile && (
-                            <Dialog>
+                            <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
                                 <DialogTrigger asChild>
                                     <Button variant="outline" size="sm">Calificar Usuario</Button>
                                 </DialogTrigger>
@@ -391,35 +405,33 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                                             Tu opinión ayuda a otros a encontrar agentes de confianza.
                                         </DialogDescription>
                                     </DialogHeader>
-                                    <div className="flex justify-center items-center gap-2 py-4">
-                                        {[...Array(5)].map((_, i) => {
-                                            const ratingValue = i + 1;
-                                            return (
-                                                <Star 
-                                                    key={i} 
-                                                    className={cn("h-8 w-8 cursor-pointer transition-colors", 
-                                                        ratingValue <= (hoverRating || currentRating) ? "text-amber-500 fill-amber-500" : "text-muted-foreground"
-                                                    )}
-                                                    onClick={() => setCurrentRating(ratingValue)}
-                                                    onMouseEnter={() => setHoverRating(ratingValue)}
-                                                    onMouseLeave={() => setHoverRating(0)}
-                                                />
-                                            )
-                                        })}
+                                    <div className="flex flex-col items-center gap-4 py-4">
+                                        <div className="flex justify-center items-center gap-2">
+                                            {[...Array(5)].map((_, i) => {
+                                                const ratingValue = i + 1;
+                                                return (
+                                                    <Star 
+                                                        key={i} 
+                                                        className={cn("h-8 w-8 cursor-pointer transition-colors", 
+                                                            ratingValue <= (hoverRating || currentRating) ? "text-amber-500 fill-amber-500" : "text-muted-foreground"
+                                                        )}
+                                                        onClick={() => setCurrentRating(ratingValue)}
+                                                        onMouseEnter={() => setHoverRating(ratingValue)}
+                                                        onMouseLeave={() => setHoverRating(0)}
+                                                    />
+                                                )
+                                            })}
+                                        </div>
+                                        <Textarea 
+                                            placeholder="Deja un comentario anónimo (opcional)..."
+                                            value={ratingComment}
+                                            onChange={(e) => setRatingComment(e.target.value)}
+                                            className="min-h-[100px]"
+                                        />
                                     </div>
                                     <DialogFooter>
-                                        <DialogClose asChild>
-                                            <Button variant="ghost">Cancelar</Button>
-                                        </DialogClose>
-                                        <Button onClick={async () => {
-                                           const success = await handleRatingSubmit();
-                                           if (success) {
-                                               // This is a workaround to programmatically close the dialog.
-                                               // Ideally, DialogClose would be used, but we need to await the async call.
-                                               // A more robust solution might involve controlling the dialog's open state.
-                                               document.querySelector('[data-radix-dialog-content-wrapper]')?.querySelector('button[aria-label="Close"]')?.click();
-                                           }
-                                        }} disabled={isRating}>
+                                        <Button variant="ghost" onClick={() => setIsRatingDialogOpen(false)}>Cancelar</Button>
+                                        <Button onClick={handleRatingSubmit} disabled={isRating}>
                                             {isRating ? <Loader2 className="animate-spin" /> : "Enviar Calificación"}
                                         </Button>
                                     </DialogFooter>
@@ -534,9 +546,12 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
 
         { authUser ? (
             <Tabs defaultValue="listed" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="listed">
-                <Building className="mr-2" /> {t('profile.tabs.listed')}
+                  <Building className="mr-2" /> {t('profile.tabs.listed')}
+                </TabsTrigger>
+                <TabsTrigger value="ratings">
+                  <Star className="mr-2" /> Valoraciones
                 </TabsTrigger>
                 <TabsTrigger value="saved">
                     <Heart className="mr-2" /> {t('profile.tabs.saved')}
@@ -545,7 +560,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
             <TabsContent value="listed">
                  <Card className="mt-4">
                     <CardHeader>
-                        <CardTitle>Tus Propiedades Listadas</CardTitle>
+                        <CardTitle>Propiedades Listadas</CardTitle>
                     </CardHeader>
                     <CardContent>
                       {userProperties.length > 0 ? (
@@ -601,8 +616,46 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                     </CardContent>
                   </Card>
             </TabsContent>
-                <TabsContent value="saved">
+            <TabsContent value="ratings">
+              <Card className="mt-4">
+                <CardHeader>
+                  <CardTitle>Valoraciones Recibidas</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {ratings.length > 0 ? (
+                    <ScrollArea className="h-[400px]">
+                      <div className="space-y-6">
+                        {ratings.map((rating, index) => (
+                          <div key={index} className="flex flex-col gap-2 border-b pb-4 last:border-b-0">
+                             <div className="flex items-center gap-2">
+                                <div className="flex items-center text-amber-500">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star key={i} className={cn('w-4 h-4', i < rating.rating ? 'fill-current' : 'text-muted-foreground/50 fill-muted')} />
+                                    ))}
+                                </div>
+                                <p className="text-xs text-muted-foreground">{new Date(rating.created_at).toLocaleDateString()}</p>
+                             </div>
+                             {rating.comment && (
+                                <p className="text-muted-foreground italic">"{rating.comment}"</p>
+                             )}
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  ) : (
+                    <div className="text-center py-16">
+                      <MessageCircle className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+                      <p className="text-muted-foreground">Este usuario aún no ha recibido ninguna valoración.</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="saved">
                 <Card className="mt-4">
+                    <CardHeader>
+                        <CardTitle>Tus Propiedades Guardadas</CardTitle>
+                    </CardHeader>
                     <CardContent className="p-6">
                     {favorites.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -622,7 +675,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                     )}
                     </CardContent>
                 </Card>
-                </TabsContent>
+            </TabsContent>
             </Tabs>
         ) : (
             <Card>
