@@ -1,4 +1,6 @@
 
+'use client';
+
 import type { Property } from "@/types";
 import { PropertyCard } from "./PropertyCard";
 import { usePropertyStore } from "@/hooks/usePropertyStore";
