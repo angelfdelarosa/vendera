@@ -24,6 +24,7 @@ import {
   DialogTrigger,
   DialogFooter,
   DialogDescription,
+  DialogClose,
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -36,7 +37,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import type { UserProfile, Property } from '@/types';
+import type { UserProfile, Property, Rating } from '@/types';
 import Image from 'next/image';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
@@ -45,7 +46,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import ReactCrop, { type Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { canvasPreview } from '@/lib/utils';
+import { canvasPreview, cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 
@@ -93,6 +94,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
   
   const [displayUser, setDisplayUser] = useState<UserProfile | null>(null);
   const [userProperties, setUserProperties] = useState<Property[]>([]);
+  const [ratingData, setRatingData] = useState<{ average: number, count: number }>({ average: 0, count: 0 });
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
@@ -104,6 +106,27 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
   const [aspect, setAspect] = useState<number | undefined>(1)
 
   const [isUploading, setIsUploading] = useState(false);
+  const [isRating, setIsRating] = useState(false);
+  const [currentRating, setCurrentRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+
+  const fetchRatingData = async (userId: string) => {
+      if (!supabase) return;
+      const { data, error } = await supabase
+        .from('ratings')
+        .select('rating')
+        .eq('rated_user_id', userId);
+
+      if (error) {
+        console.error('Error fetching ratings:', error);
+        setRatingData({ average: 0, count: 0 });
+        return;
+      }
+      
+      const count = data.length;
+      const average = count > 0 ? data.reduce((acc, item) => acc + item.rating, 0) / count : 0;
+      setRatingData({ average, count });
+  };
   
   const debouncedCanvasPreview = debounce(async () => {
     if (
@@ -147,6 +170,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
       }
       
       setDisplayUser(profileData);
+      fetchRatingData(profileData.user_id);
 
       // Fetch properties for this user
       const { data: propertiesData, error: propertiesError } = await supabase
@@ -157,8 +181,6 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
       if (propertiesError) {
         console.error('Error fetching properties for profile:', propertiesError);
       } else {
-        // The type assertion is needed because Supabase auto-generated types
-        // might not know about the joined 'realtor' object shape.
         setUserProperties(propertiesData as unknown as Property[]);
       }
 
@@ -297,6 +319,38 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     }
   };
 
+  const handleRatingSubmit = async () => {
+    if (!authUser || isOwnProfile || !supabase) {
+        toast({ title: "Acción no permitida", description: "No puedes calificarte a ti mismo.", variant: 'destructive' });
+        return;
+    }
+    if (currentRating === 0) {
+        toast({ title: "Calificación requerida", description: "Por favor, selecciona una calificación de 1 a 5 estrellas.", variant: 'destructive' });
+        return;
+    }
+    
+    setIsRating(true);
+    
+    const { error } = await supabase
+        .from('ratings')
+        .upsert({
+            rated_user_id: displayUser.user_id,
+            rater_user_id: authUser.id,
+            rating: currentRating,
+        }, { onConflict: 'rated_user_id, rater_user_id' });
+
+    if (error) {
+        console.error("Error submitting rating:", error);
+        toast({ title: "Error", description: "No se pudo guardar tu calificación. " + error.message, variant: 'destructive' });
+    } else {
+        toast({ title: "¡Gracias!", description: "Tu calificación ha sido guardada." });
+        await fetchRatingData(displayUser.user_id); // Refresh ratings
+    }
+    
+    setIsRating(false);
+    return true; // Indicate success to close dialog
+  };
+
   const userInitial = displayUser.full_name?.charAt(0).toUpperCase() || '?';
 
   return (
@@ -314,15 +368,64 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                 </h1>
                  { authUser ? (
                      <>
-                        <div className="flex items-center gap-2 mt-4">
-                          <div className="flex items-center text-amber-500">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className={'w-5 h-5 text-muted-foreground fill-muted'} />
-                            ))}
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4">
+                          <div className="flex items-center gap-2">
+                             <div className="flex items-center text-amber-500">
+                                {[...Array(5)].map((_, i) => (
+                                 <Star key={i} className={cn('w-5 h-5', i < Math.round(ratingData.average) ? 'fill-current' : 'text-muted-foreground fill-muted')} />
+                                ))}
+                              </div>
+                              <span className="text-muted-foreground text-sm">
+                                ({ratingData.count} {t('profile.ratings')})
+                              </span>
                           </div>
-                          <span className="text-muted-foreground text-sm">
-                            ({Math.floor(Math.random() * 200)} {t('profile.ratings')})
-                          </span>
+                          {!isOwnProfile && (
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" size="sm">Calificar Usuario</Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Califica a {displayUser.full_name}</DialogTitle>
+                                        <DialogDescription>
+                                            Tu opinión ayuda a otros a encontrar agentes de confianza.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="flex justify-center items-center gap-2 py-4">
+                                        {[...Array(5)].map((_, i) => {
+                                            const ratingValue = i + 1;
+                                            return (
+                                                <Star 
+                                                    key={i} 
+                                                    className={cn("h-8 w-8 cursor-pointer transition-colors", 
+                                                        ratingValue <= (hoverRating || currentRating) ? "text-amber-500 fill-amber-500" : "text-muted-foreground"
+                                                    )}
+                                                    onClick={() => setCurrentRating(ratingValue)}
+                                                    onMouseEnter={() => setHoverRating(ratingValue)}
+                                                    onMouseLeave={() => setHoverRating(0)}
+                                                />
+                                            )
+                                        })}
+                                    </div>
+                                    <DialogFooter>
+                                        <DialogClose asChild>
+                                            <Button variant="ghost">Cancelar</Button>
+                                        </DialogClose>
+                                        <Button onClick={async () => {
+                                           const success = await handleRatingSubmit();
+                                           if (success) {
+                                               // This is a workaround to programmatically close the dialog.
+                                               // Ideally, DialogClose would be used, but we need to await the async call.
+                                               // A more robust solution might involve controlling the dialog's open state.
+                                               document.querySelector('[data-radix-dialog-content-wrapper]')?.querySelector('button[aria-label="Close"]')?.click();
+                                           }
+                                        }} disabled={isRating}>
+                                            {isRating ? <Loader2 className="animate-spin" /> : "Enviar Calificación"}
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                          )}
                         </div>
                      </>
                  ) : (
@@ -537,5 +640,3 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     </div>
   );
 }
-
-    

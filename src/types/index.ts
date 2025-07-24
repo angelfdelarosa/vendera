@@ -43,3 +43,11 @@ export interface Conversation {
   timestamp: string;
   unread: boolean;
 }
+
+export interface Rating {
+  id: number;
+  created_at: string;
+  rated_user_id: string;
+  rater_user_id: string;
+  rating: number;
+}
