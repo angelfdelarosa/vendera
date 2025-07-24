@@ -1,7 +1,5 @@
 
-'use client';
-
-import { notFound, useRouter, usePathname, useParams } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -15,36 +13,92 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { BedDouble, Bath, Ruler, MapPin, Building, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { BedDouble, Bath, Ruler, MapPin, Building, Lock } from 'lucide-react';
 import { SimilarProperties } from '@/components/properties/SimilarProperties';
 import { FavoriteButton } from '@/components/properties/FavoriteButton';
 import { Button } from '@/components/ui/button';
-import { usePropertyStore } from '@/hooks/usePropertyStore';
-import { useTranslation } from '@/hooks/useTranslation';
-import { useAuth } from '@/context/AuthContext';
-import { usePropertyContext } from '@/context/PropertyContext';
+import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
+import type { Property } from '@/types';
+import { getTranslations } from '@/lib/get-translation';
 
-export default function PropertyDetailPage() {
-  const params = useParams();
-  const { properties, isLoading } = usePropertyContext();
-  const { user } = useAuth();
-  const property = properties.find((p) => p.id === params.id);
-  const { t } = useTranslation();
+async function getPropertyData(propertyId: string): Promise<Property | null> {
+    const cookieStore = cookies();
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                get(name: string) {
+                    return cookieStore.get(name)?.value
+                },
+            },
+        }
+    );
 
-  if (isLoading) {
-    return (
-       <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    )
-  }
+    const { data: propertyData, error: propertyError } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('id', propertyId)
+        .single();
+    
+    if (propertyError || !propertyData) {
+        console.error("Error fetching property:", propertyError);
+        return null;
+    }
+
+    const { data: realtorData, error: realtorError } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, avatar_url, username')
+        .eq('user_id', propertyData.realtor_id)
+        .single();
+
+    if (realtorError) {
+        console.error("Error fetching realtor for property:", realtorError);
+        // Return property without realtor info if realtor fetch fails
+        return {
+            ...propertyData,
+            realtor: {
+                user_id: propertyData.realtor_id,
+                full_name: 'Anonymous',
+                avatar_url: null,
+                username: null
+            }
+        };
+    }
+
+    return {
+        ...propertyData,
+        realtor: {
+            user_id: realtorData.user_id,
+            full_name: realtorData.full_name,
+            avatar_url: realtorData.avatar_url,
+            username: realtorData.username,
+        }
+    };
+}
+
+
+export default async function PropertyDetailPage({ params }: { params: { id: string } }) {
+  const cookieStore = cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+        cookies: {
+            get(name: string) {
+                return cookieStore.get(name)?.value
+            },
+        },
+    }
+  );
+  const { data: { user } } = await supabase.auth.getUser();
+  const property = await getPropertyData(params.id);
+  const t = getTranslations();
 
   if (!property) {
-    return notFound();
+    notFound();
   }
-
-  const isOwnProperty = user && user.id === property.realtor_id;
-
   
   return (
     <div className="container mx-auto px-4 py-8">
