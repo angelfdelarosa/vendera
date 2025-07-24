@@ -126,7 +126,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
   
   useEffect(() => {
     const fetchProfileAndProperties = async () => {
-      if (!profileId) {
+      if (!profileId || !supabase) {
         setLoading(false);
         return;
       }
@@ -165,8 +165,10 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
       setLoading(false);
     };
 
-    fetchProfileAndProperties();
-  }, [profileId, supabase]);
+    if (!authLoading) {
+      fetchProfileAndProperties();
+    }
+  }, [profileId, supabase, authLoading]);
 
   
   const handleDeleteProperty = async (propertyId: string) => {
@@ -448,7 +450,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                           {userProperties.map((property) => (
                             <div key={property.id} className="relative group">
                               {isOwnProfile && (
-                                <div className="absolute top-2 right-14 z-20 flex gap-2">
+                                <div className="absolute top-2 right-14 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                   <Button size="icon" variant="outline" className="bg-background" asChild>
                                     <Link href={`/edit-property/${property.id}`}>
                                       <Edit className="h-4 w-4" />
