@@ -309,6 +309,10 @@
       "cta_main": "Comenzar",
       "cta_secondary": "Saber Más"
     },
+    "featured": {
+      "title": "Listados Destacados",
+      "subtitle": "Explora una selección cuidadosamente elegida de nuestras mejores propiedades, desde villas de lujo hasta modernos apartamentos en la ciudad."
+    },
      "features": {
         "feature1_title": "Búsqueda Avanzada",
         "feature1_desc": "Encuentra fácilmente tu propiedad ideal con nuestros potentes e intuitivos filtros de búsqueda.",
