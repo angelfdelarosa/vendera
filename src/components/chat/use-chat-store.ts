@@ -1,18 +1,19 @@
 
 import { create } from 'zustand';
-import { mockConversations } from '@/lib/mock-data';
-import type { Conversation, Message, Property, UserProfile } from '@/types';
+import type { Conversation, Message } from '@/types';
 
 interface ChatState {
   conversations: Conversation[];
   selectedConversation: Conversation | null;
   selectConversation: (conversationId: string | null) => void;
   addMessage: (conversationId: string, message: Message) => void;
+  setConversations: (conversations: Conversation[]) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
-  conversations: mockConversations,
+  conversations: [],
   selectedConversation: null,
+  setConversations: (conversations) => set({ conversations }),
   selectConversation: (conversationId) => {
     if (!conversationId) {
       set({ selectedConversation: null });
@@ -35,7 +36,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           ? {
               ...c,
               messages: [...c.messages, message],
-              timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+              timestamp: new Date().toISOString(),
             }
           : c
       ),

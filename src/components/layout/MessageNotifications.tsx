@@ -46,31 +46,31 @@ export function MessageNotifications() {
         </div>
         <div className="space-y-1 p-2 max-h-[400px] overflow-y-auto">
           {conversations.length > 0 ? (
-            conversations.map((convo) => (
+            conversations.slice(0, 5).map((convo) => (
               <div
                 key={convo.id}
                 className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer"
                 onClick={() => handleNotificationClick(convo.id)}
               >
                 <Link
-                  href={`/profile/${convo.user.id}`}
+                  href={`/profile/${convo.user.user_id}`}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Avatar className="hover:ring-2 hover:ring-primary transition-all">
-                    <AvatarImage src={convo.user.avatar} />
+                    <AvatarImage src={convo.user.avatar_url || undefined} />
                     <AvatarFallback>
-                      {convo.user.name.charAt(0)}
+                      {convo.user.full_name?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                 </Link>
                 <div className="flex-grow overflow-hidden">
                   <div className="flex justify-between items-center">
                     <Link
-                      href={`/profile/${convo.user.id}`}
+                      href={`/profile/${convo.user.user_id}`}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <p className="font-semibold text-sm hover:underline">
-                        {convo.user.name}
+                        {convo.user.full_name}
                       </p>
                     </Link>
                     <p className="text-xs text-muted-foreground">
@@ -78,7 +78,7 @@ export function MessageNotifications() {
                     </p>
                   </div>
                   <p className="text-sm text-muted-foreground truncate">
-                    {convo.messages[convo.messages.length - 1]?.text}
+                    {(convo as any).lastMessage}
                   </p>
                 </div>
                 {convo.unread && (

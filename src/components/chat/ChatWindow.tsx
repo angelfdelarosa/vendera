@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import type { Conversation, Message, UserProfile } from '@/types';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import type { Message, UserProfile } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -10,100 +10,131 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Send, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { chatAssistant } from '@/ai/flows/chat-assistant';
-import { useChatStore } from './use-chat-store';
 import { useTranslation } from '@/hooks/useTranslation';
-import { mockUsers } from '@/lib/mock-data';
+import { useAuth } from '@/context/AuthContext';
+import { format } from 'date-fns';
 
 interface ChatWindowProps {
-  conversation: Conversation;
+  conversationId: string;
+  recipient: UserProfile;
 }
 
-export function ChatWindow({ conversation }: ChatWindowProps) {
-  // Since auth is disabled, we'll use a mock buyer.
-  const buyer: UserProfile = mockUsers['emily-white'];
-
-  const { messages, addMessage } = useChatStore((state) => ({
-    messages: state.conversations.find((c) => c.id === conversation.id)?.messages || [],
-    addMessage: state.addMessage,
-  }));
+export function ChatWindow({ conversationId, recipient }: ChatWindowProps) {
+  const { user: authUser, supabase } = useAuth();
+  const [messages, setMessages] = useState<Message[]>([]);
   const { t, locale } = useTranslation();
   
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     setTimeout(() => {
        if (scrollAreaRef.current) {
-        const viewport = scrollAreaRef.current.querySelector('div');
+        const viewport = scrollAreaRef.current.querySelector('div[data-radix-scroll-area-viewport]');
         if (viewport) {
           viewport.scrollTop = viewport.scrollHeight;
         }
       }
     }, 100);
-  };
+  }, []);
   
   useEffect(() => {
+    const fetchMessages = async () => {
+        if (!conversationId || !supabase) return;
+        setIsLoading(true);
+
+        const { data, error } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('conversation_id', conversationId)
+            .order('created_at', { ascending: true });
+
+        if (error) {
+            console.error("Error fetching messages:", error);
+            setMessages([]);
+        } else {
+            const formattedMessages: Message[] = data.map(m => ({
+                id: m.id.toString(),
+                text: m.content,
+                sender: m.sender_id === authUser?.id ? 'buyer' : 'seller', // Simplified assumption
+                timestamp: format(new Date(m.created_at), 'p')
+            }));
+            setMessages(formattedMessages);
+        }
+        setIsLoading(false);
+    }
+    fetchMessages();
+  }, [conversationId, supabase, authUser?.id]);
+
+  useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
+  
+  useEffect(() => {
+      if (!supabase || !conversationId) return;
+
+      const channel = supabase.channel(`chat:${conversationId}`)
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` }, 
+        (payload) => {
+            const newMessage = payload.new as any;
+            const formattedMessage: Message = {
+                id: newMessage.id.toString(),
+                text: newMessage.content,
+                sender: newMessage.sender_id === authUser?.id ? 'buyer' : 'seller',
+                timestamp: format(new Date(newMessage.created_at), 'p')
+            }
+            setMessages(currentMessages => [...currentMessages, formattedMessage]);
+        })
+        .subscribe();
+      
+      return () => {
+        supabase.removeChannel(channel);
+      }
+
+  }, [supabase, conversationId, authUser?.id]);
+
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !buyer) return;
+    if (!newMessage.trim() || !authUser || !supabase) return;
 
-    const buyerMessage: Message = {
-      id: crypto.randomUUID(),
-      text: newMessage,
-      sender: 'buyer',
-      timestamp: new Date().toLocaleTimeString(),
-    };
-
-    addMessage(conversation.id, buyerMessage);
-    setNewMessage('');
     setIsSending(true);
 
-    try {
-        const messageHistory = [...messages, buyerMessage]
-            .map(m => `${m.sender === 'buyer' ? (buyer.name || 'Buyer') : conversation.user.name}: ${m.text}`)
-            .join('\n');
+    const { error } = await supabase
+      .from('messages')
+      .insert({
+        conversation_id: conversationId,
+        sender_id: authUser.id,
+        content: newMessage,
+      });
 
-        const result = await chatAssistant({
-            buyerName: buyer.name || t('chat.potentialBuyer'),
-            sellerName: conversation.user.name,
-            propertyName: t(conversation.property.title),
-            messageHistory: messageHistory,
-            locale: locale,
-        });
-
-        const sellerResponse: Message = {
-            id: crypto.randomUUID(),
-            text: result.response,
-            sender: 'seller',
-            timestamp: new Date().toLocaleTimeString(),
-        };
-
-        addMessage(conversation.id, sellerResponse);
-    } catch (error) {
-        console.error("Failed to get AI response:", error);
-        const errorResponse: Message = {
-            id: crypto.randomUUID(),
-            text: t('chat.error'),
-            sender: 'seller',
-            timestamp: new Date().toLocaleTimeString(),
-        };
-        addMessage(conversation.id, errorResponse);
-    } finally {
-        setIsSending(false);
+    if (error) {
+        console.error("Error sending message:", error);
+        toast({ title: "Error", description: "Could not send message.", variant: "destructive" });
+    } else {
+        setNewMessage('');
     }
+    
+    setIsSending(false);
   };
-
+  
   const getAvatar = (sender: 'buyer' | 'seller') => {
-    return sender === 'buyer' ? buyer.avatar : conversation.user.avatar;
+    return sender === 'buyer' ? authUser?.user_metadata.avatar_url : recipient.avatar_url;
   };
 
   const getInitial = (sender: 'buyer' | 'seller') => {
-    const name = sender === 'buyer' ? buyer.name : conversation.user.name;
+    const name = sender === 'buyer' ? authUser?.user_metadata.full_name : recipient.full_name;
     return name ? name.charAt(0).toUpperCase() : 'U';
+  }
+
+  if (isLoading) {
+    return (
+        <div className="flex justify-center items-center h-full">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+    );
   }
 
   return (
@@ -120,7 +151,7 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
             >
               {message.sender === 'seller' && (
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={getAvatar('seller')} />
+                  <AvatarImage src={getAvatar('seller') || undefined} />
                   <AvatarFallback>{getInitial('seller')}</AvatarFallback>
                 </Avatar>
               )}
@@ -146,8 +177,8 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
           {isSending && (
              <div className="flex items-end gap-2 justify-start">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={getAvatar('seller')} />
-                  <AvatarFallback>{getInitial('seller')}</AvatarFallback>
+                  <AvatarImage src={getAvatar('buyer') || undefined} />
+                  <AvatarFallback>{getInitial('buyer')}</AvatarFallback>
                 </Avatar>
                  <div className="bg-muted rounded-lg p-3 flex items-center">
                     <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -174,3 +205,6 @@ export function ChatWindow({ conversation }: ChatWindowProps) {
     </div>
   );
 }
+
+// Dummy toast for now
+const toast = (props: any) => console.log('Toast:', props.title);

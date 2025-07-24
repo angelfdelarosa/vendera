@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserNav } from "./UserNav";
 import { useAuth } from "@/context/AuthContext";
+import { MessageNotifications } from "./MessageNotifications";
 
 export function Header() {
   const { t } = useTranslation();
@@ -47,6 +48,12 @@ export function Header() {
                 {t('header.favorites')}
               </Link>
               <Link
+                href="/messages"
+                className="text-foreground/60 transition-colors hover:text-accent"
+              >
+                {t('messages.title')}
+              </Link>
+              <Link
                 href="/properties/new"
                 className="text-foreground/60 transition-colors hover:text-accent"
               >
@@ -68,6 +75,7 @@ export function Header() {
           </div>
         </div>
         <div className="flex items-center justify-end space-x-2">
+          {user && <MessageNotifications />}
           <UserNav />
         </div>
       </div>

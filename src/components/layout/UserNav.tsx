@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, LogOut, Heart, Building, LogIn, UserPlus, Loader2 } from 'lucide-react';
+import { User, LogOut, Heart, Building, LogIn, UserPlus, Loader2, MessageSquare } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export function UserNav() {
@@ -85,6 +85,12 @@ export function UserNav() {
             <DropdownMenuItem>
               <User className="mr-2 h-4 w-4" />
               <span>{t('userNav.profile')}</span>
+            </DropdownMenuItem>
+          </Link>
+          <Link href="/messages">
+            <DropdownMenuItem>
+              <MessageSquare className="mr-2 h-4 w-4" />
+              <span>{t('messages.title')}</span>
             </DropdownMenuItem>
           </Link>
           <Link href="/favorites">

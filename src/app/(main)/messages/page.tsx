@@ -7,24 +7,90 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Loader2, MessageCircle, MessagesSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { UserProfile, Property, Conversation } from '@/types';
+import type { Conversation, ConversationFromDB } from '@/types';
 import { useChatStore } from '@/components/chat/use-chat-store';
 import Link from 'next/link';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/context/AuthContext';
+import { formatDistanceToNow } from 'date-fns';
+import { es, enUS } from 'date-fns/locale';
 
 export default function MessagesPage() {
-  const { conversations, selectedConversation, selectConversation } = useChatStore();
-  const { t } = useTranslation();
+  const { user, loading: authLoading, supabase } = useAuth();
+  const { conversations, selectedConversation, selectConversation, setConversations } = useChatStore();
+  const { t, locale } = useTranslation();
+  const [loading, setLoading] = useState(true);
 
-  const getTimestamp = (convo: Conversation) => {
-    if (convo.timestamp.includes('m ago') || convo.timestamp.includes('hace')) {
-      return convo.timestamp;
+  useEffect(() => {
+    const fetchConversations = async () => {
+      if (!user || !supabase) return;
+
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from('conversations')
+        .select(`
+          id,
+          created_at,
+          property_id,
+          buyer_id,
+          seller_id,
+          property:properties(id, title, images),
+          buyer:profiles!conversations_buyer_id_fkey(user_id, full_name, avatar_url),
+          seller:profiles!conversations_seller_id_fkey(user_id, full_name, avatar_url),
+          messages:messages(content, created_at, sender_id)
+        `)
+        .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
+        .order('created_at', { referencedTable: 'messages', ascending: false });
+
+      if (error) {
+        console.error("Error fetching conversations:", error);
+      } else {
+        const transformedConversations = data.map(convo => {
+            const otherUser = convo.buyer_id === user.id ? convo.seller : convo.buyer;
+            const lastMessage = convo.messages[0];
+            return {
+                id: convo.id.toString(),
+                user: {
+                    user_id: otherUser.user_id,
+                    full_name: otherUser.full_name,
+                    avatar_url: otherUser.avatar_url,
+                    username: null
+                },
+                property: {
+                    ...mockProperty, // Spreading a mock to fill required fields
+                    id: convo.property?.id || "unknown",
+                    title: convo.property?.title || "Conversation",
+                    images: convo.property?.images || []
+                },
+                messages: [], // Real messages will be loaded in ChatWindow
+                timestamp: lastMessage ? lastMessage.created_at : convo.created_at,
+                lastMessage: lastMessage?.content || "No messages yet.",
+                // a real 'unread' implementation would require more logic
+                unread: Math.random() > 0.5 
+            }
+        });
+        setConversations(transformedConversations);
+      }
+      setLoading(false);
+    };
+    
+    if (!authLoading) {
+        fetchConversations();
     }
-    const isMinutes = Math.random() > 0.5;
-    if (isMinutes) {
-      return t('messages.timestamp.minutes', { count: convo.timestamp });
-    }
-    return t('messages.timestamp.hours', { count: convo.timestamp });
+  }, [user, authLoading, supabase, setConversations]);
+  
+  const getTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return formatDistanceToNow(date, { addSuffix: true, locale: locale === 'es' ? es : enUS });
+  }
+
+  if (loading || authLoading) {
+     return (
+        <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+    );
   }
 
   if (conversations.length === 0) {
@@ -69,23 +135,23 @@ export default function MessagesPage() {
                   selectedConversation?.id === convo.id ? "bg-muted" : "hover:bg-muted/50"
                 )}
               >
-                <Link href={`/profile/${convo.user.id}`} onClick={(e) => e.stopPropagation()}>
+                <Link href={`/profile/${convo.user.user_id}`} onClick={(e) => e.stopPropagation()}>
                     <Avatar className="h-10 w-10 hover:ring-2 hover:ring-primary transition-all">
-                      <AvatarImage src={convo.user.avatar} />
-                      <AvatarFallback>{convo.user.name.charAt(0)}</AvatarFallback>
+                      <AvatarImage src={convo.user.avatar_url || undefined} />
+                      <AvatarFallback>{convo.user.full_name?.charAt(0)}</AvatarFallback>
                     </Avatar>
                 </Link>
                 <div className="flex-grow overflow-hidden">
                    <div className="flex justify-between items-center">
-                    <Link href={`/profile/${convo.user.id}`} onClick={(e) => e.stopPropagation()}>
-                        <p className="font-semibold text-sm truncate hover:underline">{convo.user.name}</p>
+                    <Link href={`/profile/${convo.user.user_id}`} onClick={(e) => e.stopPropagation()}>
+                        <p className="font-semibold text-sm truncate hover:underline">{convo.user.full_name}</p>
                     </Link>
-                     <p className="text-xs text-muted-foreground flex-shrink-0">{getTimestamp(convo)}</p>
+                     <p className="text-xs text-muted-foreground flex-shrink-0">{getTimestamp(convo.timestamp)}</p>
                    </div>
                     <p className="text-xs text-muted-foreground truncate">
                         {t('messages.re')} {t(convo.property.title)}
                     </p>
-                   <p className="text-sm text-muted-foreground truncate">{convo.messages[convo.messages.length - 1]?.text}</p>
+                   <p className="text-sm text-muted-foreground truncate">{ (convo as any).lastMessage }</p>
                 </div>
                  {convo.unread && <div className="w-2 h-2 rounded-full bg-primary mt-1 flex-shrink-0"></div>}
               </button>
@@ -96,7 +162,8 @@ export default function MessagesPage() {
           {selectedConversation ? (
             <ChatWindow
               key={selectedConversation.id}
-              conversation={selectedConversation}
+              conversationId={selectedConversation.id}
+              recipient={selectedConversation.user}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
@@ -109,4 +176,22 @@ export default function MessagesPage() {
       </Card>
     </div>
   );
+}
+
+// Mock property to satisfy the type, as not all fields are needed for the convo list
+const mockProperty: Property = {
+    id: 'mock',
+    title: 'mock',
+    price: 0,
+    location: 'mock',
+    address: 'mock',
+    type: 'house',
+    bedrooms: 0,
+    bathrooms: 0,
+    area: 0,
+    description: 'mock',
+    features: [],
+    images: [],
+    realtor_id: 'mock',
+    realtor: { user_id: 'mock', full_name: 'mock', avatar_url: 'mock', username: 'mock' }
 }

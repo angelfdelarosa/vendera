@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageCircle } from 'lucide-react';
+import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageSquare } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -204,6 +204,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
 
   
   const handleDeleteProperty = async (propertyId: string) => {
+    if (!supabase) return;
     const { error } = await supabase
       .from('properties')
       .delete()
@@ -276,7 +277,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
   };
   
   const handleAvatarUpload = async () => {
-    if (!previewCanvasRef.current || !authUser || !completedCrop) {
+    if (!previewCanvasRef.current || !authUser || !completedCrop || !supabase) {
          toast({ title: "Crop Error", description: "Please select an image and crop it first.", variant: "destructive" });
         return;
     }
@@ -364,6 +365,51 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     
     setIsRating(false);
   };
+  
+  const handleStartConversation = async () => {
+    if (!authUser || !supabase || isOwnProfile) return;
+
+    try {
+        // Check if a conversation already exists
+        let { data: existingConvo, error: fetchError } = await supabase
+            .from('conversations')
+            .select('id')
+            .or(`and(buyer_id.eq.${authUser.id},seller_id.eq.${displayUser.user_id}),and(buyer_id.eq.${displayUser.user_id},seller_id.eq.${authUser.id})`)
+            .maybeSingle();
+
+        if(fetchError) throw fetchError;
+
+        if (existingConvo) {
+            router.push('/messages');
+            return;
+        }
+
+        // If not, create a new one. A property is not required to start a chat from a profile.
+        const { data: newConvo, error: insertError } = await supabase
+            .from('conversations')
+            .insert({
+                buyer_id: authUser.id,
+                seller_id: displayUser.user_id,
+            })
+            .select('id')
+            .single();
+
+        if (insertError) throw insertError;
+        
+        // This part would ideally refresh the chat store, but for now, we just redirect.
+        // The store should fetch fresh data on the messages page.
+        router.push('/messages');
+
+    } catch (error: any) {
+        console.error("Error starting conversation:", error);
+        toast({
+            title: "Could not start chat",
+            description: error.message,
+            variant: "destructive"
+        });
+    }
+  };
+
 
   const userInitial = displayUser.full_name?.charAt(0).toUpperCase() || '?';
 
@@ -394,49 +440,55 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                               </span>
                           </div>
                           {!isOwnProfile && (
-                            <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
-                                <DialogTrigger asChild>
-                                    <Button variant="outline" size="sm">Calificar Usuario</Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>Califica a {displayUser.full_name}</DialogTitle>
-                                        <DialogDescription>
-                                            Tu opinión ayuda a otros a encontrar agentes de confianza.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="flex flex-col items-center gap-4 py-4">
-                                        <div className="flex justify-center items-center gap-2">
-                                            {[...Array(5)].map((_, i) => {
-                                                const ratingValue = i + 1;
-                                                return (
-                                                    <Star 
-                                                        key={i} 
-                                                        className={cn("h-8 w-8 cursor-pointer transition-colors", 
-                                                            ratingValue <= (hoverRating || currentRating) ? "text-amber-500 fill-amber-500" : "text-muted-foreground"
-                                                        )}
-                                                        onClick={() => setCurrentRating(ratingValue)}
-                                                        onMouseEnter={() => setHoverRating(ratingValue)}
-                                                        onMouseLeave={() => setHoverRating(0)}
-                                                    />
-                                                )
-                                            })}
+                            <>
+                                <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button variant="outline" size="sm">Calificar Usuario</Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>Califica a {displayUser.full_name}</DialogTitle>
+                                            <DialogDescription>
+                                                Tu opinión ayuda a otros a encontrar agentes de confianza.
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="flex flex-col items-center gap-4 py-4">
+                                            <div className="flex justify-center items-center gap-2">
+                                                {[...Array(5)].map((_, i) => {
+                                                    const ratingValue = i + 1;
+                                                    return (
+                                                        <Star 
+                                                            key={i} 
+                                                            className={cn("h-8 w-8 cursor-pointer transition-colors", 
+                                                                ratingValue <= (hoverRating || currentRating) ? "text-amber-500 fill-amber-500" : "text-muted-foreground"
+                                                            )}
+                                                            onClick={() => setCurrentRating(ratingValue)}
+                                                            onMouseEnter={() => setHoverRating(ratingValue)}
+                                                            onMouseLeave={() => setHoverRating(0)}
+                                                        />
+                                                    )
+                                                })}
+                                            </div>
+                                            <Textarea 
+                                                placeholder="Deja un comentario anónimo (opcional)..."
+                                                value={ratingComment}
+                                                onChange={(e) => setRatingComment(e.target.value)}
+                                                className="min-h-[100px]"
+                                            />
                                         </div>
-                                        <Textarea 
-                                            placeholder="Deja un comentario anónimo (opcional)..."
-                                            value={ratingComment}
-                                            onChange={(e) => setRatingComment(e.target.value)}
-                                            className="min-h-[100px]"
-                                        />
-                                    </div>
-                                    <DialogFooter>
-                                        <Button variant="ghost" onClick={() => setIsRatingDialogOpen(false)}>Cancelar</Button>
-                                        <Button onClick={handleRatingSubmit} disabled={isRating}>
-                                            {isRating ? <Loader2 className="animate-spin" /> : "Enviar Calificación"}
-                                        </Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
+                                        <DialogFooter>
+                                            <Button variant="ghost" onClick={() => setIsRatingDialogOpen(false)}>Cancelar</Button>
+                                            <Button onClick={handleRatingSubmit} disabled={isRating}>
+                                                {isRating ? <Loader2 className="animate-spin" /> : "Enviar Calificación"}
+                                            </Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                                <Button size="sm" onClick={handleStartConversation}>
+                                    <MessageSquare className="mr-2 h-4 w-4" />
+                                    Contactar
+                                </Button>
+                            </>
                           )}
                         </div>
                      </>
@@ -644,7 +696,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                     </ScrollArea>
                   ) : (
                     <div className="text-center py-16">
-                      <MessageCircle className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+                      <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
                       <p className="text-muted-foreground">Este usuario aún no ha recibido ninguna valoración.</p>
                     </div>
                   )}

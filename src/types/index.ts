@@ -52,3 +52,22 @@ export interface Rating {
   rating: number;
   comment?: string | null;
 }
+
+export type ConversationFromDB = {
+  id: string;
+  created_at: string;
+  property_id: string | null;
+  buyer_id: string;
+  seller_id: string;
+  property: {
+    id: string;
+    title: string;
+    images: string[];
+  } | null;
+  buyer: UserProfile;
+  seller: UserProfile;
+  messages: {
+    content: string;
+    created_at: string;
+  }[];
+};
