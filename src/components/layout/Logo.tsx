@@ -20,13 +20,10 @@ export function Logo({ layout = 'horizontal' }: LogoProps) {
         Asegúrate de subir tu logo (p. ej., 'logo.png') a la carpeta /public.
         Si tu archivo tiene un nombre diferente, actualiza la propiedad 'src' a continuación.
       */}
-      <Image
+      <img
         src="/logo12.svg" // Apunta al logo en la carpeta /public
         alt="VENDRA Logo"
-        width={isVertical ? 96 : 32}
-        height={isVertical ? 96 : 32}
         className={cn(isVertical ? 'h-24 w-24' : 'h-8 w-8', 'object-contain')}
-        priority // Carga el logo más rápido, ya que es importante para el LCP
       />
       <span
         className={cn(
