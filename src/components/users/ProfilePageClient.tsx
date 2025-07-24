@@ -47,7 +47,6 @@ import ReactCrop, { type Crop, PixelCrop, centerCrop, makeAspectCrop } from 'rea
 import 'react-image-crop/dist/ReactCrop.css';
 import { canvasPreview } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
-import { usePropertyContext } from '@/context/PropertyContext';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 
 interface ProfilePageClientProps {
@@ -86,7 +85,6 @@ function debounce(fn: Function, ms = 300) {
 
 export default function ProfilePageClient({ profileId }: ProfilePageClientProps) {
   const { user: authUser, loading: authLoading, supabase } = useAuth();
-  const { properties: allProperties, isLoading: propertiesLoading } = usePropertyContext();
   const { deleteProperty } = usePropertyStore();
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -127,39 +125,48 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
   }, [completedCrop, debouncedCanvasPreview]);
   
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchProfileAndProperties = async () => {
       if (!profileId) {
-          setLoading(false);
-          return;
+        setLoading(false);
+        return;
       }
       setLoading(true);
 
-      const { data: profileData, error } = await supabase
+      // Fetch profile data
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', profileId)
         .single();
       
-      if (error || !profileData) {
-        console.error('Error fetching profile:', error);
+      if (profileError || !profileData) {
+        console.error('Error fetching profile:', profileError);
         setDisplayUser(null);
-      } else {
-        setDisplayUser(profileData);
+        setLoading(false);
+        return;
       }
+      
+      setDisplayUser(profileData);
+
+      // Fetch properties for this user
+      const { data: propertiesData, error: propertiesError } = await supabase
+        .from('properties')
+        .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username)`)
+        .eq('realtor_id', profileData.user_id);
+      
+      if (propertiesError) {
+        console.error('Error fetching properties for profile:', propertiesError);
+      } else {
+        // The type assertion is needed because Supabase auto-generated types
+        // might not know about the joined 'realtor' object shape.
+        setUserProperties(propertiesData as unknown as Property[]);
+      }
+
       setLoading(false);
     };
 
-    if (!authLoading) {
-      fetchProfile();
-    }
-  }, [profileId, authLoading, supabase]);
-
-  useEffect(() => {
-     if (!propertiesLoading && displayUser) {
-        const propertiesForUser = allProperties.filter(p => p.realtor_id === displayUser.user_id);
-        setUserProperties(propertiesForUser);
-     }
-  }, [propertiesLoading, allProperties, displayUser]);
+    fetchProfileAndProperties();
+  }, [profileId, supabase]);
 
   
   const handleDeleteProperty = async (propertyId: string) => {
@@ -176,6 +183,8 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
       });
     } else {
       deleteProperty(propertyId);
+      // Also update local state to reflect deletion immediately
+      setUserProperties(prev => prev.filter(p => p.id !== propertyId));
       toast({
         title: 'Propiedad eliminada',
         description: 'Tu propiedad ha sido eliminada exitosamente.',
@@ -183,11 +192,10 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     }
   };
 
-
-  const isLoading = loading || authLoading || propertiesLoading;
+  const isLoadingInitial = loading || authLoading;
   const isOwnProfile = authUser && authUser.id === displayUser?.user_id;
 
-  if (isLoading) {
+  if (isLoadingInitial) {
     return (
         <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -304,9 +312,6 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                 </h1>
                  { authUser ? (
                      <>
-                        <p className="text-muted-foreground mt-2 max-w-md">
-                        {/* Bio field does not exist in the new schema */}
-                        </p>
                         <div className="flex items-center gap-2 mt-4">
                           <div className="flex items-center text-amber-500">
                             {[...Array(5)].map((_, i) => (
@@ -440,7 +445,7 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
                     <CardContent>
                       {userProperties.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {userProperties.map(property => (
+                          {userProperties.map((property) => (
                             <div key={property.id} className="relative group">
                               {isOwnProfile && (
                                 <div className="absolute top-2 right-14 z-20 flex gap-2">
@@ -530,3 +535,5 @@ export default function ProfilePageClient({ profileId }: ProfilePageClientProps)
     </div>
   );
 }
+
+    
