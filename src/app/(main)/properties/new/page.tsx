@@ -54,8 +54,7 @@ export default function NewPropertyPage() {
     numBedrooms: 4,
     numBathrooms: 3,
     area: 600,
-    amenities: "Swimming Pool, Garage",
-    uniqueFeatures: "Ocean view, modern architecture",
+    features: "Swimming Pool, Garage, Ocean view",
     description: "",
   });
   
@@ -145,10 +144,7 @@ export default function NewPropertyPage() {
     }
 
 
-    const features = [
-      ...formData.amenities.split(",").map((f) => f.trim()),
-      ...formData.uniqueFeatures.split(",").map((f) => f.trim()),
-    ].filter(Boolean);
+    const features = formData.features.split(",").map((f) => f.trim()).filter(Boolean);
 
     const newPropertyData = {
       realtor_id: user.id,
@@ -185,7 +181,7 @@ export default function NewPropertyPage() {
         return;
     }
 
-    const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url').eq('user_id', user.id).single();
+    const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url, username').eq('user_id', user.id).single();
 
     if (!profile) {
         toast({
@@ -203,7 +199,7 @@ export default function NewPropertyPage() {
              user_id: user.id,
              full_name: profile?.full_name || 'Anonymous',
              avatar_url: profile?.avatar_url || 'https://placehold.co/100x100.png',
-             username: user.email || ''
+             username: profile?.username || ''
         }
     }
 
@@ -332,26 +328,17 @@ export default function NewPropertyPage() {
                 onChange={handleNumberInputChange}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="amenities">{t('newProperty.form.amenities')}</Label>
+             <div className="space-y-2">
+              <Label htmlFor="features">{t('newProperty.form.features')}</Label>
               <Input
-                id="amenities"
-                placeholder={t('newProperty.form.amenities_placeholder')}
-                value={formData.amenities}
+                id="features"
+                placeholder={t('newProperty.form.features_placeholder')}
+                value={formData.features}
                 onChange={handleInputChange}
               />
-              <p className="text-xs text-muted-foreground">
+               <p className="text-xs text-muted-foreground">
                 {t('newProperty.form.amenities_note')}
               </p>
-            </div>
-            <div className="md:col-span-2 space-y-2">
-              <Label htmlFor="uniqueFeatures">{t('newProperty.form.features')}</Label>
-              <Input
-                id="uniqueFeatures"
-                placeholder={t('newProperty.form.features_placeholder')}
-                value={formData.uniqueFeatures}
-                onChange={handleInputChange}
-              />
             </div>
             <div className="md:col-span-2 space-y-2">
               <Label htmlFor="description">{t('property.description')}</Label>

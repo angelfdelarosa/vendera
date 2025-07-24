@@ -37,15 +37,14 @@ export default function EditPropertyPage() {
   const params = useParams();
   const { toast } = useToast();
   const {
-    properties,
     updateProperty,
-    isLoading: isStoreLoading,
   } = usePropertyStore();
   const { t } = useTranslation();
   const { user, loading: authLoading, supabase } = useAuth();
 
   const propertyId = params.id as string;
   const [property, setProperty] = useState<Property | null>(null);
+  const [pageLoading, setPageLoading] = useState(true);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -62,37 +61,48 @@ export default function EditPropertyPage() {
   });
 
   useEffect(() => {
-    if (!isStoreLoading) {
-      const prop = properties.find(p => p.id === propertyId);
-      if (prop) {
-        setProperty(prop);
-        setFormData({
-          title: prop.title,
-          price: prop.price,
-          location: prop.location,
-          address: prop.address,
-          propertyType: prop.type,
-          numBedrooms: prop.bedrooms,
-          numBathrooms: prop.bathrooms,
-          area: prop.area,
-          description: prop.description,
-          features: prop.features.join(', '),
-        });
-      }
-    }
-  }, [propertyId, properties, isStoreLoading]);
+    const fetchProperty = async () => {
+        if (!propertyId || !supabase) return;
+        setPageLoading(true);
+
+        const { data, error } = await supabase
+            .from('properties')
+            .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username)`)
+            .eq('id', propertyId)
+            .single();
+
+        if (error || !data) {
+            console.error('Error fetching property for edit:', error);
+            setProperty(null);
+        } else {
+            const fetchedProperty = data as unknown as Property;
+            setProperty(fetchedProperty);
+            setFormData({
+                title: fetchedProperty.title,
+                price: fetchedProperty.price,
+                location: fetchedProperty.location,
+                address: fetchedProperty.address,
+                propertyType: fetchedProperty.type,
+                numBedrooms: fetchedProperty.bedrooms,
+                numBathrooms: fetchedProperty.bathrooms,
+                area: fetchedProperty.area,
+                description: fetchedProperty.description,
+                features: fetchedProperty.features.join(', '),
+            });
+        }
+        setPageLoading(false);
+    };
+    
+    fetchProperty();
+  }, [propertyId, supabase]);
 
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/login');
     }
-    if (!authLoading && user && property && user.id !== property.realtor_id) {
-        toast({ title: 'No autorizado', description: 'No tienes permiso para editar esta propiedad.', variant: 'destructive' });
-        router.push(`/properties/${property.id}`);
-    }
-  }, [user, authLoading, router, property, toast]);
+  }, [user, authLoading, router]);
 
-  if (isStoreLoading || authLoading) {
+  if (pageLoading || authLoading) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -103,6 +113,14 @@ export default function EditPropertyPage() {
   if (!property) {
       return notFound();
   }
+
+  // Security check: ensure the logged-in user is the owner of the property
+  if (user && property && user.id !== property.realtor_id) {
+    toast({ title: 'No autorizado', description: 'No tienes permiso para editar esta propiedad.', variant: 'destructive' });
+    router.push(`/properties/${property.id}`);
+    return null; // Render nothing while redirecting
+  }
+
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -156,7 +174,7 @@ export default function EditPropertyPage() {
       return;
     }
     
-    // Ensure realtor data is preserved
+    // Ensure realtor data is preserved from the original property object
     const fullyUpdatedProperty: Property = { ...property, ...data };
     updateProperty(fullyUpdatedProperty.id, fullyUpdatedProperty);
 
