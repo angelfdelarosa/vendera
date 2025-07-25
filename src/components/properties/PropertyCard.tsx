@@ -28,7 +28,7 @@ const PropertyCardContent = ({ property, isClickable = true }: { property: Prope
     }).format(property.price).replace('US$', 'USD $').replace('DOP', 'DOP $');
 
     return (
-        <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+        <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 shadow-lg">
             <CardHeader className="p-0 relative">
                 <div className="absolute top-2 right-2 z-10">
                     <FavoriteButton property={property} />

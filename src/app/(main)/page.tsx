@@ -132,8 +132,8 @@ function HomePageContent({
   }, [searchParams, properties, isLoadingProperties, setFilteredProperties]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <section className="text-center bg-card shadow-md rounded-xl p-8 md:p-12 mb-12">
+    <div className="container mx-auto px-4 py-12">
+      <section className="text-center bg-card shadow-lg rounded-xl p-8 md:p-12 mb-12">
         <h1 className="font-headline text-4xl md:text-6xl font-bold text-primary mb-4">
           {t('home.title')}
         </h1>
