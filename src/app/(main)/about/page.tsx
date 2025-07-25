@@ -60,21 +60,21 @@ export default function AboutPage() {
              </p>
            </div>
            <div className="grid md:grid-cols-3 gap-8 text-center">
-                <div className="flex flex-col items-center">
+                <div key="why-1" className="flex flex-col items-center">
                     <div className="bg-primary/10 p-4 rounded-full mb-4">
                         <Building className="h-8 w-8 text-primary" />
                     </div>
                     <h3 className="text-xl font-semibold mb-2 text-primary">{t('about.why1_title')}</h3>
                     <p className="text-muted-foreground">{t('about.why1_text')}</p>
                 </div>
-                <div className="flex flex-col items-center">
+                <div key="why-2" className="flex flex-col items-center">
                     <div className="bg-primary/10 p-4 rounded-full mb-4">
                          <Award className="h-8 w-8 text-primary" />
                     </div>
                     <h3 className="text-xl font-semibold mb-2 text-primary">{t('about.why2_title')}</h3>
                     <p className="text-muted-foreground">{t('about.why2_text')}</p>
                 </div>
-                <div className="flex flex-col items-center">
+                <div key="why-3" className="flex flex-col items-center">
                      <div className="bg-primary/10 p-4 rounded-full mb-4">
                         <Heart className="h-8 w-8 text-primary" />
                     </div>
@@ -94,7 +94,7 @@ export default function AboutPage() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {teamMembers.map((user) => (
-              <UserCard key={user.id} user={user} />
+              <UserCard key={user.user_id} user={user} />
             ))}
           </div>
         </section>

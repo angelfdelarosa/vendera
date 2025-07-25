@@ -1010,8 +1010,8 @@ const AuthProvider = ({ children })=>{
         last_message_sender_id,
         last_message_read,
         property:properties(id, title, images),
-        buyer:profiles!conversations_buyer_id_fkey(user_id, full_name, avatar_url),
-        seller:profiles!conversations_seller_id_fkey(user_id, full_name, avatar_url),
+        buyer:profiles!buyer_id(user_id, full_name, avatar_url),
+        seller:profiles!seller_id(user_id, full_name, avatar_url),
         messages(content, created_at, sender_id)
       `).or(`buyer_id.eq.${userId},seller_id.eq.${userId}`).order('created_at', {
             referencedTable: 'messages',
@@ -1022,6 +1022,7 @@ const AuthProvider = ({ children })=>{
             setConversations([]);
         } else {
             const transformedConversations = data.map((convo)=>{
+                if (!convo.buyer || !convo.seller) return null;
                 const otherUser = convo.buyer_id === userId ? convo.seller : convo.buyer;
                 const lastMessage = convo.messages[0];
                 return {
@@ -1043,7 +1044,7 @@ const AuthProvider = ({ children })=>{
                     lastMessage: lastMessage?.content || "No messages yet.",
                     unread: !convo.last_message_read && convo.last_message_sender_id !== userId
                 };
-            });
+            }).filter(Boolean);
             setConversations(transformedConversations);
         }
         setChatLoading(false);
@@ -1136,7 +1137,7 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 168,
+        lineNumber: 170,
         columnNumber: 5
     }, this);
 };
