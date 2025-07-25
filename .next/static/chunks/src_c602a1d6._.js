@@ -947,6 +947,7 @@ const AuthProvider = ({ children })=>{
     _s();
     const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createClient"])();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
+    const pathname = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"])();
     const [user, setUser] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
     const { setConversations, setLoading: setChatLoading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useChatStore"])();
@@ -1033,6 +1034,9 @@ const AuthProvider = ({ children })=>{
                             supabase.removeChannel(conversationsChannel);
                             conversationsChannel = null;
                         }
+                        if (pathname === '/') {
+                            router.replace('/landing');
+                        }
                     }
                     setLoading(false);
                 }
@@ -1059,7 +1063,8 @@ const AuthProvider = ({ children })=>{
         supabase,
         router,
         fetchAndSetConversations,
-        setConversations
+        setConversations,
+        pathname
     ]);
     const login = async (email, pass)=>{
         const { error } = await supabase.auth.signInWithPassword({
@@ -1102,13 +1107,14 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 170,
+        lineNumber: 174,
         columnNumber: 5
     }, this);
 };
-_s(AuthProvider, "rezgUSrvFnvRMef9XrbrMsoBGfU=", false, function() {
+_s(AuthProvider, "bw2Nivakff+rltGZPRftkKS9xng=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"],
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useChatStore"]
     ];
 });

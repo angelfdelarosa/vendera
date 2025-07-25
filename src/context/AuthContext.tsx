@@ -3,7 +3,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import type { User, AuthError, SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useChatStore } from '@/components/chat/use-chat-store';
 import { properties as mockProperties } from '@/lib/mock-data';
@@ -24,6 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const supabase = createClient();
   const router = useRouter();
+  const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { setConversations, setLoading: setChatLoading } = useChatStore();
@@ -106,6 +107,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 supabase.removeChannel(conversationsChannel);
                 conversationsChannel = null;
             }
+             if (pathname === '/') {
+                router.replace('/landing');
+            }
         }
         setLoading(false);
     };
@@ -127,7 +131,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           supabase.removeChannel(conversationsChannel);
       }
     };
-  }, [supabase, router, fetchAndSetConversations, setConversations]);
+  }, [supabase, router, fetchAndSetConversations, setConversations, pathname]);
 
 
   const login = async (email: string, pass: string) => {

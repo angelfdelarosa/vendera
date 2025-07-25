@@ -23,16 +23,15 @@ export function Header() {
     setIsMounted(true);
   }, []);
 
-  const logoHref = user ? "/" : "/";
-  const isLanding = pathname === '/';
+  const logoHref = user ? "/" : "/landing";
+  const isLanding = pathname === '/landing';
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
     };
 
-    // Only add scroll listener if on the root page (which is the landing page for guests)
-    // and the user is not logged in.
+    // Only add scroll listener if on the landing page for guests
     if (isLanding && !user) {
       window.addEventListener("scroll", handleScroll);
       return () => {

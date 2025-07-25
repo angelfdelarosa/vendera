@@ -18,18 +18,6 @@ export default function HomePage() {
   
   const isLoading = isLoadingAuth || isLoadingProperties;
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <LandingPage />;
-  }
-
   return (
     <Suspense fallback={<div>Loading search parameters...</div>}>
       <HomePageContent 
