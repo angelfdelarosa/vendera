@@ -31,19 +31,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchAndSetConversations = useCallback(async (userId: string) => {
     setChatLoading(true);
 
-    // Step 1: Fetch conversations with sender/receiver user objects from auth.users
     const { data: conversationsData, error: conversationsError } = await supabase
       .from('conversations')
       .select(`
         id, 
         created_at, 
-        last_message, 
+        last_message,
+        last_message_at,
         property_id,
-        sender:sender_id(id, email),
-        receiver:receiver_id(id, email)
+        user1:user1_id(id, email),
+        user2:user2_id(id, email)
       `)
-      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
-      .order('created_at', { ascending: false });
+      .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
+      .order('last_message_at', { ascending: false, nullsFirst: false });
 
     if (conversationsError) {
       console.error("Error fetching conversations:", conversationsError);
@@ -60,18 +60,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     const typedConversations = conversationsData as unknown as ConversationFromDB[];
 
-    // Step 2: Collect all unique user and property IDs
     const userIds = new Set<string>();
     const propertyIds = new Set<string>();
     typedConversations.forEach(convo => {
-      if (convo.sender?.id) userIds.add(convo.sender.id);
-      if (convo.receiver?.id) userIds.add(convo.receiver.id);
-      if (convo.property_id) {
-        propertyIds.add(convo.property_id);
-      }
+      if (convo.user1?.id) userIds.add(convo.user1.id);
+      if (convo.user2?.id) userIds.add(convo.user2.id);
+      if (convo.property_id) propertyIds.add(convo.property_id);
     });
 
-    // Step 3: Fetch profiles and properties in parallel
     const [profilesResponse, propertiesResponse] = await Promise.all([
         supabase
           .from('profiles')
@@ -83,12 +79,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           .in('id', Array.from(propertyIds))
     ]);
 
-    if (profilesResponse.error) {
-        console.error("Error fetching profiles:", profilesResponse.error);
-    }
-     if (propertiesResponse.error) {
-        console.error("Error fetching properties:", propertiesResponse.error);
-    }
+    if (profilesResponse.error) console.error("Error fetching profiles:", profilesResponse.error);
+    if (propertiesResponse.error) console.error("Error fetching properties:", propertiesResponse.error);
     
     const profilesMap = new Map<string, UserProfile>(
         profilesResponse.data?.map(p => [p.user_id, p as UserProfile]) || []
@@ -97,9 +89,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         propertiesResponse.data?.map(p => [p.id, p as Pick<Property, 'id' | 'title' | 'images'>]) || []
     );
 
-    // Step 4: Transform conversations with fetched data
     const transformedConversations = typedConversations.map(convo => {
-        const otherUserAuth = convo.sender?.id === userId ? convo.receiver : convo.sender;
+        const otherUserAuth = convo.user1?.id === userId ? convo.user2 : convo.user1;
         const otherUserProfile = profilesMap.get(otherUserAuth?.id || '') || { user_id: otherUserAuth?.id || 'unknown', full_name: otherUserAuth?.email || 'Unknown User', avatar_url: null, username: 'unknown' };
         
         const property = convo.property_id ? propertiesMap.get(convo.property_id) : null;
@@ -109,9 +100,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             user: otherUserProfile,
             property: property || { id: 'deleted-property', title: 'Deleted Property', images: [] },
             messages: [],
-            timestamp: convo.created_at,
+            timestamp: convo.last_message_at || convo.created_at,
             lastMessage: convo.last_message || "No messages yet.",
-            unread: false, // This could be enhanced with a real-time count
+            unread: false,
         } as AppConversation;
     }).filter(c => c.user && c.property);
 
@@ -130,14 +121,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             conversationsChannel = supabase
                 .channel('public:conversations')
                 .on('postgres_changes', 
-                    { event: '*', schema: 'public', table: 'conversations', filter: `or(sender_id.eq.${sessionUser.id},receiver_id.eq.${sessionUser.id})` },
+                    { event: '*', schema: 'public', table: 'conversations', filter: `or(user1_id.eq.${sessionUser.id},user2_id.eq.${sessionUser.id})` },
                     () => {
                         fetchAndSetConversations(sessionUser.id);
                     }
                 )
                 .subscribe();
         } else {
-            // Clear conversations and unsubscribe on logout
             setConversations([]);
             if (conversationsChannel) {
                 supabase.removeChannel(conversationsChannel);

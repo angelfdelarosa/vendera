@@ -618,16 +618,17 @@ const AuthProvider = ({ children })=>{
     const fetchAndSetConversations = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "AuthProvider.useCallback[fetchAndSetConversations]": async (userId)=>{
             setChatLoading(true);
-            // Step 1: Fetch conversations with sender/receiver user objects from auth.users
             const { data: conversationsData, error: conversationsError } = await supabase.from('conversations').select(`
         id, 
         created_at, 
-        last_message, 
+        last_message,
+        last_message_at,
         property_id,
-        sender:sender_id(id, email),
-        receiver:receiver_id(id, email)
-      `).or(`sender_id.eq.${userId},receiver_id.eq.${userId}`).order('created_at', {
-                ascending: false
+        user1:user1_id(id, email),
+        user2:user2_id(id, email)
+      `).or(`user1_id.eq.${userId},user2_id.eq.${userId}`).order('last_message_at', {
+                ascending: false,
+                nullsFirst: false
             });
             if (conversationsError) {
                 console.error("Error fetching conversations:", conversationsError);
@@ -641,29 +642,21 @@ const AuthProvider = ({ children })=>{
                 return;
             }
             const typedConversations = conversationsData;
-            // Step 2: Collect all unique user and property IDs
             const userIds = new Set();
             const propertyIds = new Set();
             typedConversations.forEach({
                 "AuthProvider.useCallback[fetchAndSetConversations]": (convo)=>{
-                    if (convo.sender?.id) userIds.add(convo.sender.id);
-                    if (convo.receiver?.id) userIds.add(convo.receiver.id);
-                    if (convo.property_id) {
-                        propertyIds.add(convo.property_id);
-                    }
+                    if (convo.user1?.id) userIds.add(convo.user1.id);
+                    if (convo.user2?.id) userIds.add(convo.user2.id);
+                    if (convo.property_id) propertyIds.add(convo.property_id);
                 }
             }["AuthProvider.useCallback[fetchAndSetConversations]"]);
-            // Step 3: Fetch profiles and properties in parallel
             const [profilesResponse, propertiesResponse] = await Promise.all([
                 supabase.from('profiles').select('user_id, full_name, avatar_url, username, created_at, email').in('user_id', Array.from(userIds)),
                 supabase.from('properties').select('id, title, images').in('id', Array.from(propertyIds))
             ]);
-            if (profilesResponse.error) {
-                console.error("Error fetching profiles:", profilesResponse.error);
-            }
-            if (propertiesResponse.error) {
-                console.error("Error fetching properties:", propertiesResponse.error);
-            }
+            if (profilesResponse.error) console.error("Error fetching profiles:", profilesResponse.error);
+            if (propertiesResponse.error) console.error("Error fetching properties:", propertiesResponse.error);
             const profilesMap = new Map(profilesResponse.data?.map({
                 "AuthProvider.useCallback[fetchAndSetConversations]": (p)=>[
                         p.user_id,
@@ -676,10 +669,9 @@ const AuthProvider = ({ children })=>{
                         p
                     ]
             }["AuthProvider.useCallback[fetchAndSetConversations]"]) || []);
-            // Step 4: Transform conversations with fetched data
             const transformedConversations = typedConversations.map({
                 "AuthProvider.useCallback[fetchAndSetConversations].transformedConversations": (convo)=>{
-                    const otherUserAuth = convo.sender?.id === userId ? convo.receiver : convo.sender;
+                    const otherUserAuth = convo.user1?.id === userId ? convo.user2 : convo.user1;
                     const otherUserProfile = profilesMap.get(otherUserAuth?.id || '') || {
                         user_id: otherUserAuth?.id || 'unknown',
                         full_name: otherUserAuth?.email || 'Unknown User',
@@ -696,7 +688,7 @@ const AuthProvider = ({ children })=>{
                             images: []
                         },
                         messages: [],
-                        timestamp: convo.created_at,
+                        timestamp: convo.last_message_at || convo.created_at,
                         lastMessage: convo.last_message || "No messages yet.",
                         unread: false
                     };
@@ -724,14 +716,13 @@ const AuthProvider = ({ children })=>{
                             event: '*',
                             schema: 'public',
                             table: 'conversations',
-                            filter: `or(sender_id.eq.${sessionUser.id},receiver_id.eq.${sessionUser.id})`
+                            filter: `or(user1_id.eq.${sessionUser.id},user2_id.eq.${sessionUser.id})`
                         }, {
                             "AuthProvider.useEffect.setupUserSession": ()=>{
                                 fetchAndSetConversations(sessionUser.id);
                             }
                         }["AuthProvider.useEffect.setupUserSession"]).subscribe();
                     } else {
-                        // Clear conversations and unsubscribe on logout
                         setConversations([]);
                         if (conversationsChannel) {
                             supabase.removeChannel(conversationsChannel);
@@ -807,7 +798,7 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 207,
+        lineNumber: 197,
         columnNumber: 5
     }, this);
 };

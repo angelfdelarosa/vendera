@@ -68,6 +68,7 @@ export type ConversationFromDB = {
   created_at: string;
   property_id: string | null;
   last_message: string | null;
-  sender: UserFromAuth | null;
-  receiver: UserFromAuth | null;
+  last_message_at: string | null;
+  user1: UserFromAuth | null;
+  user2: UserFromAuth | null;
 };

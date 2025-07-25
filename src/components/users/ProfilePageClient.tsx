@@ -368,26 +368,30 @@ export default function ProfilePageClient() {
     if (!authUser || !supabase || isOwnProfile) return;
 
     try {
+        // Find if a conversation already exists between the two users
         const { data: existingConvo, error: fetchError } = await supabase
             .from('conversations')
             .select('id')
-            .or(`and(sender_id.eq.${authUser.id},receiver_id.eq.${displayUser.user_id}),and(sender_id.eq.${displayUser.user_id},receiver_id.eq.${authUser.id})`)
+            .or(`(user1_id.eq.${authUser.id},user2_id.eq.${displayUser.user_id}),(user1_id.eq.${displayUser.user_id},user2_id.eq.${authUser.id})`)
             .maybeSingle();
 
         if (fetchError) {
           throw fetchError;
         }
 
+        // If conversation exists, navigate to messages page
         if (existingConvo) {
             router.push('/messages');
             return;
         }
 
+        // If not, create a new conversation
         const { data: newConvo, error: insertError } = await supabase
             .from('conversations')
             .insert({
-                sender_id: authUser.id,
-                receiver_id: displayUser.user_id,
+                user1_id: authUser.id,
+                user2_id: displayUser.user_id,
+                last_message_at: new Date().toISOString(),
             })
             .select('id')
             .single();
