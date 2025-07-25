@@ -1,5 +1,5 @@
 export type Property = {
-  id: string;
+  id?: string;
   title: string;
   price: number;
   currency: 'USD' | 'DOP';
@@ -76,5 +76,3 @@ export type ConversationFromDB = {
     sender_id: string;
   }[];
 };
-
-    
