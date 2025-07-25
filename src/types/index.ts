@@ -1,5 +1,5 @@
 export type Property = {
-  id?: string;
+  id: string;
   title: string;
   price: number;
   currency: 'USD' | 'DOP';
@@ -44,6 +44,7 @@ export interface Conversation {
   messages: Message[];
   timestamp: string;
   unread: boolean;
+  lastMessage?: string;
 }
 
 export interface Rating {

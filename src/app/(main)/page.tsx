@@ -1,8 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useMemo, Suspense } from "react";
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, useEffect, useMemo } from "react";
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { PropertySearchFilters } from "@/components/properties/PropertySearchFilters";
 import type { Property } from "@/types";

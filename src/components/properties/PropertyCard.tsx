@@ -87,6 +87,8 @@ const PropertyCardContent = ({ property, isClickable = true }: { property: Prope
 };
 
 export function PropertyCard({ property, isClickable = true }: PropertyCardProps) {
+  if (!property?.id) return null; // Defensive check for missing property or id
+
   if (isClickable) {
     return (
       <Link href={`/properties/${property.id}`} className="group block h-full">
