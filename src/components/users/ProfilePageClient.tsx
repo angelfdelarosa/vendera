@@ -163,10 +163,10 @@ export default function ProfilePageClient() {
       }
       setLoading(true);
 
-      // Fetch profile data
+      // Fetch profile data from the new view
       const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*, user:users(created_at)')
+        .from('public_profiles')
+        .select('*')
         .eq('user_id', profileId)
         .single();
       
@@ -177,13 +177,7 @@ export default function ProfilePageClient() {
         return;
       }
       
-      const combinedProfile: UserProfile = {
-        ...profileData,
-        created_at: (profileData as any).user.created_at || profileData.created_at,
-      };
-
-      setDisplayUser(combinedProfile);
-
+      setDisplayUser(profileData as UserProfile);
       fetchRatingData(profileData.user_id);
 
       // Fetch properties for this user
@@ -773,3 +767,4 @@ export default function ProfilePageClient() {
     </div>
   );
 }
+
