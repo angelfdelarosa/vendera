@@ -71,8 +71,9 @@ export type ConversationFromDB = {
   seller_id: string;
   last_message_sender_id: string | null;
   last_message_read: boolean;
-  properties: Pick<Property, 'id' | 'title' | 'images'> | null;
-  buyer: UserProfile | null;
-  seller: UserProfile | null;
+  property: Pick<Property, 'id' | 'title' | 'images'>;
+  buyer: UserProfile;
+  seller: UserProfile;
   messages: { content: string }[];
 };
+
