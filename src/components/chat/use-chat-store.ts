@@ -9,12 +9,13 @@ interface ChatState {
   selectConversation: (conversationId: string | null) => void;
   addMessage: (conversationId: string, message: Message) => void;
   setConversations: (conversations: Conversation[]) => void;
+  updateConversation: (conversationId: string, updatedData: Partial<Conversation>) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
   conversations: [],
   selectedConversation: null,
-  setConversations: (conversations) => set({ conversations }),
+  setConversations: (conversations) => set({ conversations, selectedConversation: null }),
   selectConversation: (conversationId) => {
     if (!conversationId) {
       set({ selectedConversation: null });
@@ -24,20 +25,22 @@ export const useChatStore = create<ChatState>((set, get) => ({
     
     set((state) => ({
       selectedConversation: conversation || null,
-      // Mark the selected conversation as read
       conversations: state.conversations.map((c) =>
         c.id === conversationId ? { ...c, unread: false } : c
       ),
     }));
 
-    // Also mark as read in the database
     if (conversation?.unread) {
       const supabase = createClient();
       const markAsRead = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        
         await supabase
           .from('conversations')
           .update({ last_message_read: true })
-          .eq('id', conversationId);
+          .eq('id', conversationId)
+          .neq('last_message_sender_id', user.id);
       };
       markAsRead();
     }
@@ -50,11 +53,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
               ...c,
               messages: [...c.messages, message],
               timestamp: new Date().toISOString(),
+              lastMessage: message.text,
             }
           : c
       ),
     }));
   },
+  updateConversation: (conversationId, updatedData) => {
+    set((state) => ({
+      conversations: state.conversations.map((c) =>
+        c.id === conversationId ? { ...c, ...updatedData } : c
+      ),
+    }));
+  },
 }));
-
-    

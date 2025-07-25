@@ -17,12 +17,11 @@ import { es, enUS } from 'date-fns/locale';
 
 export default function MessagesPage() {
   const { user, loading: authLoading, supabase } = useAuth();
-  const { conversations, selectedConversation, selectConversation, setConversations } = useChatStore();
+  const { conversations, selectedConversation, selectConversation, setConversations, updateConversation } = useChatStore();
   const { t, locale } = useTranslation();
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchConversations = async () => {
+  const fetchAndSetConversations = async () => {
       if (!user || !supabase) return;
 
       setLoading(true);
@@ -40,7 +39,7 @@ export default function MessagesPage() {
           property:properties(id, title, images),
           buyer:profiles!conversations_buyer_id_fkey(user_id, full_name, avatar_url),
           seller:profiles!conversations_seller_id_fkey(user_id, full_name, avatar_url),
-          messages:messages(content, created_at, sender_id)
+          messages(content, created_at, sender_id)
         `)
         .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
         .order('created_at', { referencedTable: 'messages', ascending: false });
@@ -60,12 +59,12 @@ export default function MessagesPage() {
                     username: null
                 },
                 property: {
-                    ...mockProperty, // Spreading a mock to fill required fields
+                    ...mockProperty,
                     id: convo.property?.id || "unknown",
                     title: convo.property?.title || "Conversation",
                     images: convo.property?.images || []
                 },
-                messages: [], // Real messages will be loaded in ChatWindow
+                messages: [],
                 timestamp: lastMessage ? lastMessage.created_at : convo.created_at,
                 lastMessage: lastMessage?.content || "No messages yet.",
                 unread: !convo.last_message_read && convo.last_message_sender_id !== user.id
@@ -75,12 +74,32 @@ export default function MessagesPage() {
       }
       setLoading(false);
     };
-    
+
+  useEffect(() => {
     if (!authLoading) {
-        fetchConversations();
+        fetchAndSetConversations();
     }
   }, [user, authLoading, supabase, setConversations]);
   
+  useEffect(() => {
+    if (!supabase || !user) return;
+
+    const conversationsChannel = supabase.channel('public:conversations')
+        .on('postgres_changes', 
+            { event: '*', schema: 'public', table: 'conversations' },
+            (payload) => {
+                // When a conversation is updated (e.g., last_message_read changes), refetch all.
+                // This is a simple way to ensure the UI is consistent.
+                fetchAndSetConversations();
+            }
+        )
+        .subscribe();
+    
+    return () => {
+        supabase.removeChannel(conversationsChannel);
+    };
+  }, [supabase, user]);
+
   const getTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
     return formatDistanceToNow(date, { addSuffix: true, locale: locale === 'es' ? es : enUS });

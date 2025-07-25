@@ -821,7 +821,8 @@ const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
         conversations: [],
         selectedConversation: null,
         setConversations: (conversations)=>set({
-                conversations
+                conversations,
+                selectedConversation: null
             }),
         selectConversation: (conversationId)=>{
             if (!conversationId) {
@@ -833,19 +834,19 @@ const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
             const conversation = get().conversations.find((c)=>c.id === conversationId);
             set((state)=>({
                     selectedConversation: conversation || null,
-                    // Mark the selected conversation as read
                     conversations: state.conversations.map((c)=>c.id === conversationId ? {
                             ...c,
                             unread: false
                         } : c)
                 }));
-            // Also mark as read in the database
             if (conversation?.unread) {
                 const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
                 const markAsRead = async ()=>{
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (!user) return;
                     await supabase.from('conversations').update({
                         last_message_read: true
-                    }).eq('id', conversationId);
+                    }).eq('id', conversationId).neq('last_message_sender_id', user.id);
                 };
                 markAsRead();
             }
@@ -858,7 +859,16 @@ const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                                 ...c.messages,
                                 message
                             ],
-                            timestamp: new Date().toISOString()
+                            timestamp: new Date().toISOString(),
+                            lastMessage: message.text
+                        } : c)
+                }));
+        },
+        updateConversation: (conversationId, updatedData)=>{
+            set((state)=>({
+                    conversations: state.conversations.map((c)=>c.id === conversationId ? {
+                            ...c,
+                            ...updatedData
                         } : c)
                 }));
         }
