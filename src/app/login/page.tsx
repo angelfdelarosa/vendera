@@ -82,7 +82,7 @@ export default function LoginPage() {
                 </Link>
             </div>
             <Card className="border-none shadow-none">
-                <CardHeader className="text-center">
+                <CardHeader>
                     <CardTitle className="text-3xl font-bold font-headline">{t('login.title')}</CardTitle>
                     <CardDescription>
                         {t('login.subtitle')}

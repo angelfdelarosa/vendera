@@ -93,7 +93,7 @@ export default function SignupPage() {
                 </Link>
             </div>
             <Card className="border-none shadow-none">
-                <CardHeader className="text-center">
+                <CardHeader>
                     <CardTitle className="text-3xl font-bold font-headline">{t('signup.title')}</CardTitle>
                     <CardDescription>
                     {t('signup.subtitle')}
