@@ -1034,9 +1034,6 @@ const AuthProvider = ({ children })=>{
                             supabase.removeChannel(conversationsChannel);
                             conversationsChannel = null;
                         }
-                        if (pathname === '/') {
-                            router.replace('/landing');
-                        }
                     }
                     setLoading(false);
                 }
@@ -1107,7 +1104,7 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 174,
+        lineNumber: 171,
         columnNumber: 5
     }, this);
 };

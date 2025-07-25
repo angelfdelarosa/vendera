@@ -91,8 +91,8 @@ export default function LandingPage() {
                    <Image
                         src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2670&auto=format&fit=crop"
                         alt="Modern house kitchen"
-                        layout="fill"
-                        objectFit="cover"
+                        fill
+                        className="object-cover"
                         data-ai-hint="modern kitchen"
                    />
                 </div>
@@ -123,7 +123,7 @@ export default function LandingPage() {
                 >
                 <CarouselContent>
                     {featuredProperties.map((property, index) => (
-                    <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                    <CarouselItem key={property.id || index} className="md:basis-1/2 lg:basis-1/3">
                         <div className="p-1">
                             <PropertyCard property={property} isClickable={false} />
                         </div>

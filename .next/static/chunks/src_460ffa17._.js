@@ -1182,12 +1182,12 @@ function TestimonialCard({ testimonial }) {
                                 className: "h-5 w-5 fill-current"
                             }, i, false, {
                                 fileName: "[project]/src/components/layout/TestimonialCard.tsx",
-                                lineNumber: 26,
+                                lineNumber: 27,
                                 columnNumber: 42
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/src/components/layout/TestimonialCard.tsx",
-                        lineNumber: 25,
+                        lineNumber: 26,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("blockquote", {
@@ -1199,13 +1199,13 @@ function TestimonialCard({ testimonial }) {
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/layout/TestimonialCard.tsx",
-                        lineNumber: 28,
+                        lineNumber: 29,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/layout/TestimonialCard.tsx",
-                lineNumber: 24,
+                lineNumber: 25,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1220,20 +1220,20 @@ function TestimonialCard({ testimonial }) {
                                 className: "object-cover"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/layout/TestimonialCard.tsx",
-                                lineNumber: 34,
+                                lineNumber: 35,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AvatarFallback"], {
                                 children: fallbackInitial
                             }, void 0, false, {
                                 fileName: "[project]/src/components/layout/TestimonialCard.tsx",
-                                lineNumber: 35,
+                                lineNumber: 36,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/layout/TestimonialCard.tsx",
-                        lineNumber: 33,
+                        lineNumber: 34,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1243,7 +1243,7 @@ function TestimonialCard({ testimonial }) {
                                 children: testimonial.name
                             }, void 0, false, {
                                 fileName: "[project]/src/components/layout/TestimonialCard.tsx",
-                                lineNumber: 38,
+                                lineNumber: 39,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1251,25 +1251,25 @@ function TestimonialCard({ testimonial }) {
                                 children: testimonial.role
                             }, void 0, false, {
                                 fileName: "[project]/src/components/layout/TestimonialCard.tsx",
-                                lineNumber: 39,
+                                lineNumber: 40,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/layout/TestimonialCard.tsx",
-                        lineNumber: 37,
+                        lineNumber: 38,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/layout/TestimonialCard.tsx",
-                lineNumber: 32,
+                lineNumber: 33,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/layout/TestimonialCard.tsx",
-        lineNumber: 23,
+        lineNumber: 24,
         columnNumber: 5
     }, this);
 }
@@ -1757,8 +1757,8 @@ function LandingPage() {
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                                     src: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2670&auto=format&fit=crop",
                                     alt: "Modern house kitchen",
-                                    layout: "fill",
-                                    objectFit: "cover",
+                                    fill: true,
+                                    className: "object-cover",
                                     "data-ai-hint": "modern kitchen"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(main)/landing/page.tsx",
@@ -1837,7 +1837,7 @@ function LandingPage() {
                                                 lineNumber: 127,
                                                 columnNumber: 25
                                             }, this)
-                                        }, index, false, {
+                                        }, property.id || index, false, {
                                             fileName: "[project]/src/app/(main)/landing/page.tsx",
                                             lineNumber: 126,
                                             columnNumber: 21
@@ -2084,7 +2084,6 @@ __turbopack_context__.s({
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$properties$2f$PropertyCard$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/properties/PropertyCard.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$properties$2f$PropertySearchFilters$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/properties/PropertySearchFilters.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/hooks/useTranslation.ts [app-client] (ecmascript)");
@@ -2103,12 +2102,41 @@ var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.sign
 ;
 ;
 ;
-;
-function HomePage() {
+function HomePageContent() {
     _s();
-    const { properties, isLoading: isLoadingProperties } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$PropertyContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePropertyContext"])();
-    const { user, loading: isLoadingAuth } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"])();
-    const isLoading = isLoadingAuth || isLoadingProperties;
+    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTranslation"])();
+    const { properties, isLoading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$PropertyContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePropertyContext"])();
+    const [filteredProperties, setFilteredProperties] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(properties);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "HomePageContent.useEffect": ()=>{
+            if (!isLoading) {
+                setFilteredProperties(properties);
+            }
+        }
+    }["HomePageContent.useEffect"], [
+        properties,
+        isLoading
+    ]);
+    const locations = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "HomePageContent.useMemo[locations]": ()=>{
+            const locationSet = new Set(properties.map({
+                "HomePageContent.useMemo[locations]": (p)=>p.location
+            }["HomePageContent.useMemo[locations]"]));
+            return Array.from(locationSet);
+        }
+    }["HomePageContent.useMemo[locations]"], [
+        properties
+    ]);
+    const propertyTypes = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "HomePageContent.useMemo[propertyTypes]": ()=>{
+            const typeSet = new Set(properties.map({
+                "HomePageContent.useMemo[propertyTypes]": (p)=>p.type
+            }["HomePageContent.useMemo[propertyTypes]"]));
+            return Array.from(typeSet);
+        }
+    }["HomePageContent.useMemo[propertyTypes]"], [
+        properties
+    ]);
     if (isLoading) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "flex justify-center items-center min-h-[calc(100vh-8rem)]",
@@ -2116,95 +2144,15 @@ function HomePage() {
                 className: "h-16 w-16 animate-spin text-primary"
             }, void 0, false, {
                 fileName: "[project]/src/app/(main)/page.tsx",
-                lineNumber: 24,
+                lineNumber: 39,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/page.tsx",
-            lineNumber: 23,
-            columnNumber: 7
+            lineNumber: 38,
+            columnNumber: 8
         }, this);
     }
-    if (!user) {
-        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$main$292f$landing$2f$page$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
-            fileName: "[project]/src/app/(main)/page.tsx",
-            lineNumber: 30,
-            columnNumber: 12
-        }, this);
-    }
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Suspense"], {
-        fallback: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            children: "Loading search parameters..."
-        }, void 0, false, {
-            fileName: "[project]/src/app/(main)/page.tsx",
-            lineNumber: 34,
-            columnNumber: 25
-        }, void 0),
-        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(HomePageContent, {
-            initialProperties: properties,
-            isLoadingProperties: isLoadingProperties
-        }, void 0, false, {
-            fileName: "[project]/src/app/(main)/page.tsx",
-            lineNumber: 35,
-            columnNumber: 7
-        }, this)
-    }, void 0, false, {
-        fileName: "[project]/src/app/(main)/page.tsx",
-        lineNumber: 34,
-        columnNumber: 5
-    }, this);
-}
-_s(HomePage, "/ThxWN25jP+b+/bgMSb3ZMxuuOs=", false, function() {
-    return [
-        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$PropertyContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePropertyContext"],
-        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"]
-    ];
-});
-_c = HomePage;
-function HomePageContent({ initialProperties, isLoadingProperties }) {
-    _s1();
-    const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTranslation"])();
-    const searchParams = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSearchParams"])();
-    const [filteredProperties, setFilteredProperties] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(initialProperties);
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "HomePageContent.useEffect": ()=>{
-            // This effect now only handles the initial global search query from other pages.
-            // Filtering logic is handled by the PropertySearchFilters component.
-            const searchQuery = searchParams.get('q');
-            if (searchQuery) {
-                const results = initialProperties.filter({
-                    "HomePageContent.useEffect.results": (p)=>p.title.toLowerCase().includes(searchQuery.toLowerCase()) || p.location.toLowerCase().includes(searchQuery.toLowerCase()) || p.description.toLowerCase().includes(searchQuery.toLowerCase())
-                }["HomePageContent.useEffect.results"]);
-                setFilteredProperties(results);
-            } else if (!isLoadingProperties) {
-                setFilteredProperties(initialProperties);
-            }
-        }
-    }["HomePageContent.useEffect"], [
-        searchParams,
-        initialProperties,
-        isLoadingProperties
-    ]);
-    const locations = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
-        "HomePageContent.useMemo[locations]": ()=>{
-            const locationSet = new Set(initialProperties.map({
-                "HomePageContent.useMemo[locations]": (p)=>p.location
-            }["HomePageContent.useMemo[locations]"]));
-            return Array.from(locationSet);
-        }
-    }["HomePageContent.useMemo[locations]"], [
-        initialProperties
-    ]);
-    const propertyTypes = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
-        "HomePageContent.useMemo[propertyTypes]": ()=>{
-            const typeSet = new Set(initialProperties.map({
-                "HomePageContent.useMemo[propertyTypes]": (p)=>p.type
-            }["HomePageContent.useMemo[propertyTypes]"]));
-            return Array.from(typeSet);
-        }
-    }["HomePageContent.useMemo[propertyTypes]"], [
-        initialProperties
-    ]);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "container mx-auto px-4 py-12",
         children: [
@@ -2216,7 +2164,7 @@ function HomePageContent({ initialProperties, isLoadingProperties }) {
                         children: t('home.title')
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 84,
+                        lineNumber: 48,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2224,23 +2172,23 @@ function HomePageContent({ initialProperties, isLoadingProperties }) {
                         children: t('home.subtitle')
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 87,
+                        lineNumber: 51,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$properties$2f$PropertySearchFilters$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PropertySearchFilters"], {
-                        allProperties: initialProperties,
+                        allProperties: properties,
                         locations: locations,
                         propertyTypes: propertyTypes,
                         onSearch: (results)=>setFilteredProperties(results)
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 90,
+                        lineNumber: 54,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(main)/page.tsx",
-                lineNumber: 83,
+                lineNumber: 47,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -2250,7 +2198,7 @@ function HomePageContent({ initialProperties, isLoadingProperties }) {
                         children: t('home.featuredListings')
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 99,
+                        lineNumber: 63,
                         columnNumber: 9
                     }, this),
                     filteredProperties.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2259,12 +2207,12 @@ function HomePageContent({ initialProperties, isLoadingProperties }) {
                                 property: property
                             }, property.id, false, {
                                 fileName: "[project]/src/app/(main)/page.tsx",
-                                lineNumber: 105,
+                                lineNumber: 69,
                                 columnNumber: 15
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 103,
+                        lineNumber: 67,
                         columnNumber: 11
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "text-center py-16 bg-card rounded-lg",
@@ -2273,37 +2221,75 @@ function HomePageContent({ initialProperties, isLoadingProperties }) {
                             children: t('home.noProperties')
                         }, void 0, false, {
                             fileName: "[project]/src/app/(main)/page.tsx",
-                            lineNumber: 110,
+                            lineNumber: 74,
                             columnNumber: 14
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 109,
+                        lineNumber: 73,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(main)/page.tsx",
-                lineNumber: 98,
+                lineNumber: 62,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/(main)/page.tsx",
-        lineNumber: 82,
+        lineNumber: 46,
         columnNumber: 5
     }, this);
 }
-_s1(HomePageContent, "AwFuI1zlhNOfifOymRZKrotQP/U=", false, function() {
+_s(HomePageContent, "2MK8bm51szgsndPU6GqKpGVGeRc=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTranslation"],
-        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSearchParams"]
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$PropertyContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePropertyContext"]
     ];
 });
-_c1 = HomePageContent;
+_c = HomePageContent;
+function HomePage() {
+    _s1();
+    const { user, loading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"])();
+    if (loading) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex justify-center items-center min-h-screen",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                className: "h-16 w-16 animate-spin text-primary"
+            }, void 0, false, {
+                fileName: "[project]/src/app/(main)/page.tsx",
+                lineNumber: 89,
+                columnNumber: 13
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/app/(main)/page.tsx",
+            lineNumber: 88,
+            columnNumber: 9
+        }, this);
+    }
+    if (!user) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$main$292f$landing$2f$page$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
+            fileName: "[project]/src/app/(main)/page.tsx",
+            lineNumber: 95,
+            columnNumber: 12
+        }, this);
+    }
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(HomePageContent, {}, void 0, false, {
+        fileName: "[project]/src/app/(main)/page.tsx",
+        lineNumber: 98,
+        columnNumber: 10
+    }, this);
+}
+_s1(HomePage, "EmJkapf7qiLC5Br5eCoEq4veZes=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"]
+    ];
+});
+_c1 = HomePage;
 var _c, _c1;
-__turbopack_context__.k.register(_c, "HomePage");
-__turbopack_context__.k.register(_c1, "HomePageContent");
+__turbopack_context__.k.register(_c, "HomePageContent");
+__turbopack_context__.k.register(_c1, "HomePage");
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(module, globalThis.$RefreshHelpers$);
 }

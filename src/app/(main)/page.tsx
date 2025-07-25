@@ -12,58 +12,34 @@ import { usePropertyContext } from "@/context/PropertyContext";
 import { useAuth } from "@/context/AuthContext";
 import LandingPage from "./landing/page";
 
-export default function HomePage() {
-  const { properties, isLoading: isLoadingProperties } = usePropertyContext();
-  const { user, loading: isLoadingAuth } = useAuth();
-  
-  const isLoading = isLoadingAuth || isLoadingProperties;
-
-  return (
-    <Suspense fallback={<div>Loading search parameters...</div>}>
-      <HomePageContent 
-        initialProperties={properties}
-        isLoadingProperties={isLoadingProperties}
-      />
-    </Suspense>
-  );
-}
-
-function HomePageContent({
-  initialProperties,
-  isLoadingProperties,
-}: {
-  initialProperties: Property[];
-  isLoadingProperties: boolean;
-}) {
+function HomePageContent() {
   const { t } = useTranslation();
-  const searchParams = useSearchParams();
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>(initialProperties);
+  const { properties, isLoading } = usePropertyContext();
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>(properties);
 
-   useEffect(() => {
-    // This effect now only handles the initial global search query from other pages.
-    // Filtering logic is handled by the PropertySearchFilters component.
-    const searchQuery = searchParams.get('q');
-    if (searchQuery) {
-      const results = initialProperties.filter(p => 
-        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredProperties(results);
-    } else if (!isLoadingProperties) {
-        setFilteredProperties(initialProperties);
+  useEffect(() => {
+    if (!isLoading) {
+      setFilteredProperties(properties);
     }
-  }, [searchParams, initialProperties, isLoadingProperties]);
+  }, [properties, isLoading]);
 
   const locations = useMemo(() => {
-    const locationSet = new Set(initialProperties.map(p => p.location));
+    const locationSet = new Set(properties.map(p => p.location));
     return Array.from(locationSet);
-  }, [initialProperties]);
+  }, [properties]);
 
   const propertyTypes = useMemo(() => {
-    const typeSet = new Set(initialProperties.map(p => p.type));
+    const typeSet = new Set(properties.map(p => p.type));
     return Array.from(typeSet);
-  }, [initialProperties]);
+  }, [properties]);
+
+  if (isLoading) {
+    return (
+       <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    )
+  }
   
 
   return (
@@ -76,7 +52,7 @@ function HomePageContent({
           {t('home.subtitle')}
         </p>
         <PropertySearchFilters
-          allProperties={initialProperties}
+          allProperties={properties}
           locations={locations}
           propertyTypes={propertyTypes}
           onSearch={(results) => setFilteredProperties(results)}
@@ -101,4 +77,23 @@ function HomePageContent({
       </section>
     </div>
   );
+}
+
+
+export default function HomePage() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+     return (
+        <div className="flex justify-center items-center min-h-screen">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+    );
+  }
+
+  if (!user) {
+    return <LandingPage />;
+  }
+  
+  return <HomePageContent />
 }

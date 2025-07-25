@@ -107,9 +107,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 supabase.removeChannel(conversationsChannel);
                 conversationsChannel = null;
             }
-             if (pathname === '/') {
-                router.replace('/landing');
-            }
         }
         setLoading(false);
     };
