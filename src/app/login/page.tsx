@@ -142,7 +142,7 @@ export default function LoginPage() {
       </div>
       <div className="hidden bg-muted lg:block">
         <Image
-          src="https://images.unsplash.com/photo-1588854337236-6889d631f3e7?q=80&w=2574&auto=format&fit=crop"
+          src="https://noyztbqdgfniixzmpuac.supabase.co/storage/v1/object/public/logo//login_image.png"
           alt="Image"
           width="1920"
           height="1080"
