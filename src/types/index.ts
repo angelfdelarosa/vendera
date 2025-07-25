@@ -27,6 +27,7 @@ export type UserProfile = {
   full_name: string | null;
   avatar_url: string | null;
   updated_at?: string | null;
+  created_at?: string | null;
 };
 
 export interface Message {

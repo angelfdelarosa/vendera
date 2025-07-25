@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageSquare } from 'lucide-react';
+import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageSquare, Calendar, Home } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -166,7 +166,7 @@ export default function ProfilePageClient() {
       // Fetch profile data
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, user:users(created_at)')
         .eq('user_id', profileId)
         .single();
       
@@ -177,7 +177,13 @@ export default function ProfilePageClient() {
         return;
       }
       
-      setDisplayUser(profileData);
+      const combinedProfile: UserProfile = {
+        ...profileData,
+        created_at: (profileData as any).user.created_at || profileData.created_at,
+      };
+
+      setDisplayUser(combinedProfile);
+
       fetchRatingData(profileData.user_id);
 
       // Fetch properties for this user
@@ -414,6 +420,7 @@ export default function ProfilePageClient() {
 
 
   const userInitial = displayUser.full_name?.charAt(0).toUpperCase() || '?';
+  const memberSince = displayUser.created_at ? new Date(displayUser.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : 'N/A';
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -430,17 +437,36 @@ export default function ProfilePageClient() {
                 </h1>
                  { authUser ? (
                      <>
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4">
-                          <div className="flex items-center gap-2">
-                             <div className="flex items-center text-amber-500">
-                                {[...Array(5)].map((_, i) => (
-                                 <Star key={i} className={cn('w-5 h-5', i < Math.round(ratingData.average) ? 'fill-current' : 'text-muted-foreground fill-muted')} />
-                                ))}
-                              </div>
-                              <span className="text-muted-foreground text-sm">
-                                ({ratingData.count} {t('profile.ratings')})
-                              </span>
-                          </div>
+                        <div className="flex flex-col gap-2 mt-4">
+                            <div className="flex items-center gap-2">
+                                <div className="flex items-center text-amber-500">
+                                    {[...Array(5)].map((_, i) => (
+                                    <Star key={i} className={cn('w-5 h-5', i < Math.round(ratingData.average) ? 'fill-current' : 'text-muted-foreground fill-muted')} />
+                                    ))}
+                                </div>
+                                <span className="text-muted-foreground text-sm">
+                                    {ratingData.average.toFixed(1)} ({ratingData.count} {t('profile.ratings')})
+                                </span>
+                            </div>
+
+                            <div className="text-muted-foreground text-sm flex items-center gap-2">
+                                <Mail className="h-4 w-4" />
+                                <span>{displayUser.username}</span>
+                            </div>
+
+                            <div className="text-muted-foreground text-sm flex items-center gap-2">
+                                <Calendar className="h-4 w-4" />
+                                <span>Miembro desde {memberSince}</span>
+                            </div>
+
+                            <div className="text-muted-foreground text-sm flex items-center gap-2">
+                                <Home className="h-4 w-4" />
+                                <span>{userProperties.length} propiedades publicadas</span>
+                            </div>
+                        </div>
+
+
+                        <div className="flex flex-wrap items-center gap-2 mt-6">
                           {!isOwnProfile && (
                             <>
                                 <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
