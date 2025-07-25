@@ -696,6 +696,7 @@ const AuthProvider = ({ children })=>{
         *,
         buyer:profiles!buyer_id(*),
         seller:profiles!seller_id(*),
+        property:properties(*),
         messages ( content, created_at )
       `).or(`buyer_id.eq.${userId},seller_id.eq.${userId}`).order('created_at', {
             referencedTable: 'messages',
@@ -719,7 +720,8 @@ const AuthProvider = ({ children })=>{
             return {
                 ...convo,
                 lastMessage: convo.messages?.[0]?.content || "No messages yet.",
-                otherUser
+                otherUser,
+                property: convo.property ? convo.property : undefined
             };
         });
         setConversations(transformedConversations);
@@ -795,13 +797,15 @@ const AuthProvider = ({ children })=>{
         setUser(null);
     };
     const signup = async (name, email, pass)=>{
+        const username = `${name.replace(/\s+/g, '').toLowerCase()}${Math.floor(1000 + Math.random() * 9000)}`;
         const { data, error } = await supabase.auth.signUp({
             email,
             password: pass,
             options: {
                 data: {
                     full_name: name,
-                    avatar_url: `https://placehold.co/128x128.png?text=${name.charAt(0)}`
+                    avatar_url: `https://placehold.co/128x128.png?text=${name.charAt(0)}`,
+                    username: username
                 }
             }
         });
@@ -824,7 +828,7 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 167,
+        lineNumber: 172,
         columnNumber: 5
     }, this);
 };

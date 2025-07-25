@@ -6,7 +6,7 @@ import type { User, AuthError, SupabaseClient, RealtimeChannel } from '@supabase
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useChatStore } from '@/components/chat/use-chat-store';
-import type { Conversation as AppConversation, ConversationFromDB } from '@/types';
+import type { Conversation as AppConversation, ConversationFromDB, Property } from '@/types';
 
 
 interface AuthContextType {
@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         *,
         buyer:profiles!buyer_id(*),
         seller:profiles!seller_id(*),
+        property:properties(*),
         messages ( content, created_at )
       `)
       .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
@@ -60,6 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             ...convo,
             lastMessage: convo.messages?.[0]?.content || "No messages yet.",
             otherUser,
+            property: convo.property ? convo.property : undefined
         } as AppConversation;
     });
 
@@ -138,13 +140,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signup = async (name: string, email: string, pass: string) => {
+    const username = `${name.replace(/\s+/g, '').toLowerCase()}${Math.floor(1000 + Math.random() * 9000)}`;
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password: pass,
       options: {
         data: {
           full_name: name,
-          avatar_url: `https://placehold.co/128x128.png?text=${name.charAt(0)}`
+          avatar_url: `https://placehold.co/128x128.png?text=${name.charAt(0)}`,
+          username: username,
         },
       },
     });
