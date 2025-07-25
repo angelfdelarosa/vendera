@@ -201,8 +201,8 @@ export default function ProfilePageClient() {
   }, [profileId, supabase, authLoading]);
 
   
-  const handleDeleteProperty = async (propertyId: string) => {
-    if (!supabase) return;
+  const handleDeleteProperty = async (propertyId?: string) => {
+    if (!supabase || !propertyId) return;
     const { error } = await supabase
       .from('properties')
       .delete()
@@ -419,109 +419,14 @@ export default function ProfilePageClient() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto space-y-8">
-        <Card className="overflow-hidden shadow-lg">
-          <CardHeader className="p-0">
-            <div className="bg-primary/10 h-24" />
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start -mt-20">
-              <div className="flex-grow pt-8">
-                <h1 className="text-3xl font-headline font-bold text-primary">
-                  {displayUser.full_name}
-                </h1>
-                 { authUser ? (
-                     <>
-                        <div className="flex flex-col gap-2 mt-4">
-                            <div className="flex items-center gap-2">
-                                <div className="flex items-center text-amber-500">
-                                    {[...Array(5)].map((_, i) => (
-                                    <Star key={i} className={cn('w-5 h-5', i < Math.round(ratingData.average) ? 'fill-current' : 'text-muted-foreground fill-muted')} />
-                                    ))}
-                                </div>
-                                <span className="text-muted-foreground text-sm">
-                                    {ratingData.average.toFixed(1)} ({ratingData.count} {t('profile.ratings')})
-                                </span>
-                            </div>
-
-                            <div className="text-muted-foreground text-sm flex items-center gap-2">
-                                <Mail className="h-4 w-4" />
-                                <span>{displayUser.username}</span>
-                            </div>
-
-                            <div className="text-muted-foreground text-sm flex items-center gap-2">
-                                <Calendar className="h-4 w-4" />
-                                <span>Miembro desde {memberSince}</span>
-                            </div>
-
-                            <div className="text-muted-foreground text-sm flex items-center gap-2">
-                                <Home className="h-4 w-4" />
-                                <span>{userProperties.length} propiedades publicadas</span>
-                            </div>
-                        </div>
-
-
-                        <div className="flex flex-wrap items-center gap-2 mt-6">
-                          {!isOwnProfile && (
-                            <>
-                                <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button variant="outline" size="sm">Calificar Usuario</Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                        <DialogHeader>
-                                            <DialogTitle>Califica a {displayUser.full_name}</DialogTitle>
-                                            <DialogDescription>
-                                                Tu opinión ayuda a otros a encontrar agentes de confianza.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="flex flex-col items-center gap-4 py-4">
-                                            <div className="flex justify-center items-center gap-2">
-                                                {[...Array(5)].map((_, i) => {
-                                                    const ratingValue = i + 1;
-                                                    return (
-                                                        <Star 
-                                                            key={i} 
-                                                            className={cn("h-8 w-8 cursor-pointer transition-colors", 
-                                                                ratingValue <= (hoverRating || currentRating) ? "text-amber-500 fill-amber-500" : "text-muted-foreground"
-                                                            )}
-                                                            onClick={() => setCurrentRating(ratingValue)}
-                                                            onMouseEnter={() => setHoverRating(ratingValue)}
-                                                            onMouseLeave={() => setHoverRating(0)}
-                                                        />
-                                                    )
-                                                })}
-                                            </div>
-                                            <Textarea 
-                                                placeholder="Deja un comentario anónimo (opcional)..."
-                                                value={ratingComment}
-                                                onChange={(e) => setRatingComment(e.target.value)}
-                                                className="min-h-[100px]"
-                                            />
-                                        </div>
-                                        <DialogFooter>
-                                            <Button variant="ghost" onClick={() => setIsRatingDialogOpen(false)}>Cancelar</Button>
-                                            <Button onClick={handleRatingSubmit} disabled={isRating}>
-                                                {isRating ? <Loader2 className="animate-spin" /> : "Enviar Calificación"}
-                                            </Button>
-                                        </DialogFooter>
-                                    </DialogContent>
-                                </Dialog>
-                                <Button size="sm" onClick={handleStartConversation}>
-                                    <MessageSquare className="mr-2 h-4 w-4" />
-                                    Contactar
-                                </Button>
-                            </>
-                          )}
-                        </div>
-                     </>
-                 ) : (
-                    <p className="text-muted-foreground mt-2">Inicia sesión para ver más detalles.</p>
-                 )}
-              </div>
-              <div className="flex flex-col items-center space-y-2">
-                 <Dialog>
-                  <DialogTrigger asChild>
-                    <Avatar className="h-32 w-32 border-4 border-background bg-background cursor-pointer hover:ring-4 hover:ring-primary transition-all duration-300">
+        <Card className="overflow-hidden shadow-lg rounded-2xl">
+           <CardHeader className="p-0">
+             <div className="bg-primary/10 h-24" />
+           </CardHeader>
+           <CardContent className="p-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between items-center sm:items-start -mt-20">
+                <div className='flex flex-col sm:flex-row items-center gap-4'>
+                    <Avatar className="h-32 w-32 border-4 border-background bg-background">
                       <AvatarImage
                         src={displayUser.avatar_url || undefined}
                         alt="User avatar"
@@ -530,22 +435,23 @@ export default function ProfilePageClient() {
                       />
                       <AvatarFallback>{userInitial}</AvatarFallback>
                     </Avatar>
-                  </DialogTrigger>
-                  <DialogContent className="p-0 border-0 bg-transparent shadow-none max-w-2xl">
-                     <DialogHeader>
-                      <DialogTitle className="sr-only">{t('profile.avatarAlt', { name: displayUser.full_name })}</DialogTitle>
-                    </DialogHeader>
-                     <Image 
-                        src={displayUser.avatar_url || 'https://placehold.co/800x800.png'} 
-                        alt="User avatar enlarged"
-                        width={800}
-                        height={800}
-                        className="rounded-lg object-contain"
-                        data-ai-hint="person face"
-                     />
-                  </DialogContent>
-                </Dialog>
-                  {isOwnProfile && (
+                     <div className="pt-4 text-center sm:text-left">
+                        <h1 className="text-3xl font-headline font-bold text-primary">
+                          {displayUser.full_name}
+                        </h1>
+                         <div className="flex items-center justify-center sm:justify-start text-amber-500 mt-2">
+                             {[...Array(5)].map((_, i) => (
+                             <Star key={i} className={cn('w-5 h-5', i < Math.round(ratingData.average) ? 'fill-current' : 'text-muted-foreground fill-muted')} />
+                             ))}
+                              <span className="text-muted-foreground text-sm ml-2">
+                                 {ratingData.average.toFixed(1)} ({ratingData.count} {t('profile.ratings')})
+                             </span>
+                         </div>
+                    </div>
+                </div>
+
+              <div className="flex-shrink-0 mt-4 sm:mt-0">
+                  {isOwnProfile ? (
                      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                         <DialogTrigger asChild>
                             <Button variant="outline">
@@ -612,8 +518,73 @@ export default function ProfilePageClient() {
                             </DialogFooter>
                         </DialogContent>
                      </Dialog>
+                  ) : authUser && (
+                     <Button size="sm" onClick={handleStartConversation}>
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        Contactar
+                     </Button>
                   )}
               </div>
+            </div>
+            
+            <div className='mt-6 border-t pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center'>
+                 <div className="flex flex-col items-center gap-1">
+                     <span className='text-sm text-muted-foreground'>Email</span>
+                     <span className='font-semibold'>{displayUser.username || 'N/A'}</span>
+                 </div>
+                 <div className="flex flex-col items-center gap-1">
+                     <span className='text-sm text-muted-foreground'>Miembro desde</span>
+                     <span className='font-semibold'>{memberSince}</span>
+                 </div>
+                  <div className="flex flex-col items-center gap-1">
+                     <span className='text-sm text-muted-foreground'>Propiedades</span>
+                     <span className='font-semibold'>{userProperties.length}</span>
+                 </div>
+                 {!isOwnProfile && authUser && (
+                     <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" className='w-full'>Calificar Usuario</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Califica a {displayUser.full_name}</DialogTitle>
+                                <DialogDescription>
+                                    Tu opinión ayuda a otros a encontrar agentes de confianza.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="flex flex-col items-center gap-4 py-4">
+                                <div className="flex justify-center items-center gap-2">
+                                    {[...Array(5)].map((_, i) => {
+                                        const ratingValue = i + 1;
+                                        return (
+                                            <Star 
+                                                key={i} 
+                                                className={cn("h-8 w-8 cursor-pointer transition-colors", 
+                                                    ratingValue <= (hoverRating || currentRating) ? "text-amber-500 fill-amber-500" : "text-muted-foreground"
+                                                )}
+                                                onClick={() => setCurrentRating(ratingValue)}
+                                                onMouseEnter={() => setHoverRating(ratingValue)}
+                                                onMouseLeave={() => setHoverRating(0)}
+                                            />
+                                        )
+                                    })}
+                                </div>
+                                <Textarea 
+                                    placeholder="Deja un comentario anónimo (opcional)..."
+                                    value={ratingComment}
+                                    onChange={(e) => setRatingComment(e.target.value)}
+                                    className="min-h-[100px]"
+                                />
+                            </div>
+                            <DialogFooter>
+                                <Button variant="ghost" onClick={() => setIsRatingDialogOpen(false)}>Cancelar</Button>
+                                <Button onClick={handleRatingSubmit} disabled={isRating}>
+                                    {isRating ? <Loader2 className="animate-spin" /> : "Enviar Calificación"}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                 )}
             </div>
           </CardContent>
         </Card>
@@ -767,4 +738,3 @@ export default function ProfilePageClient() {
     </div>
   );
 }
-

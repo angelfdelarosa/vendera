@@ -501,7 +501,7 @@ function NewPropertyPage() {
     };
     const handleSubmit = async (e)=>{
         e.preventDefault();
-        if (!user) {
+        if (!user || !supabase) {
             toast({
                 title: "Authentication Error",
                 description: "You must be logged in to list a property.",
