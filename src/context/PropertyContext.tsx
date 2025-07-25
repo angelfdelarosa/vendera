@@ -22,7 +22,8 @@ export const PropertyProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(true);
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('properties')
-        .select('*');
+        .select('*')
+        .eq('is_active', true);
 
       if (propertiesError) {
         console.error("Error fetching properties:", propertiesError);

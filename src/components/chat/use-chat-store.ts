@@ -33,21 +33,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
         c.id === conversationId ? { ...c, unread: false } : c
       ),
     }));
-
-    if (conversation?.unread) {
-      const supabase = createClient();
-      const markAsRead = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        
-        await supabase
-          .from('conversations')
-          .update({ last_message_read: true })
-          .eq('id', conversationId)
-          .neq('last_message_sender_id', user.id);
-      };
-      markAsRead();
-    }
   },
   addMessage: (conversationId, message) => {
     set((state) => ({

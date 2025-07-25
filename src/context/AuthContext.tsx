@@ -6,8 +6,7 @@ import type { User, AuthError, SupabaseClient, RealtimeChannel } from '@supabase
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useChatStore } from '@/components/chat/use-chat-store';
-import { properties as mockProperties } from '@/lib/mock-data';
-import type { Conversation as AppConversation } from '@/types';
+import type { Conversation as AppConversation, ConversationFromDB } from '@/types';
 
 
 interface AuthContextType {
@@ -34,50 +33,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data, error } = await supabase
       .from('conversations')
       .select(`
-        id,
-        created_at,
-        property_id,
-        buyer_id,
-        seller_id,
-        last_message_sender_id,
-        last_message_read,
+        *,
         property:properties(id, title, images),
-        buyer:profiles!buyer_id(user_id, full_name, avatar_url),
-        seller:profiles!seller_id(user_id, full_name, avatar_url),
-        messages(content, created_at, sender_id)
+        sender:profiles!sender_id(user_id, full_name, avatar_url),
+        receiver:profiles!receiver_id(user_id, full_name, avatar_url)
       `)
-      .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
-      .order('created_at', { referencedTable: 'messages', ascending: false });
+      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error("Error fetching conversations:", error);
       setConversations([]);
     } else {
        const transformedConversations = data.map(convo => {
-          if (!convo.buyer || !convo.seller) return null;
+          const typedConvo = convo as unknown as ConversationFromDB;
+          if (!typedConvo.sender || !typedConvo.receiver) return null;
 
-          const otherUser = convo.buyer_id === userId ? convo.seller : convo.buyer;
-          const lastMessage = convo.messages[0];
+          const otherUser = typedConvo.sender.user_id === userId ? typedConvo.receiver : typedConvo.sender;
+          
           return {
-              id: convo.id.toString(),
-              user: {
-                  user_id: otherUser.user_id,
-                  full_name: otherUser.full_name,
-                  avatar_url: otherUser.avatar_url,
-                  username: null
-              },
+              id: typedConvo.id.toString(),
+              user: otherUser,
               property: {
-                  ...(convo.property || mockProperties[0]),
-                  id: convo.property?.id || "unknown",
-                  title: convo.property?.title || "Conversation",
-                  images: convo.property?.images || []
-              },
-              messages: [], // Not needed for the global list
-              timestamp: lastMessage ? lastMessage.created_at : convo.created_at,
-              lastMessage: lastMessage?.content || "No messages yet.",
-              unread: !convo.last_message_read && convo.last_message_sender_id !== userId
+                  id: typedConvo.property?.id || "unknown-property",
+                  title: typedConvo.property?.title || "Conversation",
+                  images: typedConvo.property?.images || [],
+              } as any,
+              messages: [],
+              timestamp: typedConvo.created_at,
+              lastMessage: typedConvo.last_message || "No messages yet.",
+              unread: false, // This logic needs to be revisited based on a better schema
           } as AppConversation;
       }).filter(Boolean) as AppConversation[];
+      
       setConversations(transformedConversations);
     }
      setChatLoading(false);
@@ -94,7 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             conversationsChannel = supabase
                 .channel('public:conversations')
                 .on('postgres_changes', 
-                    { event: '*', schema: 'public', table: 'conversations', filter: `or(buyer_id.eq.${sessionUser.id},seller_id.eq.${sessionUser.id})` },
+                    { event: '*', schema: 'public', table: 'conversations', filter: `or(sender_id.eq.${sessionUser.id},receiver_id.eq.${sessionUser.id})` },
                     () => {
                         fetchAndSetConversations(sessionUser.id);
                     }

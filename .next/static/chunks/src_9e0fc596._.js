@@ -1965,7 +1965,7 @@ const PropertyProvider = ({ children })=>{
             const fetchAllProperties = {
                 "PropertyProvider.useEffect.fetchAllProperties": async ()=>{
                     setIsLoading(true);
-                    const { data: propertiesData, error: propertiesError } = await supabase.from('properties').select('*');
+                    const { data: propertiesData, error: propertiesError } = await supabase.from('properties').select('*').eq('is_active', true);
                     if (propertiesError) {
                         console.error("Error fetching properties:", propertiesError);
                         setIsLoading(false);
@@ -2031,7 +2031,7 @@ const PropertyProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/PropertyContext.tsx",
-        lineNumber: 78,
+        lineNumber: 79,
         columnNumber: 5
     }, this);
 };

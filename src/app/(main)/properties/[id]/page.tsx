@@ -40,6 +40,7 @@ async function getPropertyData(propertyId: string): Promise<Property | null> {
         .from('properties')
         .select('*')
         .eq('id', propertyId)
+        .eq('is_active', true)
         .single();
     
     if (propertyError || !propertyData) {

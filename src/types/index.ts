@@ -1,3 +1,4 @@
+
 export type Property = {
   id: string;
   title: string;
@@ -60,20 +61,14 @@ export type ConversationFromDB = {
   id: string;
   created_at: string;
   property_id: string | null;
-  buyer_id: string;
-  seller_id: string;
-  last_message_sender_id: string | null;
-  last_message_read: boolean | null;
+  sender_id: string;
+  receiver_id: string;
+  last_message: string | null;
   property: {
     id: string;
     title: string;
     images: string[];
   } | null;
-  buyer: UserProfile;
-  seller: UserProfile;
-  messages: {
-    content: string;
-    created_at: string;
-    sender_id: string;
-  }[];
+  sender: UserProfile;
+  receiver: UserProfile;
 };
