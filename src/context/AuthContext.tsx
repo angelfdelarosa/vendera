@@ -140,8 +140,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signup = async (name: string, email: string, pass: string) => {
-    const username = `${name.replace(/\s+/g, '').toLowerCase()}${Math.floor(1000 + Math.random() * 9000)}`;
-
     const { data, error } = await supabase.auth.signUp({
       email,
       password: pass,
@@ -149,7 +147,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         data: {
           full_name: name,
           avatar_url: `https://placehold.co/128x128.png?text=${name.charAt(0)}`,
-          username: username,
         },
       },
     });

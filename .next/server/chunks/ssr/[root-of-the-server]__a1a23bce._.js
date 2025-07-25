@@ -797,15 +797,13 @@ const AuthProvider = ({ children })=>{
         setUser(null);
     };
     const signup = async (name, email, pass)=>{
-        const username = `${name.replace(/\s+/g, '').toLowerCase()}${Math.floor(1000 + Math.random() * 9000)}`;
         const { data, error } = await supabase.auth.signUp({
             email,
             password: pass,
             options: {
                 data: {
                     full_name: name,
-                    avatar_url: `https://placehold.co/128x128.png?text=${name.charAt(0)}`,
-                    username: username
+                    avatar_url: `https://placehold.co/128x128.png?text=${name.charAt(0)}`
                 }
             }
         });
@@ -828,7 +826,7 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 172,
+        lineNumber: 169,
         columnNumber: 5
     }, this);
 };
