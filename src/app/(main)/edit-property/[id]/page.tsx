@@ -389,11 +389,11 @@ export default function EditPropertyPage() {
                    </p>
                 </div>
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-                  {currentImageUrls.map((src, index) => (
-                    <div key={src} className="relative group">
+                  {currentImageUrls.map((src) => (
+                    <div key={src} className="relative group aspect-square">
                       <Image
                         src={src}
-                        alt={`Property image ${index + 1}`}
+                        alt={`Property image`}
                         fill
                         className="rounded-md object-cover"
                       />
@@ -409,7 +409,7 @@ export default function EditPropertyPage() {
                     </div>
                   ))}
                   {imagePreviews.map((src, index) => (
-                     <div key={src} className="relative group">
+                     <div key={src} className="relative group aspect-square">
                        <Image
                          src={src}
                          alt={`Preview ${index + 1}`}
@@ -448,6 +448,3 @@ export default function EditPropertyPage() {
     </div>
   );
 }
-
-
-    

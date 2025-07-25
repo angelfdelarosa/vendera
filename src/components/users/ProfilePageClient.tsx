@@ -479,15 +479,16 @@ export default function ProfilePageClient() {
                                             aspect={aspect}
                                             circularCrop
                                           >
-                                            <Image
-                                              ref={imgRef}
-                                              alt="Crop me"
-                                              src={imgSrc}
-                                              width={800}
-                                              height={600}
-                                              onLoad={onImageLoad}
-                                              className="object-contain"
-                                            />
+                                            <div className='relative w-full h-full'>
+                                                <Image
+                                                    ref={imgRef}
+                                                    alt="Crop me"
+                                                    src={imgSrc}
+                                                    fill
+                                                    style={{ objectFit: 'contain' }}
+                                                    onLoad={onImageLoad}
+                                                />
+                                            </div>
                                           </ReactCrop>
                                       </div>
                                     )}
