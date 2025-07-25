@@ -518,7 +518,11 @@ export default function ProfilePageClient() {
                         </DialogContent>
                      </Dialog>
                   ) : authUser && (
-                     <></>
+                     <Button asChild>
+                        <Link href="/messages">
+                            <MessageSquare className="mr-2 h-4 w-4" /> {t('profile.contactSeller')}
+                        </Link>
+                    </Button>
                   )}
               </div>
             </div>
@@ -608,43 +612,36 @@ export default function ProfilePageClient() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {userProperties.map((property) => (
                             <div key={property.id} className="relative group">
-                              <div className="absolute top-2 right-2 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  {isOwnProfile ? (
-                                    <>
-                                       <Button size="icon" variant="outline" className="bg-background" asChild>
-                                         <Link href={`/edit-property/${property.id}`}>
-                                           <Edit className="h-4 w-4" />
-                                         </Link>
-                                       </Button>
-                                       <AlertDialog>
-                                         <AlertDialogTrigger asChild>
-                                           <Button size="icon" variant="destructive">
-                                             <Trash2 className="h-4 w-4" />
-                                           </Button>
-                                         </AlertDialogTrigger>
-                                         <AlertDialogContent>
-                                           <AlertDialogHeader>
-                                             <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                             <AlertDialogDescription>
-                                               Esta acción no se puede deshacer. Esto eliminará permanentemente la propiedad de los servidores.
-                                             </AlertDialogDescription>
-                                           </AlertDialogHeader>
-                                           <AlertDialogFooter>
-                                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                             <AlertDialogAction onClick={() => handleDeleteProperty(property.id)}>
-                                               Sí, eliminar propiedad
-                                             </AlertDialogAction>
-                                           </AlertDialogFooter>
-                                         </AlertDialogContent>
-                                       </AlertDialog>
-                                    </>
-                                  ) : (
-                                      <Button size="sm" onClick={() => handleStartConversation(property.id)}>
-                                        <MessageSquare className="mr-2 h-4 w-4" />
-                                        Contactar
+                               {isOwnProfile && (
+                                <div className="absolute top-2 right-2 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button size="icon" variant="outline" className="bg-background" asChild>
+                                        <Link href={`/edit-property/${property.id}`}>
+                                        <Edit className="h-4 w-4" />
+                                        </Link>
                                     </Button>
-                                  )}
-                               </div>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button size="icon" variant="destructive">
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                            Esta acción no se puede deshacer. Esto eliminará permanentemente la propiedad de los servidores.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteProperty(property.id)}>
+                                            Sí, eliminar propiedad
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
+                               )}
                               <PropertyCard property={property} />
                             </div>
                           ))}

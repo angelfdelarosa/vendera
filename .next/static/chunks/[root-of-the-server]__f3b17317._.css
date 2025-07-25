@@ -1488,6 +1488,10 @@ body {
   background-color: #0000;
 }
 
+.bg-black\/30 {
+  background-color: #0000004d;
+}
+
 .fill-amber-500 {
   fill: #f59e0b;
 }
