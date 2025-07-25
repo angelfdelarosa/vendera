@@ -629,21 +629,25 @@ class UserService {
     // Create a new user with extended profile
     async signUp(email, password, metadata = {}) {
         try {
-            const fullName = metadata.full_name || email.split('@')[0];
+            if (!email || !password) {
+                throw new Error('Email and password are required');
+            }
+            // We only pass the full_name. The database trigger (`handle_new_user`)
+            // is responsible for generating the username and default avatar_url.
+            const userMetadata = {
+                full_name: metadata.full_name || email.split('@')[0]
+            };
             // Sign up with Supabase Auth
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
-                    data: {
-                        full_name: fullName,
-                        avatar_url: metadata.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random`
-                    }
+                    data: userMetadata
                 }
             });
             if (authError) throw authError;
             if (!authData.user) throw new Error("User not created in Auth.");
-            // The trigger 'handle_new_user' should create the profile.
+            // The database trigger will create the profile. 
             // We can fetch it to confirm and return it.
             const profile = await this.getProfile(authData.user.id);
             return {
@@ -654,12 +658,6 @@ class UserService {
             console.error('User signup error:', error);
             throw error;
         }
-    }
-    // Generate a unique username
-    generateUsername(email) {
-        const baseUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/gi, '');
-        const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-        return `${baseUsername}${randomSuffix}`;
     }
     // Update user profile
     async updateProfile(userId, updates) {
@@ -689,14 +687,13 @@ class UserService {
         try {
             const { data, error } = await supabase.from('profiles').select('*, created_at').eq('user_id', userId).single();
             if (error) {
-                // This is expected if the profile is not found, so we don't throw.
                 console.warn('Fetch profile warning:', error);
                 return null;
             }
             return data;
         } catch (error) {
             console.error('Fetch profile error:', error);
-            throw error; // Rethrow for caller to handle
+            throw error;
         }
     }
 }
