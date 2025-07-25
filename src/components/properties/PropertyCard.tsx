@@ -68,7 +68,9 @@ const PropertyCardContent = ({ property, isClickable = true }: { property: Prope
                 conversationId = newConvo.id;
             }
             
-            selectConversation(conversationId);
+            if (conversationId) {
+                selectConversation(conversationId);
+            }
             router.push('/messages');
 
         } catch (error: any) {

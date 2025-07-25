@@ -366,51 +366,6 @@ export default function ProfilePageClient() {
     setIsRating(false);
   };
   
-  const handleStartConversation = async (propertyId: string) => {
-    if (!authUser || !supabase || isOwnProfile || !displayUser) return;
-
-    try {
-        const { data: existingConvo, error: fetchError } = await supabase
-            .from('conversations')
-            .select('id')
-            .eq('buyer_id', authUser.id)
-            .eq('seller_id', displayUser.user_id)
-            .eq('property_id', propertyId)
-            .maybeSingle();
-
-        if (fetchError) throw fetchError;
-
-        let conversationId = existingConvo?.id;
-
-        if (!conversationId) {
-            const { data: newConvo, error: insertError } = await supabase
-                .from('conversations')
-                .insert({
-                    buyer_id: authUser.id,
-                    seller_id: displayUser.user_id,
-                    property_id: propertyId,
-                })
-                .select('id')
-                .single();
-            
-            if (insertError) throw insertError;
-            conversationId = newConvo.id;
-        }
-        
-        selectConversation(conversationId);
-        router.push('/messages');
-
-    } catch (error: any) {
-        console.error("Error starting conversation:", error);
-        toast({
-            title: "Could not start chat",
-            description: error.message,
-            variant: "destructive"
-        });
-    }
-  };
-
-
   const userInitial = displayUser.full_name?.charAt(0).toUpperCase() || '?';
   const memberSince = displayUser.created_at ? new Date(displayUser.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : 'N/A';
 
