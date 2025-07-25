@@ -1,5 +1,10 @@
 {
   "app": {
+    "[project]/src/app/(main)/about/page": [
+      "static/media/jizfRExUiTo99u79B_mh0O6tLR8a8zI-s.p.1499ee84.woff2",
+      "static/media/jizaRExUiTo99u79D0KExcOPIDU-s.p.8c3becd8.woff2",
+      "static/media/nuFiD_vYSZviVYUb_rj3ij__anPXDTzYgEM86xQ-s.p.3ce64794.woff2"
+    ],
     "[project]/src/app/(main)/favorites/page": [
       "static/media/jizfRExUiTo99u79B_mh0O6tLR8a8zI-s.p.1499ee84.woff2",
       "static/media/jizaRExUiTo99u79D0KExcOPIDU-s.p.8c3becd8.woff2",
