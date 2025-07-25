@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { BedDouble, Bath, Ruler, MapPin, Building, Lock, ArrowRight } from 'lucide-react';
+import { BedDouble, Bath, Ruler, MapPin, Building, Lock, MessageSquare } from 'lucide-react';
 import { SimilarProperties } from '@/components/properties/SimilarProperties';
 import { FavoriteButton } from '@/components/properties/FavoriteButton';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,7 @@ import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 import type { Property } from '@/types';
 import { getTranslations } from '@/lib/get-translation';
+import { ContactRealtorButton } from '@/components/chat/ContactRealtorButton';
 
 async function getPropertyData(propertyId: string): Promise<Property | null> {
     const cookieStore = cookies();
@@ -169,40 +170,32 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-16 w-16">
-                      <AvatarImage
-                        src={property.realtor.avatar_url || undefined}
-                        alt={property.realtor.full_name || ''}
-                        data-ai-hint="person face"
-                        className="object-cover"
-                      />
-                      <AvatarFallback>
-                        {property.realtor.full_name?.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-grow">
-                      
-                        <Link
-                          href={`/profile/${property.realtor.user_id}`}
-                          className="font-semibold text-lg hover:underline"
-                        >
-                          {property.realtor.full_name}
-                        </Link>
-                      
-                      <p className="text-sm text-muted-foreground">
-                        {t('property.certifiedRealtor')}
-                      </p>
+                  <Link href={`/profile/${property.realtor.user_id}`}>
+                    <div className="flex items-center gap-4 hover:bg-muted p-2 rounded-lg transition-colors">
+                      <Avatar className="h-16 w-16">
+                        <AvatarImage
+                          src={property.realtor.avatar_url || undefined}
+                          alt={property.realtor.full_name || ''}
+                          data-ai-hint="person face"
+                          className="object-cover"
+                        />
+                        <AvatarFallback>
+                          {property.realtor.full_name?.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-grow">
+                          <p className="font-semibold text-lg hover:underline">
+                            {property.realtor.full_name}
+                          </p>
+                        <p className="text-sm text-muted-foreground">
+                          {t('property.certifiedRealtor')}
+                        </p>
+                      </div>
                     </div>
-                     {user.id !== property.realtor.user_id && (
-                        <Button asChild>
-                           <Link href={`/profile/${property.realtor.user_id}`}>
-                                {t('userCard.viewProfile')}
-                                <ArrowRight className="ml-2 h-4 w-4" />
-                            </Link>
-                        </Button>
-                    )}
-                  </div>
+                  </Link>
+                   {user.id !== property.realtor.user_id && (
+                     <ContactRealtorButton property={property} />
+                   )}
                 </CardContent>
              </Card>
            )}

@@ -563,6 +563,48 @@ const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                             ...updatedData
                         } : c)
                 }));
+        },
+        handleStartConversation: async (property, authUser, supabase)=>{
+            const { conversations } = get();
+            const sellerId = property.realtor_id;
+            if (!authUser || authUser.id === sellerId) {
+                console.log("Cannot start conversation with yourself.");
+                return null;
+            }
+            const existingConversation = conversations.find((c)=>c.property_id === property.id && c.buyer_id === authUser.id && c.seller_id === sellerId);
+            if (existingConversation) {
+                get().selectConversation(existingConversation.id);
+                return existingConversation.id;
+            }
+            // If no existing conversation, create a new one
+            const { data: newConversationData, error } = await supabase.from('conversations').insert({
+                buyer_id: authUser.id,
+                seller_id: sellerId,
+                property_id: property.id
+            }).select(`
+        *,
+        property:properties!inner(id, title, images),
+        buyer:buyer_id!inner(*),
+        seller:seller_id!inner(*)
+      `).single();
+            if (error) {
+                console.error('Error creating conversation:', error);
+                return null;
+            }
+            // Manually add the lastMessage field
+            const newConvo = {
+                ...newConversationData,
+                otherUser: newConversationData.seller,
+                lastMessage: "No messages yet."
+            };
+            set((state)=>({
+                    conversations: [
+                        newConvo,
+                        ...state.conversations
+                    ],
+                    selectedConversation: newConvo
+                }));
+            return newConvo.id;
         }
     }));
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {

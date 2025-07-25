@@ -50,7 +50,6 @@ import { canvasPreview, cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { Textarea } from '../ui/textarea';
-import { useChatStore } from '../chat/use-chat-store';
 
 function centerAspectCrop(
   mediaWidth: number,
@@ -85,7 +84,6 @@ function debounce(fn: Function, ms = 300) {
 export default function ProfilePageClient() {
   const { user: authUser, loading: authLoading, supabase } = useAuth();
   const { deleteProperty } = usePropertyStore();
-  const { selectConversation } = useChatStore();
   const { t } = useTranslation();
   const { toast } = useToast();
   const router = useRouter();
@@ -404,7 +402,7 @@ export default function ProfilePageClient() {
                 </div>
 
               <div className="flex-shrink-0 mt-4 sm:mt-0">
-                  {isOwnProfile ? (
+                  {isOwnProfile && (
                      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                         <DialogTrigger asChild>
                             <Button variant="outline">
@@ -472,12 +470,6 @@ export default function ProfilePageClient() {
                             </DialogFooter>
                         </DialogContent>
                      </Dialog>
-                  ) : authUser && (
-                     <Button asChild>
-                        <Link href="/messages">
-                            <MessageSquare className="mr-2 h-4 w-4" /> {t('profile.contactSeller')}
-                        </Link>
-                    </Button>
                   )}
               </div>
             </div>
