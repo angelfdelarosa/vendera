@@ -68,30 +68,8 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-card">
         <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[calc(100vh-4rem)] lg:min-h-screen">
-                {/* Image Column */}
-                <div className="relative h-[600px] hidden lg:flex items-center justify-center">
-                    <svg
-                        className="absolute w-full h-full"
-                        viewBox="0 0 500 600"
-                        preserveAspectRatio="none"
-                    >
-                        <defs>
-                            <clipPath id="custom-shape">
-                                <path d="M410.9,1.4c-28.7,11.2-46.3,40.1-51.9,70.1c-13.3,71.2-41.2,141-86.4,196.2C226.9,324.2,176,368,131.7,422.5c-22.1,27.2-40,58.9-42.5,93.4c-2,27.1,9,53.8,29.1,70.9l291.2-192c30.2-20,49.2-53,51.8-88.5c2.6-35.5-12.8-69.5-41.2-90.8C384,289.4,342,246,310.8,197.2C287.1,159.3,272.1,117.1,268.4,73C265.6,37.3,279.7,3.1,304.6-6.6l106.3,7.9Z" />
-                            </clipPath>
-                        </defs>
-                        <image 
-                            href="https://images.unsplash.com/photo-1560518883-ce09059eeffa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxidXlpbmc2MjUyMGElMjBob3VzZXxlbnwwfHx8fDE3NTQ0MTU0NzF8MA&ixlib=rb-4.1.0&q=80&w=1080" 
-                            width="100%" 
-                            height="100%" 
-                            clipPath="url(#custom-shape)"
-                            preserveAspectRatio="xMidYMid slice"
-                            data-ai-hint="happy couple new house"
-                        />
-                    </svg>
-                </div>
-                {/* Text Column */}
+            <div className="grid lg:grid-cols-2 gap-12 items-center min-h-screen">
+                 {/* Text Column */}
                 <div className="text-center lg:text-left py-20 lg:py-0">
                     <h1 className="font-headline text-5xl md:text-7xl font-bold text-primary mb-6">
                         {t('landing.hero.title')}
@@ -107,6 +85,16 @@ export default function LandingPage() {
                             <Link href="/about">{t('landing.hero.cta_secondary')}</Link>
                         </Button>
                     </div>
+                </div>
+                {/* Image Column */}
+                <div className="relative h-[500px] w-full hidden lg:block rounded-3xl overflow-hidden shadow-2xl">
+                   <Image
+                        src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2670&auto=format&fit=crop"
+                        alt="Modern house kitchen"
+                        layout="fill"
+                        objectFit="cover"
+                        data-ai-hint="modern kitchen"
+                   />
                 </div>
             </div>
         </div>
@@ -207,4 +195,6 @@ export default function LandingPage() {
     </div>
   );
 }
+    
+
     
