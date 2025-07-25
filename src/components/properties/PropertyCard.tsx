@@ -34,64 +34,11 @@ const PropertyCardContent = ({ property, isClickable = true }: { property: Prope
         maximumFractionDigits: 0,
     }).format(property.price).replace('US$', 'USD $').replace('DOP', 'DOP $');
 
-    const handleStartConversation = async (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (!user || !supabase || user.id === property.realtor_id) return;
-
-        try {
-            const { data: existingConvo, error: fetchError } = await supabase
-                .from('conversations')
-                .select('id')
-                .eq('buyer_id', user.id)
-                .eq('seller_id', property.realtor_id)
-                .eq('property_id', property.id)
-                .maybeSingle();
-
-            if (fetchError) throw fetchError;
-
-            let conversationId = existingConvo?.id;
-
-            if (!conversationId) {
-                const { data: newConvo, error: insertError } = await supabase
-                    .from('conversations')
-                    .insert({
-                        buyer_id: user.id,
-                        seller_id: property.realtor_id,
-                        property_id: property.id,
-                    })
-                    .select('id')
-                    .single();
-                
-                if (insertError) throw insertError;
-                conversationId = newConvo.id;
-            }
-            
-            if (conversationId) {
-                selectConversation(conversationId);
-            }
-            router.push('/messages');
-
-        } catch (error: any) {
-            console.error("Error starting conversation:", error);
-            toast({
-                title: "Could not start chat",
-                description: error.message,
-                variant: "destructive"
-            });
-        }
-  };
-
     return (
         <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 shadow-lg group">
             <CardHeader className="p-0 relative">
                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
-                    {user && user.id !== property.realtor_id && (
-                        <Button size="lg" onClick={handleStartConversation}>
-                            <MessageSquare className="mr-2" /> Contactar
-                        </Button>
-                    )}
+                    {/* Contact button removed as per user request */}
                 </div>
                 <div className="absolute top-2 right-2 z-10">
                     <FavoriteButton property={property} />
