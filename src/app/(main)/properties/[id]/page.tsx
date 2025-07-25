@@ -21,7 +21,6 @@ import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 import type { Property } from '@/types';
 import { getTranslations } from '@/lib/get-translation';
-import { ContactRealtorButton } from '@/components/chat/ContactRealtorButton';
 
 async function getPropertyData(propertyId: string): Promise<Property | null> {
     const cookieStore = cookies();
@@ -193,9 +192,6 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                       </div>
                     </div>
                   </Link>
-                   {user.id !== property.realtor.user_id && (
-                     <ContactRealtorButton property={property} />
-                   )}
                 </CardContent>
              </Card>
            )}

@@ -401,8 +401,8 @@ export default function ProfilePageClient() {
                     </div>
                 </div>
 
-              <div className="flex-shrink-0 mt-4 sm:mt-0">
-                  {isOwnProfile && (
+              <div className="flex-shrink-0 mt-4 sm:mt-0 flex gap-2">
+                  {isOwnProfile ? (
                      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                         <DialogTrigger asChild>
                             <Button variant="outline">
@@ -470,6 +470,12 @@ export default function ProfilePageClient() {
                             </DialogFooter>
                         </DialogContent>
                      </Dialog>
+                  ) : authUser && (
+                     <Button asChild>
+                        <Link href="/messages">
+                            <MessageSquare className="mr-2" /> Contactar al Vendedor
+                        </Link>
+                     </Button>
                   )}
               </div>
             </div>
