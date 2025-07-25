@@ -105,17 +105,6 @@ export default function NewPropertyPage() {
     setIsSubmitting(true);
 
     try {
-        // RLS check: Ensure user has a profile before proceeding
-        const { data: userProfile, error: profileError } = await supabase
-          .from('profiles')
-          .select('user_id')
-          .eq('user_id', user.id)
-          .single();
-
-        if (profileError || !userProfile) {
-            throw new Error("Could not verify your seller profile. Please try again later.");
-        }
-
         let imageUrls: string[] = [];
         if (imageFiles.length > 0) {
             const uploadPromises = imageFiles.map(async (file) => {
@@ -163,15 +152,14 @@ export default function NewPropertyPage() {
           description: formData.description,
           features: features,
           images: imageUrls,
+          is_active: true, // Ensure property is active on creation
         };
         
-
         const { data, error } = await supabase
             .from('properties')
             .insert(newPropertyData)
             .select()
             .single();
-
 
         if (error) {
             console.error('Error inserting property:', error);
@@ -181,7 +169,6 @@ export default function NewPropertyPage() {
         const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url, username').eq('user_id', user.id).single();
 
         if (!profile) {
-            // This case is unlikely now due to the check above, but good for safety
              throw new Error("Could not find realtor data after listing property.");
         }
 
@@ -409,3 +396,5 @@ export default function NewPropertyPage() {
     </div>
   );
 }
+
+    
