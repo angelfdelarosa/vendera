@@ -89,7 +89,7 @@ export default function SignupPage() {
         <div className="mx-auto grid w-[350px] gap-6">
             <div className="flex justify-center">
                 <Link href="/landing">
-                    <Logo />
+                    <Logo layout="vertical" />
                 </Link>
             </div>
             <Card className="border-none shadow-none">
