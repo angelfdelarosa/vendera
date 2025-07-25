@@ -33,21 +33,26 @@ export type UserProfile = {
 };
 
 export interface Message {
-  id: string;
-  text: string;
-  sender: 'buyer' | 'seller';
-  timestamp: string;
+  id: number;
+  created_at: string;
+  conversation_id: string;
+  sender_id: string;
+  content: string;
 }
 
 export interface Conversation {
   id: string;
-  user: UserProfile;
+  created_at: string;
   property: Pick<Property, 'id' | 'title' | 'images'>;
-  messages: Message[];
-  timestamp: string;
-  unread: boolean;
+  buyer: UserProfile;
+  seller: UserProfile;
+  last_message_sender_id: string | null;
+  last_message_read: boolean;
   lastMessage?: string;
+  // This is a client-side field to easily identify the other participant
+  otherUser: UserProfile; 
 }
+
 
 export interface Rating {
   id?: number;
@@ -58,17 +63,16 @@ export interface Rating {
   comment?: string | null;
 }
 
-type UserFromAuth = {
-  id: string;
-  email: string;
-}
-
 export type ConversationFromDB = {
   id: string;
   created_at: string;
-  property_id: string | null;
-  last_message: string | null;
-  last_message_at: string | null;
-  user1: UserFromAuth | null;
-  user2: UserFromAuth | null;
+  property_id: string;
+  buyer_id: string;
+  seller_id: string;
+  last_message_sender_id: string | null;
+  last_message_read: boolean;
+  properties: Pick<Property, 'id' | 'title' | 'images'> | null;
+  buyer: UserProfile | null;
+  seller: UserProfile | null;
+  messages: { content: string }[];
 };

@@ -10,15 +10,16 @@ import {
 import { Button } from '@/components/ui/button';
 import { Bell, Loader2, MessageSquare } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Badge } from '../ui/badge';
 import { useChatStore } from '../chat/use-chat-store';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/context/AuthContext';
 
 export function MessageNotifications() {
   const router = useRouter();
+  const { user } = useAuth();
   const { conversations, selectConversation, loading } = useChatStore();
-  const unreadCount = conversations.filter((c) => c.unread).length;
+  const unreadCount = conversations.filter(c => !c.last_message_read && c.last_message_sender_id !== user?.id).length;
   const { t } = useTranslation();
 
   const handleNotificationClick = (conversationId: string) => {
@@ -61,35 +62,35 @@ export function MessageNotifications() {
                 onClick={() => handleNotificationClick(convo.id)}
               >
                 <Link
-                  href={`/profile/${convo.user.user_id}`}
+                  href={`/profile/${convo.otherUser.user_id}`}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Avatar className="hover:ring-2 hover:ring-primary transition-all">
-                    <AvatarImage src={convo.user.avatar_url || undefined} />
+                    <AvatarImage src={convo.otherUser.avatar_url || undefined} />
                     <AvatarFallback>
-                      {convo.user.full_name?.charAt(0)}
+                      {convo.otherUser.full_name?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                 </Link>
                 <div className="flex-grow overflow-hidden">
                   <div className="flex justify-between items-center">
                     <Link
-                      href={`/profile/${convo.user.user_id}`}
+                      href={`/profile/${convo.otherUser.user_id}`}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <p className="font-semibold text-sm hover:underline">
-                        {convo.user.full_name}
+                        {convo.otherUser.full_name}
                       </p>
                     </Link>
                     <p className="text-xs text-muted-foreground">
-                      {convo.timestamp}
+                      {new Date(convo.created_at).toLocaleTimeString()}
                     </p>
                   </div>
                   <p className="text-sm text-muted-foreground truncate">
-                    {(convo as any).lastMessage}
+                    {convo.lastMessage}
                   </p>
                 </div>
-                {convo.unread && (
+                {!convo.last_message_read && convo.last_message_sender_id !== user?.id && (
                   <div className="w-2 h-2 rounded-full bg-primary mt-1"></div>
                 )}
               </div>

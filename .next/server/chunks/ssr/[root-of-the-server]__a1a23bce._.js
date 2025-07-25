@@ -597,7 +597,7 @@ const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
             }),
         setConversations: (conversations)=>set({
                 conversations,
-                selectedConversation: null,
+                selectedConversation: get().selectedConversation ? conversations.find((c)=>c.id === get().selectedConversation?.id) || null : null,
                 loading: false
             }),
         selectConversation: (conversationId)=>{
@@ -608,26 +608,10 @@ const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                 return;
             }
             const conversation = get().conversations.find((c)=>c.id === conversationId);
-            set((state)=>({
-                    selectedConversation: conversation || null,
-                    conversations: state.conversations.map((c)=>c.id === conversationId ? {
-                            ...c,
-                            unread: false
-                        } : c)
-                }));
-        },
-        addMessage: (conversationId, message)=>{
-            set((state)=>({
-                    conversations: state.conversations.map((c)=>c.id === conversationId ? {
-                            ...c,
-                            messages: [
-                                ...c.messages,
-                                message
-                            ],
-                            timestamp: new Date().toISOString(),
-                            lastMessage: message.text
-                        } : c)
-                }));
+            set({
+                selectedConversation: conversation || null
+            });
+        // Note: Read status should be updated in the backend when messages are fetched/viewed.
         },
         updateConversation: (conversationId, updatedData)=>{
             set((state)=>({
@@ -669,74 +653,43 @@ const AuthProvider = ({ children })=>{
     const { setConversations, setLoading: setChatLoading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useChatStore"])();
     const fetchAndSetConversations = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (userId)=>{
         setChatLoading(true);
-        const { data: conversationsData, error: conversationsError } = await supabase.from('conversations').select(`
-        id, 
-        created_at, 
-        last_message,
-        last_message_at,
-        property_id,
-        user1:user1_id(id, email),
-        user2:user2_id(id, email)
-      `).or(`user1_id.eq.${userId},user2_id.eq.${userId}`).order('last_message_at', {
-            ascending: false,
-            nullsFirst: false
+        const { data, error } = await supabase.from('conversations').select(`
+        *,
+        property:properties!inner(id, title, images),
+        buyer:buyer_id!inner(*),
+        seller:seller_id!inner(*),
+        messages ( content, created_at )
+      `).or(`buyer_id.eq.${userId},seller_id.eq.${userId}`).order('created_at', {
+            referencedTable: 'messages',
+            ascending: false
+        }).limit(1, {
+            referencedTable: 'messages'
         });
-        if (conversationsError) {
-            console.error("Error fetching conversations:", conversationsError);
+        if (error) {
+            console.error("Error fetching conversations:", error);
             setConversations([]);
             setChatLoading(false);
             return;
         }
-        if (!conversationsData || conversationsData.length === 0) {
+        if (!data) {
             setConversations([]);
             setChatLoading(false);
             return;
         }
-        const typedConversations = conversationsData;
-        const userIds = new Set();
-        const propertyIds = new Set();
-        typedConversations.forEach((convo)=>{
-            if (convo.user1?.id) userIds.add(convo.user1.id);
-            if (convo.user2?.id) userIds.add(convo.user2.id);
-            if (convo.property_id) propertyIds.add(convo.property_id);
-        });
-        const [profilesResponse, propertiesResponse] = await Promise.all([
-            supabase.from('profiles').select('user_id, full_name, avatar_url, username, created_at, email').in('user_id', Array.from(userIds)),
-            supabase.from('properties').select('id, title, images').in('id', Array.from(propertyIds))
-        ]);
-        if (profilesResponse.error) console.error("Error fetching profiles:", profilesResponse.error);
-        if (propertiesResponse.error) console.error("Error fetching properties:", propertiesResponse.error);
-        const profilesMap = new Map(profilesResponse.data?.map((p)=>[
-                p.user_id,
-                p
-            ]) || []);
-        const propertiesMap = new Map(propertiesResponse.data?.map((p)=>[
-                p.id,
-                p
-            ]) || []);
-        const transformedConversations = typedConversations.map((convo)=>{
-            const otherUserAuth = convo.user1?.id === userId ? convo.user2 : convo.user1;
-            const otherUserProfile = profilesMap.get(otherUserAuth?.id || '') || {
-                user_id: otherUserAuth?.id || 'unknown',
-                full_name: otherUserAuth?.email || 'Unknown User',
-                avatar_url: null,
-                username: 'unknown'
-            };
-            const property = convo.property_id ? propertiesMap.get(convo.property_id) : null;
+        const transformedConversations = data.map((convo)=>{
+            const otherUser = convo.buyer_id === userId ? convo.seller : convo.buyer;
             return {
                 id: convo.id,
-                user: otherUserProfile,
-                property: property || {
-                    id: 'deleted-property',
-                    title: 'Deleted Property',
-                    images: []
-                },
-                messages: [],
-                timestamp: convo.last_message_at || convo.created_at,
-                lastMessage: convo.last_message || "No messages yet.",
-                unread: false
+                created_at: convo.created_at,
+                property: convo.property,
+                buyer: convo.buyer,
+                seller: convo.seller,
+                last_message_sender_id: convo.last_message_sender_id,
+                last_message_read: convo.last_message_read,
+                lastMessage: convo.messages?.[0]?.content || "No messages yet.",
+                otherUser
             };
-        }).filter((c)=>c.user && c.property);
+        });
         setConversations(transformedConversations);
         setChatLoading(false);
     }, [
@@ -745,24 +698,26 @@ const AuthProvider = ({ children })=>{
         setChatLoading
     ]);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        let conversationsChannel = null;
+        let channel = null;
         const setupUserSession = async (sessionUser)=>{
             setUser(sessionUser);
             if (sessionUser) {
                 await fetchAndSetConversations(sessionUser.id);
-                conversationsChannel = supabase.channel('public:conversations').on('postgres_changes', {
+                // Listen to changes on both conversations and messages tables.
+                channel = supabase.channel('db-changes').on('postgres_changes', {
                     event: '*',
                     schema: 'public',
-                    table: 'conversations',
-                    filter: `or(user1_id.eq.${sessionUser.id},user2_id.eq.${sessionUser.id})`
-                }, ()=>{
-                    fetchAndSetConversations(sessionUser.id);
-                }).subscribe();
+                    table: 'messages'
+                }, ()=>fetchAndSetConversations(sessionUser.id)).on('postgres_changes', {
+                    event: '*',
+                    schema: 'public',
+                    table: 'conversations'
+                }, ()=>fetchAndSetConversations(sessionUser.id)).subscribe();
             } else {
                 setConversations([]);
-                if (conversationsChannel) {
-                    supabase.removeChannel(conversationsChannel);
-                    conversationsChannel = null;
+                if (channel) {
+                    supabase.removeChannel(channel);
+                    channel = null;
                 }
             }
             setLoading(false);
@@ -770,22 +725,21 @@ const AuthProvider = ({ children })=>{
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session)=>{
             const currentUser = session?.user ?? null;
             setupUserSession(currentUser);
-            if (event === 'SIGNED_IN' && router) {
+            if (event === 'SIGNED_IN') {
                 router.refresh();
             }
         });
         return ()=>{
             subscription.unsubscribe();
-            if (conversationsChannel) {
-                supabase.removeChannel(conversationsChannel);
+            if (channel) {
+                supabase.removeChannel(channel);
             }
         };
     }, [
         supabase,
         router,
         fetchAndSetConversations,
-        setConversations,
-        pathname
+        setConversations
     ]);
     const login = async (email, pass)=>{
         const { error } = await supabase.auth.signInWithPassword({
@@ -828,7 +782,7 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 197,
+        lineNumber: 166,
         columnNumber: 5
     }, this);
 };

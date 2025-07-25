@@ -50,6 +50,7 @@ import { canvasPreview, cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { Textarea } from '../ui/textarea';
+import { useChatStore } from '../chat/use-chat-store';
 
 function centerAspectCrop(
   mediaWidth: number,
@@ -84,6 +85,7 @@ function debounce(fn: Function, ms = 300) {
 export default function ProfilePageClient() {
   const { user: authUser, loading: authLoading, supabase } = useAuth();
   const { deleteProperty } = usePropertyStore();
+  const { selectConversation } = useChatStore();
   const { t } = useTranslation();
   const { toast } = useToast();
   const router = useRouter();
@@ -165,7 +167,7 @@ export default function ProfilePageClient() {
 
       // Fetch profile data from the new view
       const { data: profileData, error: profileError } = await supabase
-        .from('public_profiles')
+        .from('profiles')
         .select('*')
         .eq('user_id', profileId)
         .single();
@@ -364,42 +366,38 @@ export default function ProfilePageClient() {
     setIsRating(false);
   };
   
-  const handleStartConversation = async () => {
-    if (!authUser || !supabase || isOwnProfile) return;
+  const handleStartConversation = async (propertyId: string) => {
+    if (!authUser || !supabase || isOwnProfile || !displayUser) return;
 
     try {
-        // Find if a conversation already exists between the two users
         const { data: existingConvo, error: fetchError } = await supabase
             .from('conversations')
             .select('id')
-            .or(`and(user1_id.eq.${authUser.id},user2_id.eq.${displayUser.user_id}),and(user1_id.eq.${displayUser.user_id},user2_id.eq.${authUser.id})`)
+            .eq('buyer_id', authUser.id)
+            .eq('seller_id', displayUser.user_id)
+            .eq('property_id', propertyId)
             .maybeSingle();
 
-        if (fetchError) {
-          throw fetchError;
-        }
+        if (fetchError) throw fetchError;
 
-        // If conversation exists, navigate to messages page
-        if (existingConvo) {
-            router.push('/messages');
-            return;
-        }
+        let conversationId = existingConvo?.id;
 
-        // If not, create a new conversation
-        const { data: newConvo, error: insertError } = await supabase
-            .from('conversations')
-            .insert({
-                user1_id: authUser.id,
-                user2_id: displayUser.user_id,
-                last_message_at: new Date().toISOString(),
-            })
-            .select('id')
-            .single();
-
-        if (insertError) {
-          throw insertError;
+        if (!conversationId) {
+            const { data: newConvo, error: insertError } = await supabase
+                .from('conversations')
+                .insert({
+                    buyer_id: authUser.id,
+                    seller_id: displayUser.user_id,
+                    property_id: propertyId,
+                })
+                .select('id')
+                .single();
+            
+            if (insertError) throw insertError;
+            conversationId = newConvo.id;
         }
         
+        selectConversation(conversationId);
         router.push('/messages');
 
     } catch (error: any) {
@@ -520,10 +518,7 @@ export default function ProfilePageClient() {
                         </DialogContent>
                      </Dialog>
                   ) : authUser && (
-                     <Button size="sm" onClick={handleStartConversation}>
-                        <MessageSquare className="mr-2 h-4 w-4" />
-                        Contactar
-                     </Button>
+                     <></>
                   )}
               </div>
             </div>
@@ -613,36 +608,43 @@ export default function ProfilePageClient() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {userProperties.map((property) => (
                             <div key={property.id} className="relative group">
-                              {isOwnProfile && (
-                                <div className="absolute top-2 right-14 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <Button size="icon" variant="outline" className="bg-background" asChild>
-                                    <Link href={`/edit-property/${property.id}`}>
-                                      <Edit className="h-4 w-4" />
-                                    </Link>
-                                  </Button>
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <Button size="icon" variant="destructive">
-                                        <Trash2 className="h-4 w-4" />
-                                      </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          Esta acción no se puede deshacer. Esto eliminará permanentemente la propiedad de los servidores.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleDeleteProperty(property.id)}>
-                                          Sí, eliminar propiedad
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                </div>
-                              )}
+                              <div className="absolute top-2 right-2 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  {isOwnProfile ? (
+                                    <>
+                                       <Button size="icon" variant="outline" className="bg-background" asChild>
+                                         <Link href={`/edit-property/${property.id}`}>
+                                           <Edit className="h-4 w-4" />
+                                         </Link>
+                                       </Button>
+                                       <AlertDialog>
+                                         <AlertDialogTrigger asChild>
+                                           <Button size="icon" variant="destructive">
+                                             <Trash2 className="h-4 w-4" />
+                                           </Button>
+                                         </AlertDialogTrigger>
+                                         <AlertDialogContent>
+                                           <AlertDialogHeader>
+                                             <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                             <AlertDialogDescription>
+                                               Esta acción no se puede deshacer. Esto eliminará permanentemente la propiedad de los servidores.
+                                             </AlertDialogDescription>
+                                           </AlertDialogHeader>
+                                           <AlertDialogFooter>
+                                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                             <AlertDialogAction onClick={() => handleDeleteProperty(property.id)}>
+                                               Sí, eliminar propiedad
+                                             </AlertDialogAction>
+                                           </AlertDialogFooter>
+                                         </AlertDialogContent>
+                                       </AlertDialog>
+                                    </>
+                                  ) : (
+                                      <Button size="sm" onClick={() => handleStartConversation(property.id)}>
+                                        <MessageSquare className="mr-2 h-4 w-4" />
+                                        Contactar
+                                    </Button>
+                                  )}
+                               </div>
                               <PropertyCard property={property} />
                             </div>
                           ))}

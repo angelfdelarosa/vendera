@@ -9,25 +9,28 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Send, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { chatAssistant } from '@/ai/flows/chat-assistant';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
 import { format } from 'date-fns';
+import { useChatStore } from './use-chat-store';
 
 interface ChatWindowProps {
   conversationId: string;
-  recipient: UserProfile;
 }
 
-export function ChatWindow({ conversationId, recipient }: ChatWindowProps) {
+export function ChatWindow({ conversationId }: ChatWindowProps) {
   const { user: authUser, supabase } = useAuth();
+  const { selectedConversation } = useChatStore();
+
   const [messages, setMessages] = useState<Message[]>([]);
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  const recipient = selectedConversation?.otherUser;
 
   const scrollToBottom = useCallback(() => {
     setTimeout(() => {
@@ -55,18 +58,12 @@ export function ChatWindow({ conversationId, recipient }: ChatWindowProps) {
             console.error("Error fetching messages:", error);
             setMessages([]);
         } else {
-            const formattedMessages: Message[] = data.map(m => ({
-                id: m.id.toString(),
-                text: m.content,
-                sender: m.sender_id === authUser?.id ? 'buyer' : 'seller', // Simplified assumption
-                timestamp: format(new Date(m.created_at), 'p')
-            }));
-            setMessages(formattedMessages);
+            setMessages(data as Message[]);
         }
         setIsLoading(false);
     }
     fetchMessages();
-  }, [conversationId, supabase, authUser?.id]);
+  }, [conversationId, supabase]);
 
   useEffect(() => {
     scrollToBottom();
@@ -78,14 +75,8 @@ export function ChatWindow({ conversationId, recipient }: ChatWindowProps) {
       const channel = supabase.channel(`chat:${conversationId}`)
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` }, 
         (payload) => {
-            const newMessage = payload.new as any;
-            const formattedMessage: Message = {
-                id: newMessage.id.toString(),
-                text: newMessage.content,
-                sender: newMessage.sender_id === authUser?.id ? 'buyer' : 'seller',
-                timestamp: format(new Date(newMessage.created_at), 'p')
-            }
-            setMessages(currentMessages => [...currentMessages, formattedMessage]);
+            const newMessage = payload.new as Message;
+            setMessages(currentMessages => [...currentMessages, newMessage]);
         })
         .subscribe();
       
@@ -98,7 +89,7 @@ export function ChatWindow({ conversationId, recipient }: ChatWindowProps) {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !authUser || !supabase) return;
+    if (!newMessage.trim() || !authUser || !supabase || !selectedConversation) return;
 
     setIsSending(true);
 
@@ -108,7 +99,7 @@ export function ChatWindow({ conversationId, recipient }: ChatWindowProps) {
     const { error } = await supabase
       .from('messages')
       .insert({
-        conversation_id: conversationId,
+        conversation_id: selectedConversation.id,
         sender_id: authUser.id,
         content: textToSend,
       });
@@ -122,12 +113,12 @@ export function ChatWindow({ conversationId, recipient }: ChatWindowProps) {
     setIsSending(false);
   };
   
-  const getAvatar = (sender: 'buyer' | 'seller') => {
-    return sender === 'buyer' ? authUser?.user_metadata.avatar_url : recipient.avatar_url;
+  const getAvatar = (senderId: string) => {
+    return senderId === authUser?.id ? authUser?.user_metadata.avatar_url : recipient?.avatar_url;
   };
 
-  const getInitial = (sender: 'buyer' | 'seller') => {
-    const name = sender === 'buyer' ? authUser?.user_metadata.full_name : recipient.full_name;
+  const getInitial = (senderId: string) => {
+    const name = senderId === authUser?.id ? authUser?.user_metadata.full_name : recipient?.full_name;
     return name ? name.charAt(0).toUpperCase() : 'U';
   }
 
@@ -135,6 +126,14 @@ export function ChatWindow({ conversationId, recipient }: ChatWindowProps) {
     return (
         <div className="flex justify-center items-center h-full">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+    );
+  }
+
+  if (!recipient) {
+     return (
+        <div className="flex justify-center items-center h-full">
+            <p>Error: No recipient found for this conversation.</p>
         </div>
     );
   }
@@ -148,43 +147,43 @@ export function ChatWindow({ conversationId, recipient }: ChatWindowProps) {
               key={message.id}
               className={cn(
                 'flex items-end gap-2',
-                message.sender === 'buyer' ? 'justify-end' : 'justify-start'
+                message.sender_id === authUser?.id ? 'justify-end' : 'justify-start'
               )}
             >
-              {message.sender === 'seller' && (
+              {message.sender_id !== authUser?.id && (
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={getAvatar('seller') || undefined} />
-                  <AvatarFallback>{getInitial('seller')}</AvatarFallback>
+                  <AvatarImage src={getAvatar(message.sender_id) || undefined} />
+                  <AvatarFallback>{getInitial(message.sender_id)}</AvatarFallback>
                 </Avatar>
               )}
               <div
                 className={cn(
                   'max-w-xs rounded-lg p-3 text-sm',
-                  message.sender === 'buyer'
+                  message.sender_id === authUser?.id
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted'
                 )}
               >
-                <p>{message.text}</p>
-                <p className="text-xs opacity-70 mt-1 text-right">{message.timestamp}</p>
+                <p>{message.content}</p>
+                <p className="text-xs opacity-70 mt-1 text-right">{format(new Date(message.created_at), 'p')}</p>
               </div>
-              {message.sender === 'buyer' && (
+              {message.sender_id === authUser?.id && (
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={getAvatar('buyer') || undefined} />
-                  <AvatarFallback>{getInitial('buyer')}</AvatarFallback>
+                  <AvatarImage src={getAvatar(message.sender_id) || undefined} />
+                  <AvatarFallback>{getInitial(message.sender_id)}</AvatarFallback>
                 </Avatar>
               )}
             </div>
           ))}
           {isSending && (
-             <div className="flex items-end gap-2 justify-start">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={getAvatar('buyer') || undefined} />
-                  <AvatarFallback>{getInitial('buyer')}</AvatarFallback>
-                </Avatar>
-                 <div className="bg-muted rounded-lg p-3 flex items-center">
-                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+             <div className="flex items-end gap-2 justify-end">
+                 <div className="bg-primary rounded-lg p-3 flex items-center">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary-foreground" />
                  </div>
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={getAvatar(authUser?.id || '') || undefined} />
+                  <AvatarFallback>{getInitial(authUser?.id || '')}</AvatarFallback>
+                </Avatar>
              </div>
           )}
         </div>

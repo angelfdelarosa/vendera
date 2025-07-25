@@ -7,7 +7,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Loader2, MessageCircle, MessagesSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Property } from '@/types';
 import { useChatStore } from '@/components/chat/use-chat-store';
 import Link from 'next/link';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -23,6 +22,7 @@ export default function MessagesPage() {
   const isLoading = authLoading || chatLoading;
   
   const getTimestamp = (timestamp: string) => {
+    if (!timestamp) return "just now";
     try {
         const date = new Date(timestamp);
         return formatDistanceToNow(date, { addSuffix: true, locale: locale === 'es' ? es : enUS });
@@ -81,25 +81,25 @@ export default function MessagesPage() {
                   selectedConversation?.id === convo.id ? "bg-muted" : "hover:bg-muted/50"
                 )}
               >
-                <Link href={`/profile/${convo.user.user_id}`} onClick={(e) => e.stopPropagation()}>
+                <Link href={`/profile/${convo.otherUser.user_id}`} onClick={(e) => e.stopPropagation()}>
                     <Avatar className="h-10 w-10 hover:ring-2 hover:ring-primary transition-all">
-                      <AvatarImage src={convo.user.avatar_url || undefined} />
-                      <AvatarFallback>{convo.user.full_name?.charAt(0)}</AvatarFallback>
+                      <AvatarImage src={convo.otherUser.avatar_url || undefined} />
+                      <AvatarFallback>{convo.otherUser.full_name?.charAt(0)}</AvatarFallback>
                     </Avatar>
                 </Link>
                 <div className="flex-grow overflow-hidden">
                    <div className="flex justify-between items-center">
-                    <Link href={`/profile/${convo.user.user_id}`} onClick={(e) => e.stopPropagation()}>
-                        <p className="font-semibold text-sm truncate hover:underline">{convo.user.full_name}</p>
+                    <Link href={`/profile/${convo.otherUser.user_id}`} onClick={(e) => e.stopPropagation()}>
+                        <p className="font-semibold text-sm truncate hover:underline">{convo.otherUser.full_name}</p>
                     </Link>
-                     <p className="text-xs text-muted-foreground flex-shrink-0">{getTimestamp(convo.timestamp)}</p>
+                     <p className="text-xs text-muted-foreground flex-shrink-0">{getTimestamp(convo.created_at)}</p>
                    </div>
                     <p className="text-xs text-muted-foreground truncate">
                         {t('messages.re')} {t(convo.property.title)}
                     </p>
-                   <p className="text-sm text-muted-foreground truncate">{ (convo as any).lastMessage }</p>
+                   <p className="text-sm text-muted-foreground truncate">{ convo.lastMessage }</p>
                 </div>
-                 {convo.unread && <div className="w-2 h-2 rounded-full bg-primary mt-1 flex-shrink-0"></div>}
+                 {!convo.last_message_read && convo.last_message_sender_id !== user?.id && <div className="w-2 h-2 rounded-full bg-primary mt-1 flex-shrink-0"></div>}
               </button>
             ))}
           </nav>
@@ -109,7 +109,6 @@ export default function MessagesPage() {
             <ChatWindow
               key={selectedConversation.id}
               conversationId={selectedConversation.id}
-              recipient={selectedConversation.user}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">

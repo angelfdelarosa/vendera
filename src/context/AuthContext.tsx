@@ -31,118 +31,87 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchAndSetConversations = useCallback(async (userId: string) => {
     setChatLoading(true);
 
-    const { data: conversationsData, error: conversationsError } = await supabase
+    const { data, error } = await supabase
       .from('conversations')
       .select(`
-        id, 
-        created_at, 
-        last_message,
-        last_message_at,
-        property_id,
-        user1:user1_id(id, email),
-        user2:user2_id(id, email)
+        *,
+        property:properties!inner(id, title, images),
+        buyer:buyer_id!inner(*),
+        seller:seller_id!inner(*),
+        messages ( content, created_at )
       `)
-      .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
-      .order('last_message_at', { ascending: false, nullsFirst: false });
+      .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
+      .order('created_at', { referencedTable: 'messages', ascending: false })
+      .limit(1, { referencedTable: 'messages' });
 
-    if (conversationsError) {
-      console.error("Error fetching conversations:", conversationsError);
-      setConversations([]);
-      setChatLoading(false);
-      return;
-    }
 
-    if (!conversationsData || conversationsData.length === 0) {
+    if (error) {
+      console.error("Error fetching conversations:", error);
       setConversations([]);
       setChatLoading(false);
       return;
     }
     
-    const typedConversations = conversationsData as unknown as ConversationFromDB[];
+    if (!data) {
+        setConversations([]);
+        setChatLoading(false);
+        return;
+    }
 
-    const userIds = new Set<string>();
-    const propertyIds = new Set<string>();
-    typedConversations.forEach(convo => {
-      if (convo.user1?.id) userIds.add(convo.user1.id);
-      if (convo.user2?.id) userIds.add(convo.user2.id);
-      if (convo.property_id) propertyIds.add(convo.property_id);
-    });
-
-    const [profilesResponse, propertiesResponse] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('user_id, full_name, avatar_url, username, created_at, email')
-          .in('user_id', Array.from(userIds)),
-        supabase
-          .from('properties')
-          .select('id, title, images')
-          .in('id', Array.from(propertyIds))
-    ]);
-
-    if (profilesResponse.error) console.error("Error fetching profiles:", profilesResponse.error);
-    if (propertiesResponse.error) console.error("Error fetching properties:", propertiesResponse.error);
-    
-    const profilesMap = new Map<string, UserProfile>(
-        profilesResponse.data?.map(p => [p.user_id, p as UserProfile]) || []
-    );
-    const propertiesMap = new Map<string, Pick<Property, 'id' | 'title' | 'images'>>(
-        propertiesResponse.data?.map(p => [p.id, p as Pick<Property, 'id' | 'title' | 'images'>]) || []
-    );
-
-    const transformedConversations = typedConversations.map(convo => {
-        const otherUserAuth = convo.user1?.id === userId ? convo.user2 : convo.user1;
-        const otherUserProfile = profilesMap.get(otherUserAuth?.id || '') || { user_id: otherUserAuth?.id || 'unknown', full_name: otherUserAuth?.email || 'Unknown User', avatar_url: null, username: 'unknown' };
-        
-        const property = convo.property_id ? propertiesMap.get(convo.property_id) : null;
-
+    const transformedConversations = (data as unknown as ConversationFromDB[]).map(convo => {
+        const otherUser = convo.buyer_id === userId ? convo.seller! : convo.buyer!;
         return {
             id: convo.id,
-            user: otherUserProfile,
-            property: property || { id: 'deleted-property', title: 'Deleted Property', images: [] },
-            messages: [],
-            timestamp: convo.last_message_at || convo.created_at,
-            lastMessage: convo.last_message || "No messages yet.",
-            unread: false,
+            created_at: convo.created_at,
+            property: convo.property!,
+            buyer: convo.buyer!,
+            seller: convo.seller!,
+            last_message_sender_id: convo.last_message_sender_id,
+            last_message_read: convo.last_message_read,
+            lastMessage: convo.messages?.[0]?.content || "No messages yet.",
+            otherUser,
         } as AppConversation;
-    }).filter(c => c.user && c.property);
+    });
 
     setConversations(transformedConversations);
     setChatLoading(false);
   }, [supabase, setConversations, setChatLoading]);
   
   useEffect(() => {
-    let conversationsChannel: RealtimeChannel | null = null;
+    let channel: RealtimeChannel | null = null;
 
     const setupUserSession = async (sessionUser: User | null) => {
         setUser(sessionUser);
 
         if (sessionUser) {
             await fetchAndSetConversations(sessionUser.id);
-            conversationsChannel = supabase
-                .channel('public:conversations')
+            // Listen to changes on both conversations and messages tables.
+             channel = supabase
+                .channel('db-changes')
                 .on('postgres_changes', 
-                    { event: '*', schema: 'public', table: 'conversations', filter: `or(user1_id.eq.${sessionUser.id},user2_id.eq.${sessionUser.id})` },
-                    () => {
-                        fetchAndSetConversations(sessionUser.id);
-                    }
+                    { event: '*', schema: 'public', table: 'messages' },
+                    () => fetchAndSetConversations(sessionUser.id)
+                )
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'conversations' },
+                    () => fetchAndSetConversations(sessionUser.id)
                 )
                 .subscribe();
         } else {
             setConversations([]);
-            if (conversationsChannel) {
-                supabase.removeChannel(conversationsChannel);
-                conversationsChannel = null;
+            if (channel) {
+                supabase.removeChannel(channel);
+                channel = null;
             }
         }
         setLoading(false);
     };
 
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         const currentUser = session?.user ?? null;
         setupUserSession(currentUser);
-        if (event === 'SIGNED_IN' && router) {
+        if (event === 'SIGNED_IN') {
           router.refresh();
         }
       }
@@ -150,11 +119,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return () => {
       subscription.unsubscribe();
-      if (conversationsChannel) {
-          supabase.removeChannel(conversationsChannel);
+      if (channel) {
+          supabase.removeChannel(channel);
       }
     };
-  }, [supabase, router, fetchAndSetConversations, setConversations, pathname]);
+  }, [supabase, router, fetchAndSetConversations, setConversations]);
 
 
   const login = async (email: string, pass: string) => {
