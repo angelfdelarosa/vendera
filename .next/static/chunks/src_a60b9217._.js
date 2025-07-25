@@ -1156,7 +1156,7 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 var { g: global, __dirname, k: __turbopack_refresh__, m: module } = __turbopack_context__;
 {
 __turbopack_context__.s({
-    "default": (()=>HomePage)
+    "default": (()=>__TURBOPACK__default__export__)
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
@@ -1174,39 +1174,39 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-function HomePageContent() {
+function HomePage() {
     _s();
     const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTranslation"])();
     const { properties, isLoading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$PropertyContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePropertyContext"])();
     const [filteredProperties, setFilteredProperties] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(properties);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "HomePageContent.useEffect": ()=>{
+        "HomePage.useEffect": ()=>{
             if (!isLoading) {
                 setFilteredProperties(properties);
             }
         }
-    }["HomePageContent.useEffect"], [
+    }["HomePage.useEffect"], [
         properties,
         isLoading
     ]);
     const locations = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
-        "HomePageContent.useMemo[locations]": ()=>{
+        "HomePage.useMemo[locations]": ()=>{
             const locationSet = new Set(properties.map({
-                "HomePageContent.useMemo[locations]": (p)=>p.location
-            }["HomePageContent.useMemo[locations]"]));
+                "HomePage.useMemo[locations]": (p)=>p.location
+            }["HomePage.useMemo[locations]"]));
             return Array.from(locationSet);
         }
-    }["HomePageContent.useMemo[locations]"], [
+    }["HomePage.useMemo[locations]"], [
         properties
     ]);
     const propertyTypes = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
-        "HomePageContent.useMemo[propertyTypes]": ()=>{
+        "HomePage.useMemo[propertyTypes]": ()=>{
             const typeSet = new Set(properties.map({
-                "HomePageContent.useMemo[propertyTypes]": (p)=>p.type
-            }["HomePageContent.useMemo[propertyTypes]"]));
+                "HomePage.useMemo[propertyTypes]": (p)=>p.type
+            }["HomePage.useMemo[propertyTypes]"]));
             return Array.from(typeSet);
         }
-    }["HomePageContent.useMemo[propertyTypes]"], [
+    }["HomePage.useMemo[propertyTypes]"], [
         properties
     ]);
     if (isLoading) {
@@ -1236,7 +1236,7 @@ function HomePageContent() {
                         children: t('home.title')
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 45,
+                        lineNumber: 44,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1244,7 +1244,7 @@ function HomePageContent() {
                         children: t('home.subtitle')
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 48,
+                        lineNumber: 47,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$properties$2f$PropertySearchFilters$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PropertySearchFilters"], {
@@ -1254,13 +1254,13 @@ function HomePageContent() {
                         onSearch: (results)=>setFilteredProperties(results)
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 51,
+                        lineNumber: 50,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(main)/page.tsx",
-                lineNumber: 44,
+                lineNumber: 43,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -1270,7 +1270,7 @@ function HomePageContent() {
                         children: t('home.featuredListings')
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 60,
+                        lineNumber: 59,
                         columnNumber: 9
                     }, this),
                     filteredProperties.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1279,12 +1279,12 @@ function HomePageContent() {
                                 property: property
                             }, property.id, false, {
                                 fileName: "[project]/src/app/(main)/page.tsx",
-                                lineNumber: 66,
+                                lineNumber: 65,
                                 columnNumber: 15
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 64,
+                        lineNumber: 63,
                         columnNumber: 11
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "text-center py-16 bg-card rounded-lg",
@@ -1293,45 +1293,37 @@ function HomePageContent() {
                             children: t('home.noProperties')
                         }, void 0, false, {
                             fileName: "[project]/src/app/(main)/page.tsx",
-                            lineNumber: 71,
+                            lineNumber: 70,
                             columnNumber: 14
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 70,
+                        lineNumber: 69,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(main)/page.tsx",
-                lineNumber: 59,
+                lineNumber: 58,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/(main)/page.tsx",
-        lineNumber: 43,
+        lineNumber: 42,
         columnNumber: 5
     }, this);
 }
-_s(HomePageContent, "2MK8bm51szgsndPU6GqKpGVGeRc=", false, function() {
+_s(HomePage, "2MK8bm51szgsndPU6GqKpGVGeRc=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTranslation"],
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$PropertyContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePropertyContext"]
     ];
 });
-_c = HomePageContent;
-function HomePage() {
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(HomePageContent, {}, void 0, false, {
-        fileName: "[project]/src/app/(main)/page.tsx",
-        lineNumber: 81,
-        columnNumber: 10
-    }, this);
-}
-_c1 = HomePage;
-var _c, _c1;
-__turbopack_context__.k.register(_c, "HomePageContent");
-__turbopack_context__.k.register(_c1, "HomePage");
+_c = HomePage;
+const __TURBOPACK__default__export__ = HomePage;
+var _c;
+__turbopack_context__.k.register(_c, "HomePage");
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(module, globalThis.$RefreshHelpers$);
 }

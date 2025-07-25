@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import { PropertyCard } from '@/components/properties/PropertyCard';
-import { MessageSquare, Search, Home, Star, ShieldCheck, ArrowRight } from 'lucide-react';
+import { MessageSquare, Search, Home, ArrowRight } from 'lucide-react';
 import { TestimonialCard, type Testimonial } from '@/components/layout/TestimonialCard';
 import { mockUsers, properties as mockProperties } from '@/lib/mock-data';
 import {
@@ -122,10 +122,10 @@ export default function LandingPage() {
                 className="w-full"
                 >
                 <CarouselContent>
-                    {featuredProperties.map((property, index) => (
-                    <CarouselItem key={property.id || index} className="md:basis-1/2 lg:basis-1/3">
+                    {featuredProperties.map((property) => (
+                    <CarouselItem key={property.id} className="md:basis-1/2 lg:basis-1/3">
                         <div className="p-1">
-                            <PropertyCard property={property} isClickable={false} />
+                            <PropertyCard property={property} isClickable={true} />
                         </div>
                     </CarouselItem>
                     ))}

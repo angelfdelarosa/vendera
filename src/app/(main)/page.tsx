@@ -9,7 +9,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { Loader2 } from "lucide-react";
 import { usePropertyContext } from "@/context/PropertyContext";
 
-function HomePageContent() {
+function HomePage() {
   const { t } = useTranslation();
   const { properties, isLoading } = usePropertyContext();
   const [filteredProperties, setFilteredProperties] = useState<Property[]>(properties);
@@ -37,7 +37,6 @@ function HomePageContent() {
       </div>
     )
   }
-  
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -77,6 +76,4 @@ function HomePageContent() {
 }
 
 
-export default function HomePage() {
-  return <HomePageContent />
-}
+export default HomePage;
