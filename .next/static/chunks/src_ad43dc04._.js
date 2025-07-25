@@ -564,13 +564,13 @@ const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                         } : c)
                 }));
         },
-        handleStartConversation: async (property, authUser, supabase)=>{
-            if (!authUser || authUser.id === property.realtor.user_id) {
+        handleStartConversation: async (otherUser, authUser, supabase)=>{
+            if (!authUser || authUser.id === otherUser.user_id) {
                 console.log("Cannot start conversation with yourself.");
                 return null;
             }
-            // Check if a conversation already exists for this trio
-            const { data: existing, error: existingError } = await supabase.from('conversations').select('id').eq('buyer_id', authUser.id).eq('seller_id', property.realtor_id).eq('property_id', property.id).maybeSingle();
+            // Check if a conversation already exists between the two users
+            const { data: existing, error: existingError } = await supabase.from('conversations').select('id').or(`and(buyer_id.eq.${authUser.id},seller_id.eq.${otherUser.user_id}),and(buyer_id.eq.${otherUser.user_id},seller_id.eq.${authUser.id})`).maybeSingle();
             if (existingError) {
                 console.error("Error checking for existing conversation", existingError);
                 return null;
@@ -579,22 +579,19 @@ const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                 get().selectConversation(existing.id);
                 return existing.id;
             }
-            // If no existing conversation, create a new one
+            // If no existing conversation, create a new one. Auth user is the buyer by default.
             const { data: newConversationData, error } = await supabase.from('conversations').insert({
                 buyer_id: authUser.id,
-                seller_id: property.realtor_id,
-                property_id: property.id
+                seller_id: otherUser.user_id
             }).select(`
         *,
-        property:properties!inner(id, title, images),
-        buyer:buyer_id!inner(*),
-        seller:seller_id!inner(*)
+        buyer:profiles!buyer_id(*),
+        seller:profiles!seller_id(*)
       `).single();
             if (error) {
                 console.error('Error creating conversation:', error);
                 return null;
             }
-            // Manually construct the full conversation object for the state
             const newConvo = {
                 ...newConversationData,
                 otherUser: newConversationData.seller,
@@ -640,18 +637,14 @@ const AuthProvider = ({ children })=>{
     _s();
     const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createClient"])();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
-    const pathname = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"])();
-    const [user, setUser] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
-    const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
     const { setConversations, setLoading: setChatLoading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useChatStore"])();
     const fetchAndSetConversations = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "AuthProvider.useCallback[fetchAndSetConversations]": async (userId)=>{
             setChatLoading(true);
             const { data, error } = await supabase.from('conversations').select(`
         *,
-        property:properties!inner(id, title, images),
-        buyer:buyer_id!inner(*),
-        seller:seller_id!inner(*),
+        buyer:profiles!buyer_id(*),
+        seller:profiles!seller_id(*),
         messages ( content, created_at )
       `).or(`buyer_id.eq.${userId},seller_id.eq.${userId}`).order('created_at', {
                 referencedTable: 'messages',
@@ -674,13 +667,7 @@ const AuthProvider = ({ children })=>{
                 "AuthProvider.useCallback[fetchAndSetConversations].transformedConversations": (convo)=>{
                     const otherUser = convo.buyer_id === userId ? convo.seller : convo.buyer;
                     return {
-                        id: convo.id,
-                        created_at: convo.created_at,
-                        property: convo.property,
-                        buyer: convo.buyer,
-                        seller: convo.seller,
-                        last_message_sender_id: convo.last_message_sender_id,
-                        last_message_read: convo.last_message_read,
+                        ...convo,
                         lastMessage: convo.messages?.[0]?.content || "No messages yet.",
                         otherUser
                     };
@@ -699,7 +686,6 @@ const AuthProvider = ({ children })=>{
             let channel = null;
             const setupUserSession = {
                 "AuthProvider.useEffect.setupUserSession": async (sessionUser)=>{
-                    setUser(sessionUser);
                     if (sessionUser) {
                         await fetchAndSetConversations(sessionUser.id);
                         // Listen to changes on both conversations and messages tables.
@@ -726,9 +712,20 @@ const AuthProvider = ({ children })=>{
                     setLoading(false);
                 }
             }["AuthProvider.useEffect.setupUserSession"];
+            // Set initial user synchronously
+            const initialSession = supabase.auth.getSession();
+            initialSession.then({
+                "AuthProvider.useEffect": ({ data: { session } })=>{
+                    const currentUser = session?.user ?? null;
+                    setUser(currentUser);
+                    setLoading(false); // Initial load complete
+                    setupUserSession(currentUser);
+                }
+            }["AuthProvider.useEffect"]);
             const { data: { subscription } } = supabase.auth.onAuthStateChange({
                 "AuthProvider.useEffect": (event, session)=>{
                     const currentUser = session?.user ?? null;
+                    setUser(currentUser); // Update user state on change
                     setupUserSession(currentUser);
                     if (event === 'SIGNED_IN') {
                         router.refresh();
@@ -778,6 +775,8 @@ const AuthProvider = ({ children })=>{
             error
         };
     };
+    const [user, setUser] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
     const value = {
         user,
         loading,
@@ -791,14 +790,13 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 166,
+        lineNumber: 167,
         columnNumber: 5
     }, this);
 };
-_s(AuthProvider, "bw2Nivakff+rltGZPRftkKS9xng=", false, function() {
+_s(AuthProvider, "gJK3IoyzgbvCoX0QZDQ321kKjRU=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
-        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"],
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useChatStore"]
     ];
 });

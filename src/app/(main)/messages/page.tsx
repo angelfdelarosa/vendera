@@ -94,9 +94,6 @@ export default function MessagesPage() {
                     </Link>
                      <p className="text-xs text-muted-foreground flex-shrink-0">{getTimestamp(convo.created_at)}</p>
                    </div>
-                    <p className="text-xs text-muted-foreground truncate">
-                        {t('messages.re')} {t(convo.property.title)}
-                    </p>
                    <p className="text-sm text-muted-foreground truncate">{ convo.lastMessage }</p>
                 </div>
                  {!convo.last_message_read && convo.last_message_sender_id !== user?.id && <div className="w-2 h-2 rounded-full bg-primary mt-1 flex-shrink-0"></div>}

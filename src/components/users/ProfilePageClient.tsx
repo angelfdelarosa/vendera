@@ -227,12 +227,12 @@ export default function ProfilePageClient() {
     }
   };
 
-  const onStartConversation = async (property: Property) => {
-    if (!authUser || !supabase) {
+  const onStartConversation = async () => {
+    if (!authUser || !supabase || !displayUser) {
         toast({ title: 'Debes iniciar sesión', description: 'Por favor, inicia sesión para contactar a un vendedor.', variant: 'destructive' });
         return;
     }
-    const conversationId = await handleStartConversation(property, authUser, supabase);
+    const conversationId = await handleStartConversation(displayUser, authUser, supabase);
     if (conversationId) {
         router.push('/messages');
     } else {
@@ -486,7 +486,11 @@ export default function ProfilePageClient() {
                         </DialogContent>
                      </Dialog>
                   ) : (
-                    null
+                    authUser && (
+                         <Button onClick={onStartConversation}>
+                            <MessageSquare className="mr-2"/> Contactar al Vendedor
+                        </Button>
+                    )
                   )}
               </div>
             </div>
@@ -577,29 +581,6 @@ export default function ProfilePageClient() {
                           {userProperties.map((property) => (
                             <div key={property.id} className="relative group">
                                 <PropertyCard property={property} />
-                                {!isOwnProfile && authUser && (
-                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
-                                       <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button><MessageSquare className="mr-2"/> Contactar</Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Iniciar Conversación</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        ¿Quieres iniciar un chat con {displayUser.full_name} sobre la propiedad "{t(property.title)}"?
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => onStartConversation(property)}>
-                                                        Sí, iniciar chat
-                                                    </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    </div>
-                                )}
                                {isOwnProfile && (
                                 <div className="absolute top-2 right-12 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <Button size="icon" variant="outline" className="bg-background" asChild>
@@ -725,5 +706,3 @@ export default function ProfilePageClient() {
     </div>
   );
 }
-
-    

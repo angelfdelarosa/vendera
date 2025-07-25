@@ -1,6 +1,6 @@
 
 import { create } from 'zustand';
-import type { Conversation, Message, Property, UserProfile } from '@/types';
+import type { Conversation, UserProfile } from '@/types';
 import { type SupabaseClient, type User } from '@supabase/supabase-js';
 
 interface ChatState {
@@ -12,7 +12,7 @@ interface ChatState {
   setConversations: (conversations: Conversation[]) => void;
   updateConversation: (conversationId: string, updatedData: Partial<Conversation>) => void;
   handleStartConversation: (
-    property: Property,
+    otherUser: UserProfile,
     authUser: User,
     supabase: SupabaseClient
   ) => Promise<string | null>;
@@ -47,19 +47,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
       ),
     }));
   },
-  handleStartConversation: async (property, authUser, supabase) => {
-    if (!authUser || authUser.id === property.realtor.user_id) {
+  handleStartConversation: async (otherUser, authUser, supabase) => {
+    if (!authUser || authUser.id === otherUser.user_id) {
       console.log("Cannot start conversation with yourself.");
       return null;
     }
 
-    // Check if a conversation already exists for this trio
+    // Check if a conversation already exists between the two users
     const { data: existing, error: existingError } = await supabase
       .from('conversations')
       .select('id')
-      .eq('buyer_id', authUser.id)
-      .eq('seller_id', property.realtor_id)
-      .eq('property_id', property.id)
+      .or(`and(buyer_id.eq.${authUser.id},seller_id.eq.${otherUser.user_id}),and(buyer_id.eq.${otherUser.user_id},seller_id.eq.${authUser.id})`)
       .maybeSingle();
 
     if (existingError) {
@@ -72,19 +70,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return existing.id;
     }
 
-    // If no existing conversation, create a new one
+    // If no existing conversation, create a new one. Auth user is the buyer by default.
     const { data: newConversationData, error } = await supabase
       .from('conversations')
       .insert({
         buyer_id: authUser.id,
-        seller_id: property.realtor_id,
-        property_id: property.id,
+        seller_id: otherUser.user_id,
       })
       .select(`
         *,
-        property:properties!inner(id, title, images),
-        buyer:buyer_id!inner(*),
-        seller:seller_id!inner(*)
+        buyer:profiles!buyer_id(*),
+        seller:profiles!seller_id(*)
       `)
       .single();
 
@@ -93,10 +89,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return null;
     }
     
-    // Manually construct the full conversation object for the state
     const newConvo: Conversation = {
       ...newConversationData,
-      otherUser: newConversationData.seller, // Since the authUser is the buyer
+      otherUser: newConversationData.seller, 
       lastMessage: "No messages yet.",
     };
 

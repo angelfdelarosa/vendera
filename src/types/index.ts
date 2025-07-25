@@ -44,7 +44,6 @@ export interface Message {
 export interface Conversation {
   id: string;
   created_at: string;
-  property: Pick<Property, 'id' | 'title' | 'images'>;
   buyer: UserProfile;
   seller: UserProfile;
   last_message_sender_id: string | null;
@@ -67,13 +66,12 @@ export interface Rating {
 export type ConversationFromDB = {
   id: string;
   created_at: string;
-  property_id: string;
   buyer_id: string;
   seller_id: string;
   last_message_sender_id: string | null;
   last_message_read: boolean;
-  property: Pick<Property, 'id' | 'title' | 'images'>;
   buyer: UserProfile;
   seller: UserProfile;
   messages: { content: string }[];
 };
+

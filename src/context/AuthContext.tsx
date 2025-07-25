@@ -6,7 +6,7 @@ import type { User, AuthError, SupabaseClient, RealtimeChannel } from '@supabase
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useChatStore } from '@/components/chat/use-chat-store';
-import type { Conversation as AppConversation, ConversationFromDB, UserProfile, Property } from '@/types';
+import type { Conversation as AppConversation, ConversationFromDB } from '@/types';
 
 
 interface AuthContextType {
@@ -23,9 +23,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const supabase = createClient();
   const router = useRouter();
-  const pathname = usePathname();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const { setConversations, setLoading: setChatLoading } = useChatStore();
 
   const fetchAndSetConversations = useCallback(async (userId: string) => {
@@ -35,9 +32,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .from('conversations')
       .select(`
         *,
-        property:properties!inner(id, title, images),
-        buyer:buyer_id!inner(*),
-        seller:seller_id!inner(*),
+        buyer:profiles!buyer_id(*),
+        seller:profiles!seller_id(*),
         messages ( content, created_at )
       `)
       .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
@@ -61,13 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const transformedConversations = (data as unknown as ConversationFromDB[]).map(convo => {
         const otherUser = convo.buyer_id === userId ? convo.seller! : convo.buyer!;
         return {
-            id: convo.id,
-            created_at: convo.created_at,
-            property: convo.property!,
-            buyer: convo.buyer!,
-            seller: convo.seller!,
-            last_message_sender_id: convo.last_message_sender_id,
-            last_message_read: convo.last_message_read,
+            ...convo,
             lastMessage: convo.messages?.[0]?.content || "No messages yet.",
             otherUser,
         } as AppConversation;
@@ -81,8 +71,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let channel: RealtimeChannel | null = null;
 
     const setupUserSession = async (sessionUser: User | null) => {
-        setUser(sessionUser);
-
         if (sessionUser) {
             await fetchAndSetConversations(sessionUser.id);
             // Listen to changes on both conversations and messages tables.
@@ -106,10 +94,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
         setLoading(false);
     };
+    
+    // Set initial user synchronously
+    const initialSession = supabase.auth.getSession();
+    initialSession.then(({ data: { session } }) => {
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
+        setLoading(false); // Initial load complete
+        setupUserSession(currentUser);
+    });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         const currentUser = session?.user ?? null;
+        setUser(currentUser); // Update user state on change
         setupUserSession(currentUser);
         if (event === 'SIGNED_IN') {
           router.refresh();
@@ -152,6 +150,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
     return { error };
   };
+  
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const value = { 
     user, 
