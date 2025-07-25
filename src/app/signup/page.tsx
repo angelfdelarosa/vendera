@@ -179,12 +179,12 @@ export default function SignupPage() {
       </div>
        <div className="hidden bg-muted lg:block">
         <Image
-          src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2670&auto=format&fit=crop"
+          src="https://noyztbqdgfniixzmpuac.supabase.co/storage/v1/object/public/logo//login_image.png"
           alt="Image"
           width="1920"
           height="1080"
           className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-          data-ai-hint="house exterior"
+          data-ai-hint="modern kitchen"
         />
       </div>
     </div>
