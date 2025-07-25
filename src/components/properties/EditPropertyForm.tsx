@@ -49,6 +49,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
   const [formData, setFormData] = useState({
     title: property.title,
     price: property.price,
+    currency: property.currency || 'USD',
     location: property.location,
     address: property.address,
     propertyType: property.type,
@@ -104,9 +105,13 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
     setFormData(prev => ({ ...prev, [id]: parseInt(value) || 0 }));
   };
 
-  const handleSelectChange = (value: Property['type']) => {
-    setFormData(prev => ({ ...prev, propertyType: value }));
+  const handleSelectChange = (id: string, value: string) => {
+    setFormData(prev => ({ ...prev, [id]: value }));
   };
+
+   const handleCurrencyChange = (value: Property['currency']) => {
+    setFormData(prev => ({...prev, currency: value}));
+  }
   
    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -179,6 +184,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
         const updatedPropertyData = {
           title: formData.title,
           price: formData.price,
+          currency: formData.currency,
           location: formData.location,
           address: formData.address,
           type: formData.propertyType,
@@ -200,7 +206,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
         if (error) throw error;
         
         // Ensure realtor data is preserved from the original property object
-        const fullyUpdatedProperty: Property = { ...property, ...data };
+        const fullyUpdatedProperty: Property = { ...property, ...(data  as unknown as Property) };
         updatePropertyInStore(fullyUpdatedProperty.id, fullyUpdatedProperty);
 
         toast({
@@ -236,7 +242,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="title">{t('newProperty.form.title')}</Label>
+              <Label htmlFor="title">{t('newProperty.form.name')}</Label>
               <Input
                 id="title"
                 value={formData.title}
@@ -244,15 +250,31 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="price">{t('newProperty.form.price')}</Label>
-              <Input
-                id="price"
-                type="number"
-                value={formData.price}
-                onChange={handleNumberInputChange}
-                required
-              />
+             <div className="space-y-2">
+                <Label htmlFor="price">{t('newProperty.form.price')}</Label>
+                <div className="flex gap-2">
+                    <Input
+                        id="price"
+                        type="number"
+                        placeholder="e.g., 3500000"
+                        value={formData.price}
+                        onChange={handleNumberInputChange}
+                        required
+                        className="flex-grow"
+                    />
+                    <Select
+                        value={formData.currency}
+                        onValueChange={(value: Property['currency']) => handleCurrencyChange(value)}
+                    >
+                        <SelectTrigger className="w-[100px]">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="USD">USD</SelectItem>
+                            <SelectItem value="DOP">DOP</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="location">{t('newProperty.form.location')}</Label>
@@ -273,7 +295,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
             <div className="space-y-2">
               <Label htmlFor="property-type">{t('search.propertyType')}</Label>
               <Select
-                onValueChange={handleSelectChange}
+                onValueChange={(value) => handleSelectChange('propertyType', value)}
                 value={formData.propertyType}
               >
                 <SelectTrigger id="property-type">

@@ -186,7 +186,7 @@ export default function NewPropertyPage() {
         }
 
         const newProperty: Property = {
-            ...data,
+            ...(data as unknown as Property),
             realtor: {
                  user_id: user.id,
                  full_name: profile.full_name || 'Anonymous',
