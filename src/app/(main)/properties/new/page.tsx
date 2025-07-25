@@ -163,7 +163,6 @@ export default function NewPropertyPage() {
       images: imageUrls,
     };
     
-    console.log('Inserting data:', newPropertyData);
 
     const { data, error } = await supabase
         .from('properties')
