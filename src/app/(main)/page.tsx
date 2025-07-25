@@ -19,12 +19,6 @@ export default function HomePage() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    if (!isLoadingAuth && !user) {
-      router.push('/landing');
-    }
-  }, [isLoadingAuth, user, router]);
-
-  useEffect(() => {
     if (!isLoadingProperties) {
       setFilteredProperties(properties);
     }

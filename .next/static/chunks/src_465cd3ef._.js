@@ -1198,17 +1198,6 @@ function HomePage() {
     const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTranslation"])();
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "HomePage.useEffect": ()=>{
-            if (!isLoadingAuth && !user) {
-                router.push('/landing');
-            }
-        }
-    }["HomePage.useEffect"], [
-        isLoadingAuth,
-        user,
-        router
-    ]);
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "HomePage.useEffect": ()=>{
             if (!isLoadingProperties) {
                 setFilteredProperties(properties);
             }
@@ -1256,12 +1245,12 @@ function HomePage() {
                 className: "h-16 w-16 animate-spin text-primary"
             }, void 0, false, {
                 fileName: "[project]/src/app/(main)/page.tsx",
-                lineNumber: 65,
+                lineNumber: 59,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/page.tsx",
-            lineNumber: 64,
+            lineNumber: 58,
             columnNumber: 7
         }, this);
     }
@@ -1270,7 +1259,7 @@ function HomePage() {
             children: "Loading search parameters..."
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/page.tsx",
-            lineNumber: 71,
+            lineNumber: 65,
             columnNumber: 25
         }, void 0),
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(HomePageContent, {
@@ -1287,16 +1276,16 @@ function HomePage() {
             handleSearch: handleSearch
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/page.tsx",
-            lineNumber: 72,
+            lineNumber: 66,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/(main)/page.tsx",
-        lineNumber: 71,
+        lineNumber: 65,
         columnNumber: 5
     }, this);
 }
-_s(HomePage, "6jRmmETjGJC8u8cflN7juViifh0=", false, function() {
+_s(HomePage, "OdOn374ROXShkwTVcozOmJquK90=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$PropertyContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePropertyContext"],
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"],
@@ -1337,7 +1326,7 @@ function HomePageContent({ properties, isLoadingProperties, user, isLoadingAuth,
                         children: t('home.title')
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 137,
+                        lineNumber: 131,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1345,7 +1334,7 @@ function HomePageContent({ properties, isLoadingProperties, user, isLoadingAuth,
                         children: t('home.subtitle')
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 140,
+                        lineNumber: 134,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$properties$2f$PropertySearchFilters$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PropertySearchFilters"], {
@@ -1354,13 +1343,13 @@ function HomePageContent({ properties, isLoadingProperties, user, isLoadingAuth,
                         onSearch: handleSearch
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 143,
+                        lineNumber: 137,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(main)/page.tsx",
-                lineNumber: 136,
+                lineNumber: 130,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -1370,7 +1359,7 @@ function HomePageContent({ properties, isLoadingProperties, user, isLoadingAuth,
                         children: t('home.featuredListings')
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 151,
+                        lineNumber: 145,
                         columnNumber: 9
                     }, this),
                     filteredProperties.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1379,12 +1368,12 @@ function HomePageContent({ properties, isLoadingProperties, user, isLoadingAuth,
                                 property: property
                             }, property.id, false, {
                                 fileName: "[project]/src/app/(main)/page.tsx",
-                                lineNumber: 157,
+                                lineNumber: 151,
                                 columnNumber: 15
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 155,
+                        lineNumber: 149,
                         columnNumber: 11
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "text-center py-16 bg-card rounded-lg",
@@ -1393,24 +1382,24 @@ function HomePageContent({ properties, isLoadingProperties, user, isLoadingAuth,
                             children: t('home.noProperties')
                         }, void 0, false, {
                             fileName: "[project]/src/app/(main)/page.tsx",
-                            lineNumber: 162,
+                            lineNumber: 156,
                             columnNumber: 14
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/page.tsx",
-                        lineNumber: 161,
+                        lineNumber: 155,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(main)/page.tsx",
-                lineNumber: 150,
+                lineNumber: 144,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/(main)/page.tsx",
-        lineNumber: 135,
+        lineNumber: 129,
         columnNumber: 5
     }, this);
 }
