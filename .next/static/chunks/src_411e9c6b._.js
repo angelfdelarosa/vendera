@@ -1412,6 +1412,8 @@ function Header() {
                         window.removeEventListener("scroll", handleScroll);
                     }
                 })["Header.useEffect"];
+            } else {
+                setScrolled(false);
             }
         }
     }["Header.useEffect"], [
@@ -1429,12 +1431,12 @@ function Header() {
                         layout: "horizontal"
                     }, void 0, false, {
                         fileName: "[project]/src/components/layout/Header.tsx",
-                        lineNumber: 51,
+                        lineNumber: 53,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/components/layout/Header.tsx",
-                    lineNumber: 50,
+                    lineNumber: 52,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
@@ -1446,7 +1448,7 @@ function Header() {
                             children: t('header.properties')
                         }, void 0, false, {
                             fileName: "[project]/src/components/layout/Header.tsx",
-                            lineNumber: 54,
+                            lineNumber: 56,
                             columnNumber: 11
                         }, this),
                         user && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -1457,7 +1459,7 @@ function Header() {
                                     children: t('header.favorites')
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/layout/Header.tsx",
-                                    lineNumber: 65,
+                                    lineNumber: 67,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1466,7 +1468,7 @@ function Header() {
                                     children: t('header.addProperty')
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/layout/Header.tsx",
-                                    lineNumber: 74,
+                                    lineNumber: 76,
                                     columnNumber: 15
                                 }, this)
                             ]
@@ -1474,19 +1476,19 @@ function Header() {
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/layout/Header.tsx",
-                    lineNumber: 53,
+                    lineNumber: 55,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "flex flex-1 items-center justify-center space-x-4 px-8",
                     children: user && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$search$2f$GlobalSearch$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["GlobalSearch"], {}, void 0, false, {
                         fileName: "[project]/src/components/layout/Header.tsx",
-                        lineNumber: 87,
+                        lineNumber: 89,
                         columnNumber: 22
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/components/layout/Header.tsx",
-                    lineNumber: 86,
+                    lineNumber: 88,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1494,29 +1496,29 @@ function Header() {
                     children: [
                         user && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$layout$2f$MessageNotifications$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["MessageNotifications"], {}, void 0, false, {
                             fileName: "[project]/src/components/layout/Header.tsx",
-                            lineNumber: 90,
+                            lineNumber: 92,
                             columnNumber: 20
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$layout$2f$UserNav$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["UserNav"], {}, void 0, false, {
                             fileName: "[project]/src/components/layout/Header.tsx",
-                            lineNumber: 91,
+                            lineNumber: 93,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/layout/Header.tsx",
-                    lineNumber: 89,
+                    lineNumber: 91,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/layout/Header.tsx",
-            lineNumber: 49,
+            lineNumber: 51,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/components/layout/Header.tsx",
-        lineNumber: 45,
+        lineNumber: 47,
         columnNumber: 5
     }, this);
 }

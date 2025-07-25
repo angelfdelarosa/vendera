@@ -36,6 +36,8 @@ export function Header() {
       return () => {
         window.removeEventListener("scroll", handleScroll);
       };
+    } else {
+        setScrolled(false);
     }
   }, [isLanding]);
   
