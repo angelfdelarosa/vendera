@@ -637,8 +637,7 @@ class UserService {
                 options: {
                     data: {
                         full_name: fullName,
-                        avatar_url: metadata.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random`,
-                        username: metadata.username || this.generateUsername(email)
+                        avatar_url: metadata.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random`
                     }
                 }
             });
