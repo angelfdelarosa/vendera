@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useChatStore } from '@/components/chat/use-chat-store';
 import type { Conversation as AppConversation, ConversationFromDB, Property } from '@/types';
+import { userService } from '@/lib/user.service';
 
 
 interface AuthContextType {
@@ -34,12 +35,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         *,
         buyer:profiles!buyer_id(*),
         seller:profiles!seller_id(*),
-        property:properties(*),
-        messages ( content, created_at )
+        property:properties(*)
       `)
-      .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
-      .order('created_at', { referencedTable: 'messages', ascending: false })
-      .limit(1, { referencedTable: 'messages' });
+      .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
 
 
     if (error) {
@@ -59,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const otherUser = convo.buyer_id === userId ? convo.seller! : convo.buyer!;
         return {
             ...convo,
-            lastMessage: convo.messages?.[0]?.content || "No messages yet.",
+            lastMessage: "No messages yet.", // This should be derived from the latest message if fetched
             otherUser,
             property: convo.property ? convo.property : undefined
         } as AppConversation;
@@ -140,17 +138,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signup = async (name: string, email: string, pass: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password: pass,
-      options: {
-        data: {
-          full_name: name,
-          avatar_url: `https://placehold.co/128x128.png?text=${name.charAt(0)}`,
-        },
-      },
-    });
-    return { error };
+    try {
+      const { user, profile } = await userService.signUp(email, pass, { full_name: name });
+      // The onAuthStateChange listener will handle setting the user state.
+      // We can just return success here.
+      return { error: null };
+    } catch (error: any) {
+      return { error: error as AuthError };
+    }
   };
   
   const [user, setUser] = useState<User | null>(null);

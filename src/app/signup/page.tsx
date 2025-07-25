@@ -70,7 +70,7 @@ export default function SignupPage() {
     if (error) {
       toast({
         title: t('signup.toast.error.title'),
-        description: error.message,
+        description: error.message || "An unknown error occurred during signup.",
         variant: 'destructive',
       });
     } else {
@@ -78,7 +78,7 @@ export default function SignupPage() {
         title: t('signup.toast.success.title'),
         description: t('signup.toast.success.description'),
       });
-      router.push('/');
+      router.push('/'); // onAuthStateChange will handle user state, redirect to home
     }
   };
 
