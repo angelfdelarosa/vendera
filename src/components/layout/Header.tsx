@@ -17,6 +17,11 @@ export function Header() {
   const { user } = useAuth();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const logoHref = user ? "/" : "/landing";
   const isLanding = pathname === '/landing';
@@ -33,11 +38,13 @@ export function Header() {
       };
     }
   }, [isLanding]);
+  
+  const showTransparentNav = isLanding && !scrolled && isMounted;
 
   return (
     <header className={cn(
       "sticky top-0 z-50 w-full transition-all duration-300", 
-      isLanding ? (scrolled ? "border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" : "bg-transparent") : "border-b bg-background/95"
+      showTransparentNav ? "bg-transparent" : "border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
       )}>
       <div className="container flex h-16 items-center">
         <Link href={logoHref}>
@@ -46,7 +53,7 @@ export function Header() {
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium ml-10">
           <Link
             href="/"
-            className={cn("transition-colors hover:text-accent", isLanding && !scrolled ? 'text-white/80 hover:text-white' : '')}
+            className={cn("transition-colors hover:text-accent", showTransparentNav ? 'text-white/80 hover:text-white' : 'text-foreground/60')}
           >
             {t('header.properties')}
           </Link>
@@ -54,13 +61,13 @@ export function Header() {
             <>
               <Link
                 href="/favorites"
-                className={cn("transition-colors hover:text-accent", isLanding && !scrolled ? 'text-white/80 hover:text-white' : 'text-foreground/60')}
+                className={cn("transition-colors hover:text-accent", showTransparentNav ? 'text-white/80 hover:text-white' : 'text-foreground/60')}
               >
                 {t('header.favorites')}
               </Link>
               <Link
                 href="/properties/new"
-                className={cn("transition-colors hover:text-accent", isLanding && !scrolled ? 'text-white/80 hover:text-white' : 'text-foreground/60')}
+                className={cn("transition-colors hover:text-accent", showTransparentNav ? 'text-white/80 hover:text-white' : 'text-foreground/60')}
               >
                 {t('header.addProperty')}
               </Link>

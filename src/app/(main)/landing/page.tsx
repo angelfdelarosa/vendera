@@ -68,7 +68,7 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-card">
         <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-12 items-center min-h-screen">
+            <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[calc(100vh-4rem)] lg:min-h-screen">
                 {/* Image Column */}
                 <div className="relative h-[600px] hidden lg:flex items-center justify-center">
                     <svg

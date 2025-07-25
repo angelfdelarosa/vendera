@@ -794,6 +794,10 @@ body {
   min-height: 100vh;
 }
 
+.min-h-\[calc\(100vh-4rem\)\] {
+  min-height: calc(100vh - 4rem);
+}
+
 .w-0 {
   width: 0;
 }
@@ -2758,6 +2762,10 @@ body {
 
   .lg\:flex {
     display: flex;
+  }
+
+  .lg\:min-h-screen {
+    min-height: 100vh;
   }
 
   .lg\:basis-1\/3 {
