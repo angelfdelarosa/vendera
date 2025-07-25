@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Loader2, MessageCircle, MessagesSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Conversation, ConversationFromDB } from '@/types';
+import type { Property } from '@/types';
 import { useChatStore } from '@/components/chat/use-chat-store';
 import Link from 'next/link';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -16,96 +16,22 @@ import { formatDistanceToNow } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 
 export default function MessagesPage() {
-  const { user, loading: authLoading, supabase } = useAuth();
-  const { conversations, selectedConversation, selectConversation, setConversations, updateConversation } = useChatStore();
+  const { user, loading: authLoading } = useAuth();
+  const { conversations, selectedConversation, selectConversation, loading: chatLoading } = useChatStore();
   const { t, locale } = useTranslation();
-  const [loading, setLoading] = useState(true);
-
-  const fetchAndSetConversations = async () => {
-      if (!user || !supabase) return;
-
-      setLoading(true);
-
-      const { data, error } = await supabase
-        .from('conversations')
-        .select(`
-          id,
-          created_at,
-          property_id,
-          buyer_id,
-          seller_id,
-          last_message_sender_id,
-          last_message_read,
-          property:properties(id, title, images),
-          buyer:profiles!conversations_buyer_id_fkey(user_id, full_name, avatar_url),
-          seller:profiles!conversations_seller_id_fkey(user_id, full_name, avatar_url),
-          messages(content, created_at, sender_id)
-        `)
-        .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
-        .order('created_at', { referencedTable: 'messages', ascending: false });
-
-      if (error) {
-        console.error("Error fetching conversations:", error);
-      } else {
-        const transformedConversations = data.map(convo => {
-            const otherUser = convo.buyer_id === user.id ? convo.seller : convo.buyer;
-            const lastMessage = convo.messages[0];
-            return {
-                id: convo.id.toString(),
-                user: {
-                    user_id: otherUser.user_id,
-                    full_name: otherUser.full_name,
-                    avatar_url: otherUser.avatar_url,
-                    username: null
-                },
-                property: {
-                    ...mockProperty,
-                    id: convo.property?.id || "unknown",
-                    title: convo.property?.title || "Conversation",
-                    images: convo.property?.images || []
-                },
-                messages: [],
-                timestamp: lastMessage ? lastMessage.created_at : convo.created_at,
-                lastMessage: lastMessage?.content || "No messages yet.",
-                unread: !convo.last_message_read && convo.last_message_sender_id !== user.id
-            }
-        });
-        setConversations(transformedConversations);
-      }
-      setLoading(false);
-    };
-
-  useEffect(() => {
-    if (!authLoading) {
-        fetchAndSetConversations();
-    }
-  }, [user, authLoading, supabase, setConversations]);
   
-  useEffect(() => {
-    if (!supabase || !user) return;
-
-    const conversationsChannel = supabase.channel('public:conversations')
-        .on('postgres_changes', 
-            { event: '*', schema: 'public', table: 'conversations' },
-            (payload) => {
-                // When a conversation is updated (e.g., last_message_read changes), refetch all.
-                // This is a simple way to ensure the UI is consistent.
-                fetchAndSetConversations();
-            }
-        )
-        .subscribe();
-    
-    return () => {
-        supabase.removeChannel(conversationsChannel);
-    };
-  }, [supabase, user]);
-
+  const isLoading = authLoading || chatLoading;
+  
   const getTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return formatDistanceToNow(date, { addSuffix: true, locale: locale === 'es' ? es : enUS });
+    try {
+        const date = new Date(timestamp);
+        return formatDistanceToNow(date, { addSuffix: true, locale: locale === 'es' ? es : enUS });
+    } catch(e) {
+        return "just now"
+    }
   }
 
-  if (loading || authLoading) {
+  if (isLoading) {
      return (
         <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
@@ -197,23 +123,3 @@ export default function MessagesPage() {
     </div>
   );
 }
-
-// Mock property to satisfy the type, as not all fields are needed for the convo list
-const mockProperty: Property = {
-    id: 'mock',
-    title: 'mock',
-    price: 0,
-    location: 'mock',
-    address: 'mock',
-    type: 'house',
-    bedrooms: 0,
-    bathrooms: 0,
-    area: 0,
-    description: 'mock',
-    features: [],
-    images: [],
-    realtor_id: 'mock',
-    realtor: { user_id: 'mock', full_name: 'mock', avatar_url: 'mock', username: 'mock' }
-}
-
-    

@@ -537,66 +537,85 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$
 ;
 function MessagesPage() {
     const { user, loading: authLoading, supabase } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useAuth"])();
-    const { conversations, selectedConversation, selectConversation, setConversations } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useChatStore"])();
+    const { conversations, selectedConversation, selectConversation, setConversations, updateConversation } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useChatStore"])();
     const { t, locale } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useTranslation"])();
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        const fetchConversations = async ()=>{
-            if (!user || !supabase) return;
-            setLoading(true);
-            const { data, error } = await supabase.from('conversations').select(`
+    const fetchAndSetConversations = async ()=>{
+        if (!user || !supabase) return;
+        setLoading(true);
+        const { data, error } = await supabase.from('conversations').select(`
           id,
           created_at,
           property_id,
           buyer_id,
           seller_id,
+          last_message_sender_id,
+          last_message_read,
           property:properties(id, title, images),
           buyer:profiles!conversations_buyer_id_fkey(user_id, full_name, avatar_url),
           seller:profiles!conversations_seller_id_fkey(user_id, full_name, avatar_url),
-          messages:messages(content, created_at, sender_id)
+          messages(content, created_at, sender_id)
         `).or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`).order('created_at', {
-                referencedTable: 'messages',
-                ascending: false
+            referencedTable: 'messages',
+            ascending: false
+        });
+        if (error) {
+            console.error("Error fetching conversations:", error);
+        } else {
+            const transformedConversations = data.map((convo)=>{
+                const otherUser = convo.buyer_id === user.id ? convo.seller : convo.buyer;
+                const lastMessage = convo.messages[0];
+                return {
+                    id: convo.id.toString(),
+                    user: {
+                        user_id: otherUser.user_id,
+                        full_name: otherUser.full_name,
+                        avatar_url: otherUser.avatar_url,
+                        username: null
+                    },
+                    property: {
+                        ...mockProperty,
+                        id: convo.property?.id || "unknown",
+                        title: convo.property?.title || "Conversation",
+                        images: convo.property?.images || []
+                    },
+                    messages: [],
+                    timestamp: lastMessage ? lastMessage.created_at : convo.created_at,
+                    lastMessage: lastMessage?.content || "No messages yet.",
+                    unread: !convo.last_message_read && convo.last_message_sender_id !== user.id
+                };
             });
-            if (error) {
-                console.error("Error fetching conversations:", error);
-            } else {
-                const transformedConversations = data.map((convo)=>{
-                    const otherUser = convo.buyer_id === user.id ? convo.seller : convo.buyer;
-                    const lastMessage = convo.messages[0];
-                    return {
-                        id: convo.id.toString(),
-                        user: {
-                            user_id: otherUser.user_id,
-                            full_name: otherUser.full_name,
-                            avatar_url: otherUser.avatar_url,
-                            username: null
-                        },
-                        property: {
-                            ...mockProperty,
-                            id: convo.property?.id || "unknown",
-                            title: convo.property?.title || "Conversation",
-                            images: convo.property?.images || []
-                        },
-                        messages: [],
-                        timestamp: lastMessage ? lastMessage.created_at : convo.created_at,
-                        lastMessage: lastMessage?.content || "No messages yet.",
-                        // a real 'unread' implementation would require more logic
-                        unread: Math.random() > 0.5
-                    };
-                });
-                setConversations(transformedConversations);
-            }
-            setLoading(false);
-        };
+            setConversations(transformedConversations);
+        }
+        setLoading(false);
+    };
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         if (!authLoading) {
-            fetchConversations();
+            fetchAndSetConversations();
         }
     }, [
         user,
         authLoading,
         supabase,
         setConversations
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        if (!supabase || !user) return;
+        const conversationsChannel = supabase.channel('public:conversations').on('postgres_changes', {
+            event: '*',
+            schema: 'public',
+            table: 'conversations'
+        }, (payload)=>{
+            // When a conversation is updated (e.g., last_message_read changes), refetch all.
+            // This is a simple way to ensure the UI is consistent.
+            fetchAndSetConversations();
+        }).subscribe();
+        return ()=>{
+            supabase.removeChannel(conversationsChannel);
+        };
+    }, [
+        supabase,
+        user
     ]);
     const getTimestamp = (timestamp)=>{
         const date = new Date(timestamp);
@@ -612,12 +631,12 @@ function MessagesPage() {
                 className: "h-16 w-16 animate-spin text-primary"
             }, void 0, false, {
                 fileName: "[project]/src/app/(main)/messages/page.tsx",
-                lineNumber: 91,
+                lineNumber: 111,
                 columnNumber: 13
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/messages/page.tsx",
-            lineNumber: 90,
+            lineNumber: 110,
             columnNumber: 9
         }, this);
     }
@@ -629,7 +648,7 @@ function MessagesPage() {
                     className: "w-16 h-16 text-muted-foreground/50 mb-4"
                 }, void 0, false, {
                     fileName: "[project]/src/app/(main)/messages/page.tsx",
-                    lineNumber: 99,
+                    lineNumber: 119,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -637,7 +656,7 @@ function MessagesPage() {
                     children: t('messages.empty.title')
                 }, void 0, false, {
                     fileName: "[project]/src/app/(main)/messages/page.tsx",
-                    lineNumber: 100,
+                    lineNumber: 120,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -645,7 +664,7 @@ function MessagesPage() {
                     children: t('messages.empty.description')
                 }, void 0, false, {
                     fileName: "[project]/src/app/(main)/messages/page.tsx",
-                    lineNumber: 103,
+                    lineNumber: 123,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -655,18 +674,18 @@ function MessagesPage() {
                         children: t('messages.empty.button')
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/messages/page.tsx",
-                        lineNumber: 107,
+                        lineNumber: 127,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/app/(main)/messages/page.tsx",
-                    lineNumber: 106,
+                    lineNumber: 126,
                     columnNumber: 10
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/(main)/messages/page.tsx",
-            lineNumber: 98,
+            lineNumber: 118,
             columnNumber: 7
         }, this);
     }
@@ -681,7 +700,7 @@ function MessagesPage() {
                         children: t('messages.title')
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/messages/page.tsx",
-                        lineNumber: 116,
+                        lineNumber: 136,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -689,13 +708,13 @@ function MessagesPage() {
                         children: t('messages.subtitle')
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/messages/page.tsx",
-                        lineNumber: 119,
+                        lineNumber: 139,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(main)/messages/page.tsx",
-                lineNumber: 115,
+                lineNumber: 135,
                 columnNumber: 8
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -714,7 +733,7 @@ function MessagesPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                lineNumber: 125,
+                                lineNumber: 145,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
@@ -733,25 +752,25 @@ function MessagesPage() {
                                                             src: convo.user.avatar_url || undefined
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                            lineNumber: 140,
+                                                            lineNumber: 160,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AvatarFallback"], {
                                                             children: convo.user.full_name?.charAt(0)
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                            lineNumber: 141,
+                                                            lineNumber: 161,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                    lineNumber: 139,
+                                                    lineNumber: 159,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                lineNumber: 138,
+                                                lineNumber: 158,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -768,12 +787,12 @@ function MessagesPage() {
                                                                     children: convo.user.full_name
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                                    lineNumber: 147,
+                                                                    lineNumber: 167,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                                lineNumber: 146,
+                                                                lineNumber: 166,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -781,13 +800,13 @@ function MessagesPage() {
                                                                 children: getTimestamp(convo.timestamp)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                                lineNumber: 149,
+                                                                lineNumber: 169,
                                                                 columnNumber: 22
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                        lineNumber: 145,
+                                                        lineNumber: 165,
                                                         columnNumber: 20
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -799,7 +818,7 @@ function MessagesPage() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                        lineNumber: 151,
+                                                        lineNumber: 171,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -807,37 +826,37 @@ function MessagesPage() {
                                                         children: convo.lastMessage
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                        lineNumber: 154,
+                                                        lineNumber: 174,
                                                         columnNumber: 20
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                lineNumber: 144,
+                                                lineNumber: 164,
                                                 columnNumber: 17
                                             }, this),
                                             convo.unread && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "w-2 h-2 rounded-full bg-primary mt-1 flex-shrink-0"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                lineNumber: 156,
+                                                lineNumber: 176,
                                                 columnNumber: 35
                                             }, this)
                                         ]
                                     }, convo.id, true, {
                                         fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                        lineNumber: 130,
+                                        lineNumber: 150,
                                         columnNumber: 15
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                lineNumber: 128,
+                                lineNumber: 148,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(main)/messages/page.tsx",
-                        lineNumber: 124,
+                        lineNumber: 144,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -847,7 +866,7 @@ function MessagesPage() {
                             recipient: selectedConversation.user
                         }, selectedConversation.id, false, {
                             fileName: "[project]/src/app/(main)/messages/page.tsx",
-                            lineNumber: 163,
+                            lineNumber: 183,
                             columnNumber: 13
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "flex flex-col items-center justify-center h-full text-center text-muted-foreground",
@@ -856,7 +875,7 @@ function MessagesPage() {
                                     className: "h-16 w-16 mb-4"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                    lineNumber: 170,
+                                    lineNumber: 190,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -864,37 +883,37 @@ function MessagesPage() {
                                     children: t('messages.select.title')
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                    lineNumber: 171,
+                                    lineNumber: 191,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                     children: t('messages.select.description')
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                    lineNumber: 172,
+                                    lineNumber: 192,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/(main)/messages/page.tsx",
-                            lineNumber: 169,
+                            lineNumber: 189,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/messages/page.tsx",
-                        lineNumber: 161,
+                        lineNumber: 181,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(main)/messages/page.tsx",
-                lineNumber: 123,
+                lineNumber: 143,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/(main)/messages/page.tsx",
-        lineNumber: 114,
+        lineNumber: 134,
         columnNumber: 5
     }, this);
 }

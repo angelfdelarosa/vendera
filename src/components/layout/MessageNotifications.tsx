@@ -8,7 +8,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { Bell, MessageSquare } from 'lucide-react';
+import { Bell, Loader2, MessageSquare } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import { useChatStore } from '../chat/use-chat-store';
@@ -17,7 +17,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 
 export function MessageNotifications() {
   const router = useRouter();
-  const { conversations, selectConversation } = useChatStore();
+  const { conversations, selectConversation, loading } = useChatStore();
   const unreadCount = conversations.filter((c) => c.unread).length;
   const { t } = useTranslation();
 
@@ -30,7 +30,11 @@ export function MessageNotifications() {
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-[1.2rem] w-[1.2rem]" />
+          {loading ? (
+             <Loader2 className="h-[1.2rem] w-[1.2rem] animate-spin" />
+          ) : (
+             <Bell className="h-[1.2rem] w-[1.2rem]" />
+          )}
           {unreadCount > 0 && (
             <span className="absolute top-1 right-1 flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -45,7 +49,11 @@ export function MessageNotifications() {
           <h3>{t('notifications.inbox')}</h3>
         </div>
         <div className="space-y-1 p-2 max-h-[400px] overflow-y-auto">
-          {conversations.length > 0 ? (
+          {loading ? (
+             <div className="flex justify-center items-center p-8">
+                <Loader2 className="animate-spin text-muted-foreground" />
+             </div>
+          ) : conversations.length > 0 ? (
             conversations.slice(0, 5).map((convo) => (
               <div
                 key={convo.id}

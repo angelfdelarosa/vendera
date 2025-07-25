@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase/client';
 interface ChatState {
   conversations: Conversation[];
   selectedConversation: Conversation | null;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
   selectConversation: (conversationId: string | null) => void;
   addMessage: (conversationId: string, message: Message) => void;
   setConversations: (conversations: Conversation[]) => void;
@@ -15,7 +17,9 @@ interface ChatState {
 export const useChatStore = create<ChatState>((set, get) => ({
   conversations: [],
   selectedConversation: null,
-  setConversations: (conversations) => set({ conversations, selectedConversation: null }),
+  loading: true,
+  setLoading: (loading) => set({ loading }),
+  setConversations: (conversations) => set({ conversations, selectedConversation: null, loading: false }),
   selectConversation: (conversationId) => {
     if (!conversationId) {
       set({ selectedConversation: null });

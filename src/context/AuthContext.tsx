@@ -1,10 +1,14 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { User, AuthError, SupabaseClient } from '@supabase/supabase-js';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import type { User, AuthError, SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { useChatStore } from '@/components/chat/use-chat-store';
+import { properties as mockProperties } from '@/lib/mock-data';
+import type { Conversation as AppConversation } from '@/types';
+
 
 interface AuthContextType {
   user: User | null;
@@ -22,13 +26,93 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { setConversations, setLoading: setChatLoading } = useChatStore();
 
+  const fetchAndSetConversations = useCallback(async (userId: string) => {
+    setChatLoading(true);
+    const { data, error } = await supabase
+      .from('conversations')
+      .select(`
+        id,
+        created_at,
+        property_id,
+        buyer_id,
+        seller_id,
+        last_message_sender_id,
+        last_message_read,
+        property:properties(id, title, images),
+        buyer:profiles!conversations_buyer_id_fkey(user_id, full_name, avatar_url),
+        seller:profiles!conversations_seller_id_fkey(user_id, full_name, avatar_url),
+        messages(content, created_at, sender_id)
+      `)
+      .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
+      .order('created_at', { referencedTable: 'messages', ascending: false });
+
+    if (error) {
+      console.error("Error fetching conversations:", error);
+      setConversations([]);
+    } else {
+      const transformedConversations = data.map(convo => {
+          const otherUser = convo.buyer_id === userId ? convo.seller : convo.buyer;
+          const lastMessage = convo.messages[0];
+          return {
+              id: convo.id.toString(),
+              user: {
+                  user_id: otherUser.user_id,
+                  full_name: otherUser.full_name,
+                  avatar_url: otherUser.avatar_url,
+                  username: null
+              },
+              property: {
+                  ...(convo.property || mockProperties[0]),
+                  id: convo.property?.id || "unknown",
+                  title: convo.property?.title || "Conversation",
+                  images: convo.property?.images || []
+              },
+              messages: [], // Not needed for the global list
+              timestamp: lastMessage ? lastMessage.created_at : convo.created_at,
+              lastMessage: lastMessage?.content || "No messages yet.",
+              unread: !convo.last_message_read && convo.last_message_sender_id !== userId
+          } as AppConversation;
+      });
+      setConversations(transformedConversations);
+    }
+     setChatLoading(false);
+  }, [supabase, setConversations, setChatLoading]);
+  
   useEffect(() => {
+    let conversationsChannel: RealtimeChannel | null = null;
+
+    const setupUserSession = async (sessionUser: User | null) => {
+        setUser(sessionUser);
+
+        if (sessionUser) {
+            await fetchAndSetConversations(sessionUser.id);
+            conversationsChannel = supabase
+                .channel('public:conversations')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'conversations', filter: `or(buyer_id.eq.${sessionUser.id},seller_id.eq.${sessionUser.id})` },
+                    () => {
+                        fetchAndSetConversations(sessionUser.id);
+                    }
+                )
+                .subscribe();
+        } else {
+            // Clear conversations and unsubscribe on logout
+            setConversations([]);
+            if (conversationsChannel) {
+                supabase.removeChannel(conversationsChannel);
+                conversationsChannel = null;
+            }
+        }
+        setLoading(false);
+    };
+
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         const currentUser = session?.user ?? null;
-        setUser(currentUser);
-        setLoading(false);
+        setupUserSession(currentUser);
         if (event === 'SIGNED_IN' && router) {
           router.refresh();
         }
@@ -37,8 +121,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return () => {
       subscription.unsubscribe();
+      if (conversationsChannel) {
+          supabase.removeChannel(conversationsChannel);
+      }
     };
-  }, [supabase, router]);
+  }, [supabase, router, fetchAndSetConversations, setConversations]);
+
 
   const login = async (email: string, pass: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -54,7 +142,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signup = async (name: string, email: string, pass: string) => {
-    // The database trigger 'on_auth_user_created' will now handle creating the profile.
     const { data, error } = await supabase.auth.signUp({
       email,
       password: pass,
