@@ -1,5 +1,7 @@
 
-import { notFound } from 'next/navigation';
+'use client';
+
+import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -13,89 +15,62 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { BedDouble, Bath, Ruler, MapPin, Building, Lock } from 'lucide-react';
+import { BedDouble, Bath, Ruler, MapPin, Building, Lock, Loader2 } from 'lucide-react';
 import { SimilarProperties } from '@/components/properties/SimilarProperties';
 import { FavoriteButton } from '@/components/properties/FavoriteButton';
 import { Button } from '@/components/ui/button';
-import { cookies } from 'next/headers';
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import type { Property } from '@/types';
-import { getTranslations } from '@/lib/get-translation';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/context/AuthContext';
+import { useEffect, useState } from 'react';
+import { usePropertyContext } from '@/context/PropertyContext';
 
-async function getPropertyData(propertyId: string): Promise<Property | null> {
-    const cookieStore = cookies();
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) {
-                    return cookieStore.get(name)?.value
-                },
-            },
-        }
-    );
 
-    const { data: propertyData, error: propertyError } = await supabase
+export default function PropertyDetailPage() {
+  const params = useParams();
+  const { id } = params;
+  const { user, supabase } = useAuth();
+  const { properties } = usePropertyContext();
+  const [property, setProperty] = useState<Property | null | undefined>(undefined);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    const findProperty = async () => {
+      if (!id || !supabase) return;
+      
+      // First, try to find the property in the global store
+      const fromStore = properties.find(p => p.id === id);
+      if (fromStore) {
+        setProperty(fromStore);
+        return;
+      }
+      
+      // If not in store, fetch from DB
+      const { data, error } = await supabase
         .from('properties')
-        .select('*')
-        .eq('id', propertyId)
-        .eq('is_active', true)
+        .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username)`)
+        .eq('id', id)
         .single();
-    
-    if (propertyError || !propertyData) {
-        console.error("Error fetching property:", propertyError);
-        return null;
-    }
-
-    const { data: realtorData, error: realtorError } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, avatar_url, username')
-        .eq('user_id', propertyData.realtor_id)
-        .single();
-
-    if (realtorError) {
-        console.error("Error fetching realtor for property:", realtorError);
-        // Return property without realtor info if realtor fetch fails
-        return {
-            ...(propertyData as unknown as Property),
-            realtor: {
-                user_id: propertyData.realtor_id,
-                full_name: 'Anonymous',
-                avatar_url: null,
-                username: null
-            }
-        };
-    }
-
-    return {
-        ...(propertyData as unknown as Property),
-        realtor: {
-            user_id: realtorData.user_id,
-            full_name: realtorData.full_name,
-            avatar_url: realtorData.avatar_url,
-            username: realtorData.username,
-        }
+      
+      if (error || !data) {
+        console.error('Error fetching property:', error);
+        setProperty(null); // Property not found
+      } else {
+        setProperty(data as unknown as Property);
+      }
     };
-}
+    findProperty();
+  }, [id, properties, supabase]);
 
 
-export default async function PropertyDetailPage({ params }: { params: { id: string } }) {
-  const cookieStore = cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-        cookies: {
-            get(name: string) {
-                return cookieStore.get(name)?.value
-            },
-        },
-    }
-  );
-  const { data: { user } } = await supabase.auth.getUser();
-  const property = await getPropertyData(params.id);
-  const t = getTranslations();
+  if (property === undefined) {
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!property) {
     notFound();
