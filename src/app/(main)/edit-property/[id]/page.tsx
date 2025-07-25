@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Trash2, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 import { usePropertyStore } from '@/hooks/usePropertyStore';
@@ -31,6 +31,9 @@ import Image from 'next/image';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
 import { notFound } from 'next/navigation';
+import { cn } from '@/lib/utils';
+
+const MAX_IMAGES = 5;
 
 export default function EditPropertyPage() {
   const router = useRouter();
@@ -57,6 +60,13 @@ export default function EditPropertyPage() {
     features: '',
     description: '',
   });
+  
+  const [currentImageUrls, setCurrentImageUrls] = useState<string[]>([]);
+  const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  
+  const totalImageCount = currentImageUrls.length + imageFiles.length;
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -87,6 +97,7 @@ export default function EditPropertyPage() {
                 description: fetchedProperty.description,
                 features: fetchedProperty.features.join(', '),
             });
+            setCurrentImageUrls(fetchedProperty.images);
         }
         setPageLoading(false);
     };
@@ -101,6 +112,13 @@ export default function EditPropertyPage() {
       router.push('/login');
     }
   }, [user, authLoading, router]);
+  
+  // Cleanup object URLs
+  useEffect(() => {
+    return () => {
+        imagePreviews.forEach(preview => URL.revokeObjectURL(preview));
+    }
+  }, [imagePreviews]);
 
   if (pageLoading || authLoading) {
     return (
@@ -136,54 +154,119 @@ export default function EditPropertyPage() {
   const handleSelectChange = (value: Property['type']) => {
     setFormData(prev => ({ ...prev, propertyType: value }));
   };
+  
+   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      const remainingSlots = MAX_IMAGES - totalImageCount;
+      const filesToUpload = files.slice(0, remainingSlots);
+
+      if(files.length > remainingSlots) {
+        toast({
+            title: `Se superó el límite de ${MAX_IMAGES} imágenes`,
+            description: `Solo se agregarán las primeras ${remainingSlots} imágenes.`,
+            variant: 'destructive'
+        });
+      }
+      
+      setImageFiles(prev => [...prev, ...filesToUpload]);
+
+      const newPreviews = filesToUpload.map(file => URL.createObjectURL(file));
+      setImagePreviews(prev => [...prev, ...newPreviews]);
+    }
+  };
+
+  const handleDeleteExistingImage = (imageUrl: string) => {
+    setCurrentImageUrls(prev => prev.filter(url => url !== imageUrl));
+    setImagesToDelete(prev => [...prev, imageUrl]);
+  };
+  
+  const handleDeleteNewImage = (index: number) => {
+    const previewToDelete = imagePreviews[index];
+    URL.revokeObjectURL(previewToDelete);
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !property) return;
     setIsSubmitting(true);
-
-    const updatedPropertyData = {
-      title: formData.title,
-      price: formData.price,
-      location: formData.location,
-      address: formData.address,
-      type: formData.propertyType,
-      bedrooms: formData.numBedrooms,
-      bathrooms: formData.numBathrooms,
-      area: formData.area,
-      description: formData.description,
-      features: formData.features.split(',').map(f => f.trim()).filter(Boolean),
-    };
-
-    const { data, error } = await supabase
-      .from('properties')
-      .update(updatedPropertyData)
-      .eq('id', property.id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error updating property:', error);
-      toast({
-        title: 'Error al actualizar',
-        description: error.message || "No se pudo guardar la propiedad. Verifique que todos los campos sean válidos.",
-        variant: 'destructive',
-      });
-      setIsSubmitting(false);
-      return;
-    }
     
-    // Ensure realtor data is preserved from the original property object
-    const fullyUpdatedProperty: Property = { ...property, ...data };
-    updateProperty(fullyUpdatedProperty.id, fullyUpdatedProperty);
+    try {
+        // 1. Delete images marked for deletion from Supabase Storage
+        if (imagesToDelete.length > 0) {
+            const filePaths = imagesToDelete.map(url => {
+                const parts = url.split('/');
+                return `${user.id}/${parts[parts.length - 1]}`;
+            });
+            const { error: deleteError } = await supabase.storage.from('property_images').remove(filePaths);
+            if (deleteError) throw deleteError;
+        }
 
-    toast({
-      title: 'Propiedad actualizada',
-      description: 'Los cambios han sido guardados.',
-    });
+        // 2. Upload new images
+        let newImageUrls: string[] = [];
+        if (imageFiles.length > 0) {
+            const uploadPromises = imageFiles.map(async (file) => {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}.${fileExt}`;
+                const filePath = `${user.id}/${fileName}`;
+                const { error: uploadError } = await supabase.storage.from('property_images').upload(filePath, file);
+                if (uploadError) throw uploadError;
+                const { data: { publicUrl } } = supabase.storage.from('property_images').getPublicUrl(filePath);
+                return publicUrl;
+            });
+            newImageUrls = await Promise.all(uploadPromises);
+        }
 
-    setIsSubmitting(false);
-    router.push(`/profile/${property.realtor_id}`);
+        // 3. Combine image lists and update property data in DB
+        const finalImageUrls = [...currentImageUrls, ...newImageUrls];
+
+        const updatedPropertyData = {
+          title: formData.title,
+          price: formData.price,
+          location: formData.location,
+          address: formData.address,
+          type: formData.propertyType,
+          bedrooms: formData.numBedrooms,
+          bathrooms: formData.numBathrooms,
+          area: formData.area,
+          description: formData.description,
+          features: formData.features.split(',').map(f => f.trim()).filter(Boolean),
+          images: finalImageUrls,
+        };
+
+        const { data, error } = await supabase
+          .from('properties')
+          .update(updatedPropertyData)
+          .eq('id', property.id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        
+        // Ensure realtor data is preserved from the original property object
+        const fullyUpdatedProperty: Property = { ...property, ...data };
+        updateProperty(fullyUpdatedProperty.id, fullyUpdatedProperty);
+
+        toast({
+          title: 'Propiedad actualizada',
+          description: 'Los cambios han sido guardados.',
+        });
+        
+        router.push(`/properties/${property.id}`);
+
+    } catch (error: any) {
+        console.error('Error updating property:', error);
+        toast({
+            title: 'Error al actualizar',
+            description: error.message || "No se pudo guardar la propiedad.",
+            variant: 'destructive',
+        });
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   return (
@@ -298,21 +381,60 @@ export default function EditPropertyPage() {
                 onChange={handleInputChange}
               />
             </div>
-            <div className="md:col-span-2 space-y-2">
-                <Label>Fotos</Label>
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mt-2">
-                  {property.images.map((src, index) => (
-                    <div key={index} className="relative aspect-square">
+            <div className="md:col-span-2 space-y-4">
+                <div>
+                  <Label>Fotos ({totalImageCount} / {MAX_IMAGES})</Label>
+                   <p className="text-xs text-muted-foreground">
+                        Gestiona las imágenes de tu propiedad. Puedes añadir hasta {MAX_IMAGES} fotos.
+                   </p>
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                  {currentImageUrls.map((src, index) => (
+                    <div key={src} className="relative group">
                       <Image
                         src={src}
                         alt={`Property image ${index + 1}`}
                         fill
                         className="rounded-md object-cover"
                       />
+                       <Button 
+                          type="button" 
+                          variant="destructive" 
+                          size="icon" 
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleDeleteExistingImage(src)}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                       </Button>
                     </div>
                   ))}
+                  {imagePreviews.map((src, index) => (
+                     <div key={src} className="relative group">
+                       <Image
+                         src={src}
+                         alt={`Preview ${index + 1}`}
+                         fill
+                         className="rounded-md object-cover"
+                       />
+                       <Button 
+                          type="button" 
+                          variant="destructive" 
+                          size="icon" 
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleDeleteNewImage(index)}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                       </Button>
+                     </div>
+                   ))}
+                    {totalImageCount < MAX_IMAGES && (
+                         <Label htmlFor="image-upload" className={cn("flex flex-col items-center justify-center w-full h-full aspect-square rounded-md border-2 border-dashed cursor-pointer hover:bg-muted transition-colors", isSubmitting && 'cursor-not-allowed opacity-50')}>
+                           <Upload className="h-8 w-8 text-muted-foreground" />
+                           <span className="text-xs text-muted-foreground text-center mt-1">Añadir Fotos</span>
+                           <Input id="image-upload" type="file" multiple accept="image/*" className="sr-only" onChange={handleImageChange} disabled={isSubmitting} />
+                         </Label>
+                    )}
                 </div>
-                <p className="text-xs text-muted-foreground">La edición de fotos no está disponible actualmente.</p>
             </div>
           </CardContent>
           <CardFooter>
@@ -326,3 +448,6 @@ export default function EditPropertyPage() {
     </div>
   );
 }
+
+
+    

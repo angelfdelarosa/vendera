@@ -465,6 +465,14 @@ body {
   top: 50%;
 }
 
+.-right-2 {
+  right: -.5rem;
+}
+
+.-top-2 {
+  top: -.5rem;
+}
+
 .z-10 {
   z-index: 10;
 }
@@ -1060,6 +1068,10 @@ body {
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
 }
 
 .touch-none {

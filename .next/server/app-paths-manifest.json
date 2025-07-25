@@ -1,5 +1,6 @@
 {
   "/(main)/about/page": "app/(main)/about/page.js",
+  "/(main)/edit-property/[id]/page": "app/(main)/edit-property/[id]/page.js",
   "/(main)/favorites/page": "app/(main)/favorites/page.js",
   "/(main)/landing/page": "app/(main)/landing/page.js",
   "/(main)/messages/page": "app/(main)/messages/page.js",
