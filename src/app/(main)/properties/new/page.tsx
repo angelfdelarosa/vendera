@@ -45,7 +45,8 @@ export default function NewPropertyPage() {
     }
   }, [user, authLoading, router]);
 
-  const getInitialFormData = () => ({
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
     title: "",
     price: 3500000,
     currency: "USD" as Property["currency"],
@@ -58,9 +59,6 @@ export default function NewPropertyPage() {
     features: "Swimming Pool, Garage, Ocean view",
     description: "",
   });
-  
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState(getInitialFormData());
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   
@@ -79,6 +77,10 @@ export default function NewPropertyPage() {
   const handleSelectChange = (id: string, value: string) => {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
+
+  const handleCurrencyChange = (value: Property['currency']) => {
+    setFormData(prev => ({...prev, currency: value}));
+  }
   
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -104,27 +106,27 @@ export default function NewPropertyPage() {
 
     let imageUrls: string[] = [];
     if (imageFiles.length > 0) {
-      const uploadPromises = imageFiles.map(async (file) => {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}.${fileExt}`;
-        const filePath = `${user.id}/${fileName}`;
+       try {
+        const uploadPromises = imageFiles.map(async (file) => {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}.${fileExt}`;
+            const filePath = `${user.id}/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from('property_images')
-          .upload(filePath, file);
+            const { error: uploadError } = await supabase.storage
+            .from('property_images')
+            .upload(filePath, file);
 
-        if (uploadError) {
-          throw uploadError;
-        }
-        
-        const { data: { publicUrl } } = supabase.storage
-          .from('property_images')
-          .getPublicUrl(filePath);
+            if (uploadError) {
+            throw uploadError;
+            }
+            
+            const { data: { publicUrl } } = supabase.storage
+            .from('property_images')
+            .getPublicUrl(filePath);
 
-        return publicUrl;
-      });
+            return publicUrl;
+        });
 
-      try {
         imageUrls = await Promise.all(uploadPromises);
       } catch (error: any) {
         console.error('Error uploading images:', error);
@@ -136,7 +138,6 @@ export default function NewPropertyPage() {
         setIsSubmitting(false);
         return;
       }
-
     } else {
         imageUrls = [
             "https://placehold.co/600x400.png",
@@ -211,7 +212,19 @@ export default function NewPropertyPage() {
       description: t('newProperty.toast.listed.description'),
     });
 
-    setFormData(getInitialFormData());
+    setFormData({
+        title: "",
+        price: 3500000,
+        currency: "USD",
+        location: "Beverly Hills",
+        address: "123 Rodeo Drive, Beverly Hills, CA",
+        propertyType: "villa",
+        numBedrooms: 4,
+        numBathrooms: 3,
+        area: 600,
+        features: "Swimming Pool, Garage, Ocean view",
+        description: "",
+      });
     setImageFiles([]);
     setImagePreviews([]);
     setIsSubmitting(false);
@@ -265,7 +278,7 @@ export default function NewPropertyPage() {
                     />
                     <Select
                         value={formData.currency}
-                        onValueChange={(value) => handleSelectChange('currency', value)}
+                        onValueChange={(value: Property['currency']) => handleCurrencyChange(value)}
                     >
                         <SelectTrigger className="w-[100px]">
                             <SelectValue />
@@ -397,3 +410,5 @@ export default function NewPropertyPage() {
     </div>
   );
 }
+
+    
