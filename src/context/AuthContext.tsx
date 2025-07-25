@@ -6,7 +6,7 @@ import type { User, AuthError, SupabaseClient, RealtimeChannel } from '@supabase
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useChatStore } from '@/components/chat/use-chat-store';
-import type { Conversation as AppConversation, ConversationFromDB } from '@/types';
+import type { Conversation as AppConversation, ConversationFromDB, UserProfile } from '@/types';
 
 
 interface AuthContextType {
@@ -30,45 +30,77 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchAndSetConversations = useCallback(async (userId: string) => {
     setChatLoading(true);
-    const { data, error } = await supabase
+
+    // Step 1: Fetch conversations and basic user info (from auth.users)
+    const { data: conversationsData, error: conversationsError } = await supabase
       .from('conversations')
       .select(`
         *,
         property:properties(id, title, images),
-        sender:profiles!sender_id(user_id, full_name, avatar_url),
-        receiver:profiles!receiver_id(user_id, full_name, avatar_url)
+        sender:sender_id(id, email),
+        receiver:receiver_id(id, email)
       `)
       .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error("Error fetching conversations:", error);
+    if (conversationsError) {
+      console.error("Error fetching conversations:", conversationsError);
       setConversations([]);
-    } else {
-       const transformedConversations = data.map(convo => {
-          const typedConvo = convo as unknown as ConversationFromDB;
-          if (!typedConvo.sender || !typedConvo.receiver) return null;
-
-          const otherUser = typedConvo.sender.user_id === userId ? typedConvo.receiver : typedConvo.sender;
-          
-          return {
-              id: typedConvo.id.toString(),
-              user: otherUser,
-              property: {
-                  id: typedConvo.property?.id || "unknown-property",
-                  title: typedConvo.property?.title || "Conversation",
-                  images: typedConvo.property?.images || [],
-              } as any,
-              messages: [],
-              timestamp: typedConvo.created_at,
-              lastMessage: typedConvo.last_message || "No messages yet.",
-              unread: false, // This logic needs to be revisited based on a better schema
-          } as AppConversation;
-      }).filter(Boolean) as AppConversation[];
-      
-      setConversations(transformedConversations);
+      setChatLoading(false);
+      return;
     }
-     setChatLoading(false);
+    
+    const typedConversations = conversationsData as unknown as ConversationFromDB[];
+
+    // Step 2: Extract all unique user IDs to fetch their profiles
+    const userIds = new Set<string>();
+    typedConversations.forEach(convo => {
+      userIds.add(convo.sender_id);
+      userIds.add(convo.receiver_id);
+    });
+
+    // Step 3: Fetch profiles for all involved users
+    const { data: profilesData, error: profilesError } = await supabase
+      .from('profiles')
+      .select('user_id, full_name, avatar_url, username, created_at')
+      .in('user_id', Array.from(userIds));
+
+    if (profilesError) {
+      console.error("Error fetching profiles for conversations:", profilesError);
+      // We can still proceed with partial data if needed
+    }
+
+    const profilesMap = new Map<string, UserProfile>(
+      profilesData?.map(p => [p.user_id, p as UserProfile]) || []
+    );
+
+    // Step 4: Transform and combine data
+    const transformedConversations = typedConversations.map(convo => {
+      const otherUserAuth = convo.sender_id === userId ? convo.receiver : convo.sender;
+      const otherUserProfile = profilesMap.get(otherUserAuth.id) || { user_id: otherUserAuth.id, full_name: otherUserAuth.email || 'Unknown User' };
+      
+      const finalOtherUser: UserProfile = {
+          user_id: otherUserAuth.id,
+          full_name: otherUserProfile.full_name || otherUserAuth.email,
+          avatar_url: otherUserProfile.avatar_url,
+          username: otherUserProfile.username,
+          created_at: otherUserProfile.created_at,
+          email: otherUserAuth.email || undefined,
+      };
+
+      return {
+        id: convo.id,
+        user: finalOtherUser,
+        property: convo.property || { id: 'deleted-property', title: 'Deleted Property', images: [] },
+        messages: [], // Messages are fetched separately
+        timestamp: convo.created_at,
+        lastMessage: convo.last_message || "No messages yet.",
+        unread: false, // This logic can be improved later
+      } as AppConversation;
+    });
+
+    setConversations(transformedConversations);
+    setChatLoading(false);
   }, [supabase, setConversations, setChatLoading]);
   
   useEffect(() => {
