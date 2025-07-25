@@ -1328,25 +1328,25 @@ function ProfilePageClient() {
     const handleStartConversation = async ()=>{
         if (!authUser || !supabase || isOwnProfile) return;
         try {
-            // Check if a conversation already exists between the two users
-            const { data: existingConvo, error: fetchError } = await supabase.from('conversations').select('id').or(`and(buyer_id.eq.${authUser.id},seller_id.eq.${displayUser.user_id}),and(buyer_id.eq.${displayUser.user_id},seller_id.eq.${authUser.id})`).maybeSingle();
+            // Find if a conversation already exists between the two users
+            const { data: existingConvo, error: fetchError } = await supabase.from('conversations').select('id').or(`(user1_id.eq.${authUser.id},user2_id.eq.${displayUser.user_id}),(user1_id.eq.${displayUser.user_id},user2_id.eq.${authUser.id})`).maybeSingle();
             if (fetchError) {
                 throw fetchError;
             }
+            // If conversation exists, navigate to messages page
             if (existingConvo) {
-                router.push('/messages'); // Navigate to messages page if convo exists
+                router.push('/messages');
                 return;
             }
-            // If not, create a new one. A property is not required to start a chat from a profile.
+            // If not, create a new conversation
             const { data: newConvo, error: insertError } = await supabase.from('conversations').insert({
-                buyer_id: authUser.id,
-                seller_id: displayUser.user_id
+                user1_id: authUser.id,
+                user2_id: displayUser.user_id,
+                last_message_at: new Date().toISOString()
             }).select('id').single();
             if (insertError) {
                 throw insertError;
             }
-            // This part would ideally refresh the chat store, but for now, we just redirect.
-            // The store should fetch fresh data on the messages page.
             router.push('/messages');
         } catch (error) {
             console.error("Error starting conversation:", error);
