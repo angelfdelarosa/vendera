@@ -37,12 +37,6 @@ export function Header() {
                 {t('header.favorites')}
               </Link>
               <Link
-                href="/messages"
-                className="text-foreground/60 transition-colors hover:text-accent"
-              >
-                {t('messages.title')}
-              </Link>
-              <Link
                 href="/properties/new"
                 className="text-foreground/60 transition-colors hover:text-accent"
               >
