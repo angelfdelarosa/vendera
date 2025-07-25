@@ -914,6 +914,10 @@ body {
   width: 100%;
 }
 
+.w-\[350px\] {
+  width: 350px;
+}
+
 .min-w-0 {
   min-width: 0;
 }
@@ -1324,6 +1328,10 @@ body {
 
 .border-dashed {
   border-style: dashed;
+}
+
+.border-none {
+  border-style: none;
 }
 
 .border-\[--color-border\] {
@@ -2599,6 +2607,16 @@ body {
   border-color: hsl(var(--destructive));
 }
 
+.dark\:brightness-\[0\.2\]:is(.dark *) {
+  --tw-brightness: brightness(.2);
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.dark\:grayscale:is(.dark *) {
+  --tw-grayscale: grayscale(100%);
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
 .dark\:hover\:bg-red-900\/20:hover:is(.dark *) {
   background-color: #7f1d1d33;
 }
@@ -2760,8 +2778,16 @@ body {
     margin-right: 0;
   }
 
+  .lg\:block {
+    display: block;
+  }
+
   .lg\:flex {
     display: flex;
+  }
+
+  .lg\:grid {
+    display: grid;
   }
 
   .lg\:min-h-screen {

@@ -28,6 +28,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
+import { Logo } from '@/components/layout/Logo';
+import Image from 'next/image';
 
 const signupSchema = z
   .object({
@@ -82,95 +84,109 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-secondary">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-           <div className="flex justify-between items-start">
-              <div>
-                <CardTitle className="text-2xl font-headline">{t('signup.title')}</CardTitle>
-                <CardDescription>
-                  {t('signup.subtitle')}
-                </CardDescription>
-              </div>
-              <LanguageSwitcher />
+    <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
+       <div className="flex items-center justify-center py-12">
+        <div className="mx-auto grid w-[350px] gap-6">
+            <div className="grid gap-2 text-left">
+                <Link href="/landing">
+                    <Logo />
+                </Link>
             </div>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-              <FormField
-                control={form.control}
-                name="fullName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('signup.name')}</FormLabel>
-                    <FormControl>
-                      <Input placeholder="John Doe" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('contact.form.email')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="m@example.com"
-                        type="email"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('login.password')}</FormLabel>
-                    <FormControl>
-                      <Input type="password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('signup.confirmPassword')}</FormLabel>
-                    <FormControl>
-                      <Input type="password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  t('signup.button')
-                )}
-              </Button>
-            </form>
-          </Form>
-          <div className="mt-4 text-center text-sm">
-            {t('signup.hasAccount')}{' '}
-            <Link href="/login" className="underline">
-              {t('login.title')}
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+            <Card className="border-none shadow-none">
+                <CardHeader>
+                    <CardTitle className="text-3xl font-bold font-headline">{t('signup.title')}</CardTitle>
+                    <CardDescription>
+                    {t('signup.subtitle')}
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+                        <FormField
+                            control={form.control}
+                            name="fullName"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{t('signup.name')}</FormLabel>
+                                <FormControl>
+                                <Input placeholder="John Doe" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{t('contact.form.email')}</FormLabel>
+                                <FormControl>
+                                <Input
+                                    placeholder="m@example.com"
+                                    type="email"
+                                    {...field}
+                                />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{t('login.password')}</FormLabel>
+                                <FormControl>
+                                <Input type="password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="confirmPassword"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>{t('signup.confirmPassword')}</FormLabel>
+                                <FormControl>
+                                <Input type="password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <Button type="submit" className="w-full" disabled={isSubmitting}>
+                            {isSubmitting ? (
+                            <Loader2 className="animate-spin" />
+                            ) : (
+                            t('signup.button')
+                            )}
+                        </Button>
+                        </form>
+                    </Form>
+                    <div className="mt-4 text-center text-sm">
+                        {t('signup.hasAccount')}{' '}
+                        <Link href="/login" className="underline">
+                        {t('login.title')}
+                        </Link>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+      </div>
+       <div className="hidden bg-muted lg:block">
+        <Image
+          src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2670&auto=format&fit=crop"
+          alt="Image"
+          width="1920"
+          height="1080"
+          className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          data-ai-hint="house exterior"
+        />
+      </div>
     </div>
   );
 }
