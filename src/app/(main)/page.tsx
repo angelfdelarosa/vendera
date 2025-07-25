@@ -8,8 +8,6 @@ import type { Property } from "@/types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Loader2 } from "lucide-react";
 import { usePropertyContext } from "@/context/PropertyContext";
-import { useAuth } from "@/context/AuthContext";
-import LandingPage from "./landing/page";
 
 function HomePageContent() {
   const { t } = useTranslation();
@@ -80,19 +78,5 @@ function HomePageContent() {
 
 
 export default function HomePage() {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-     return (
-        <div className="flex justify-center items-center min-h-screen">
-            <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        </div>
-    );
-  }
-
-  if (!user) {
-    return <LandingPage />;
-  }
-  
   return <HomePageContent />
 }
