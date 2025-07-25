@@ -565,21 +565,24 @@ const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                 }));
         },
         handleStartConversation: async (property, authUser, supabase)=>{
-            const { conversations } = get();
-            const sellerId = property.realtor_id;
-            if (!authUser || authUser.id === sellerId) {
+            if (!authUser || authUser.id === property.realtor.user_id) {
                 console.log("Cannot start conversation with yourself.");
                 return null;
             }
-            const existingConversation = conversations.find((c)=>c.property_id === property.id && c.buyer_id === authUser.id && c.seller_id === sellerId);
-            if (existingConversation) {
-                get().selectConversation(existingConversation.id);
-                return existingConversation.id;
+            // Check if a conversation already exists for this trio
+            const { data: existing, error: existingError } = await supabase.from('conversations').select('id').eq('buyer_id', authUser.id).eq('seller_id', property.realtor_id).eq('property_id', property.id).maybeSingle();
+            if (existingError) {
+                console.error("Error checking for existing conversation", existingError);
+                return null;
+            }
+            if (existing) {
+                get().selectConversation(existing.id);
+                return existing.id;
             }
             // If no existing conversation, create a new one
             const { data: newConversationData, error } = await supabase.from('conversations').insert({
                 buyer_id: authUser.id,
-                seller_id: sellerId,
+                seller_id: property.realtor_id,
                 property_id: property.id
             }).select(`
         *,
@@ -591,7 +594,7 @@ const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                 console.error('Error creating conversation:', error);
                 return null;
             }
-            // Manually add the lastMessage field
+            // Manually construct the full conversation object for the state
             const newConvo = {
                 ...newConversationData,
                 otherUser: newConversationData.seller,

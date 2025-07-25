@@ -14,6 +14,7 @@ export type Property = {
   features: string[];
   images: string[];
   realtor_id: string;
+  is_active?: boolean;
   realtor: {
     user_id: string;
     full_name: string | null;
@@ -76,4 +77,3 @@ export type ConversationFromDB = {
   seller: UserProfile;
   messages: { content: string }[];
 };
-
