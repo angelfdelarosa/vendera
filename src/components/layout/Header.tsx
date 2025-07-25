@@ -55,10 +55,7 @@ export function Header() {
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium ml-10">
           <Link
             href="/"
-            className={cn(
-              "transition-colors hover:text-accent", 
-              showTransparentNav ? 'text-white/80 hover:text-white' : 'text-foreground/60'
-            )}
+            className="transition-colors hover:text-accent text-foreground/60"
           >
             {t('header.properties')}
           </Link>
@@ -66,19 +63,13 @@ export function Header() {
             <>
               <Link
                 href="/favorites"
-                className={cn(
-                  "transition-colors hover:text-accent", 
-                  showTransparentNav ? 'text-white/80 hover:text-white' : 'text-foreground/60'
-                )}
+                className="transition-colors hover:text-accent text-foreground/60"
               >
                 {t('header.favorites')}
               </Link>
               <Link
                 href="/properties/new"
-                className={cn(
-                  "transition-colors hover:text-accent", 
-                  showTransparentNav ? 'text-white/80 hover:text-white' : 'text-foreground/60'
-                )}
+                className="transition-colors hover:text-accent text-foreground/60"
               >
                 {t('header.addProperty')}
               </Link>
