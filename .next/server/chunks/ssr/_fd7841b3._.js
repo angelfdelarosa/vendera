@@ -387,21 +387,20 @@ function NewPropertyPage() {
         authLoading,
         router
     ]);
-    const getInitialFormData = ()=>({
-            title: "",
-            price: 3500000,
-            currency: "USD",
-            location: "Beverly Hills",
-            address: "123 Rodeo Drive, Beverly Hills, CA",
-            propertyType: "villa",
-            numBedrooms: 4,
-            numBathrooms: 3,
-            area: 600,
-            features: "Swimming Pool, Garage, Ocean view",
-            description: ""
-        });
     const [isSubmitting, setIsSubmitting] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
-    const [formData, setFormData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(getInitialFormData());
+    const [formData, setFormData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])({
+        title: "",
+        price: 3500000,
+        currency: "USD",
+        location: "Beverly Hills",
+        address: "123 Rodeo Drive, Beverly Hills, CA",
+        propertyType: "villa",
+        numBedrooms: 4,
+        numBathrooms: 3,
+        area: 600,
+        features: "Swimming Pool, Garage, Ocean view",
+        description: ""
+    });
     const [imageFiles, setImageFiles] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [imagePreviews, setImagePreviews] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const handleInputChange = (e)=>{
@@ -422,6 +421,12 @@ function NewPropertyPage() {
         setFormData((prev)=>({
                 ...prev,
                 [id]: value
+            }));
+    };
+    const handleCurrencyChange = (value)=>{
+        setFormData((prev)=>({
+                ...prev,
+                currency: value
             }));
     };
     const handleImageChange = (e)=>{
@@ -447,18 +452,18 @@ function NewPropertyPage() {
         setIsSubmitting(true);
         let imageUrls = [];
         if (imageFiles.length > 0) {
-            const uploadPromises = imageFiles.map(async (file)=>{
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}.${fileExt}`;
-                const filePath = `${user.id}/${fileName}`;
-                const { error: uploadError } = await supabase.storage.from('property_images').upload(filePath, file);
-                if (uploadError) {
-                    throw uploadError;
-                }
-                const { data: { publicUrl } } = supabase.storage.from('property_images').getPublicUrl(filePath);
-                return publicUrl;
-            });
             try {
+                const uploadPromises = imageFiles.map(async (file)=>{
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}.${fileExt}`;
+                    const filePath = `${user.id}/${fileName}`;
+                    const { error: uploadError } = await supabase.storage.from('property_images').upload(filePath, file);
+                    if (uploadError) {
+                        throw uploadError;
+                    }
+                    const { data: { publicUrl } } = supabase.storage.from('property_images').getPublicUrl(filePath);
+                    return publicUrl;
+                });
                 imageUrls = await Promise.all(uploadPromises);
             } catch (error) {
                 console.error('Error uploading images:', error);
@@ -527,7 +532,19 @@ function NewPropertyPage() {
             title: t('newProperty.toast.listed.title'),
             description: t('newProperty.toast.listed.description')
         });
-        setFormData(getInitialFormData());
+        setFormData({
+            title: "",
+            price: 3500000,
+            currency: "USD",
+            location: "Beverly Hills",
+            address: "123 Rodeo Drive, Beverly Hills, CA",
+            propertyType: "villa",
+            numBedrooms: 4,
+            numBathrooms: 3,
+            area: 600,
+            features: "Swimming Pool, Garage, Ocean view",
+            description: ""
+        });
         setImageFiles([]);
         setImagePreviews([]);
         setIsSubmitting(false);
@@ -541,7 +558,7 @@ function NewPropertyPage() {
                     className: "h-16 w-16 animate-spin text-primary"
                 }, void 0, false, {
                     fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                    lineNumber: 225,
+                    lineNumber: 238,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -549,13 +566,13 @@ function NewPropertyPage() {
                     children: "Redirecting to login..."
                 }, void 0, false, {
                     fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                    lineNumber: 226,
+                    lineNumber: 239,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-            lineNumber: 224,
+            lineNumber: 237,
             columnNumber: 7
         }, this);
     }
@@ -573,20 +590,20 @@ function NewPropertyPage() {
                                 children: t('newProperty.title')
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                lineNumber: 236,
+                                lineNumber: 249,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                 children: t('newProperty.subtitle')
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                lineNumber: 239,
+                                lineNumber: 252,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                        lineNumber: 235,
+                        lineNumber: 248,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -600,7 +617,7 @@ function NewPropertyPage() {
                                         children: t('newProperty.form.name')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 245,
+                                        lineNumber: 258,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -611,13 +628,13 @@ function NewPropertyPage() {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 246,
+                                        lineNumber: 259,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                lineNumber: 244,
+                                lineNumber: 257,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -628,7 +645,7 @@ function NewPropertyPage() {
                                         children: t('newProperty.form.price')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 255,
+                                        lineNumber: 268,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -644,23 +661,23 @@ function NewPropertyPage() {
                                                 className: "flex-grow"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                lineNumber: 257,
+                                                lineNumber: 270,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
                                                 value: formData.currency,
-                                                onValueChange: (value)=>handleSelectChange('currency', value),
+                                                onValueChange: (value)=>handleCurrencyChange(value),
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectTrigger"], {
                                                         className: "w-[100px]",
                                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                             fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                            lineNumber: 271,
+                                                            lineNumber: 284,
                                                             columnNumber: 29
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                        lineNumber: 270,
+                                                        lineNumber: 283,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -670,7 +687,7 @@ function NewPropertyPage() {
                                                                 children: "USD"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                                lineNumber: 274,
+                                                                lineNumber: 287,
                                                                 columnNumber: 29
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -678,31 +695,31 @@ function NewPropertyPage() {
                                                                 children: "DOP"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                                lineNumber: 275,
+                                                                lineNumber: 288,
                                                                 columnNumber: 29
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                        lineNumber: 273,
+                                                        lineNumber: 286,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                lineNumber: 266,
+                                                lineNumber: 279,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 256,
+                                        lineNumber: 269,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                lineNumber: 254,
+                                lineNumber: 267,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -713,7 +730,7 @@ function NewPropertyPage() {
                                         children: t('newProperty.form.location')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 281,
+                                        lineNumber: 294,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -723,13 +740,13 @@ function NewPropertyPage() {
                                         onChange: handleInputChange
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 282,
+                                        lineNumber: 295,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                lineNumber: 280,
+                                lineNumber: 293,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -740,7 +757,7 @@ function NewPropertyPage() {
                                         children: t('newProperty.form.address')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 290,
+                                        lineNumber: 303,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -750,13 +767,13 @@ function NewPropertyPage() {
                                         onChange: handleInputChange
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 291,
+                                        lineNumber: 304,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                lineNumber: 289,
+                                lineNumber: 302,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -767,7 +784,7 @@ function NewPropertyPage() {
                                         children: t('search.propertyType')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 299,
+                                        lineNumber: 312,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -780,12 +797,12 @@ function NewPropertyPage() {
                                                     placeholder: t('newProperty.form.type_placeholder')
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                    lineNumber: 305,
+                                                    lineNumber: 318,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                lineNumber: 304,
+                                                lineNumber: 317,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -795,7 +812,7 @@ function NewPropertyPage() {
                                                         children: t('property.types.house')
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                        lineNumber: 308,
+                                                        lineNumber: 321,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -803,7 +820,7 @@ function NewPropertyPage() {
                                                         children: t('property.types.apartment')
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                        lineNumber: 309,
+                                                        lineNumber: 322,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -811,7 +828,7 @@ function NewPropertyPage() {
                                                         children: t('property.types.condo')
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                        lineNumber: 310,
+                                                        lineNumber: 323,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -819,7 +836,7 @@ function NewPropertyPage() {
                                                         children: t('property.types.villa')
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                        lineNumber: 311,
+                                                        lineNumber: 324,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -827,25 +844,25 @@ function NewPropertyPage() {
                                                         children: t('property.types.lot')
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                        lineNumber: 312,
+                                                        lineNumber: 325,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                lineNumber: 307,
+                                                lineNumber: 320,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 300,
+                                        lineNumber: 313,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                lineNumber: 298,
+                                lineNumber: 311,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -859,7 +876,7 @@ function NewPropertyPage() {
                                                 children: t('newProperty.form.bedrooms')
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                lineNumber: 318,
+                                                lineNumber: 331,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -870,13 +887,13 @@ function NewPropertyPage() {
                                                 onChange: handleNumberInputChange
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                lineNumber: 319,
+                                                lineNumber: 332,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 317,
+                                        lineNumber: 330,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -887,7 +904,7 @@ function NewPropertyPage() {
                                                 children: t('newProperty.form.bathrooms')
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                lineNumber: 328,
+                                                lineNumber: 341,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -898,19 +915,19 @@ function NewPropertyPage() {
                                                 onChange: handleNumberInputChange
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                lineNumber: 329,
+                                                lineNumber: 342,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 327,
+                                        lineNumber: 340,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                lineNumber: 316,
+                                lineNumber: 329,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -921,7 +938,7 @@ function NewPropertyPage() {
                                         children: t('newProperty.form.area')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 339,
+                                        lineNumber: 352,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -932,13 +949,13 @@ function NewPropertyPage() {
                                         onChange: handleNumberInputChange
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 340,
+                                        lineNumber: 353,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                lineNumber: 338,
+                                lineNumber: 351,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -949,7 +966,7 @@ function NewPropertyPage() {
                                         children: t('newProperty.form.features')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 349,
+                                        lineNumber: 362,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -959,7 +976,7 @@ function NewPropertyPage() {
                                         onChange: handleInputChange
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 350,
+                                        lineNumber: 363,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -967,13 +984,13 @@ function NewPropertyPage() {
                                         children: t('newProperty.form.amenities_note')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 356,
+                                        lineNumber: 369,
                                         columnNumber: 16
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                lineNumber: 348,
+                                lineNumber: 361,
                                 columnNumber: 14
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -984,7 +1001,7 @@ function NewPropertyPage() {
                                         children: t('property.description')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 361,
+                                        lineNumber: 374,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -995,13 +1012,13 @@ function NewPropertyPage() {
                                         onChange: handleInputChange
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 362,
+                                        lineNumber: 375,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                lineNumber: 360,
+                                lineNumber: 373,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1012,7 +1029,7 @@ function NewPropertyPage() {
                                         children: t('newProperty.form.photos')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 371,
+                                        lineNumber: 384,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -1023,7 +1040,7 @@ function NewPropertyPage() {
                                         onChange: handleImageChange
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 372,
+                                        lineNumber: 385,
                                         columnNumber: 15
                                     }, this),
                                     imagePreviews.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1037,29 +1054,29 @@ function NewPropertyPage() {
                                                     className: "rounded-md object-cover"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                    lineNumber: 377,
+                                                    lineNumber: 390,
                                                     columnNumber: 23
                                                 }, this)
                                             }, index, false, {
                                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                                lineNumber: 376,
+                                                lineNumber: 389,
                                                 columnNumber: 21
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                        lineNumber: 374,
+                                        lineNumber: 387,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                lineNumber: 370,
+                                lineNumber: 383,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                        lineNumber: 243,
+                        lineNumber: 256,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardFooter"], {
@@ -1072,35 +1089,35 @@ function NewPropertyPage() {
                                     className: "mr-2 h-4 w-4 animate-spin"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                                    lineNumber: 391,
+                                    lineNumber: 404,
                                     columnNumber: 32
                                 }, this),
                                 t('newProperty.form.submit')
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                            lineNumber: 390,
+                            lineNumber: 403,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                        lineNumber: 389,
+                        lineNumber: 402,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-                lineNumber: 234,
+                lineNumber: 247,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-            lineNumber: 233,
+            lineNumber: 246,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/(main)/properties/new/page.tsx",
-        lineNumber: 232,
+        lineNumber: 245,
         columnNumber: 5
     }, this);
 }

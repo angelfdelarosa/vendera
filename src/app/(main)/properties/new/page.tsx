@@ -104,131 +104,130 @@ export default function NewPropertyPage() {
     }
     setIsSubmitting(true);
 
-    let imageUrls: string[] = [];
-    if (imageFiles.length > 0) {
-       try {
-        const uploadPromises = imageFiles.map(async (file) => {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}.${fileExt}`;
-            const filePath = `${user.id}/${fileName}`;
+    try {
+        // RLS check: Ensure user has a profile before proceeding
+        const { data: userProfile, error: profileError } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('user_id', user.id)
+          .single();
 
-            const { error: uploadError } = await supabase.storage
-            .from('property_images')
-            .upload(filePath, file);
+        if (profileError || !userProfile) {
+            throw new Error("Could not verify your seller profile. Please try again later.");
+        }
 
-            if (uploadError) {
-            throw uploadError;
+        let imageUrls: string[] = [];
+        if (imageFiles.length > 0) {
+            const uploadPromises = imageFiles.map(async (file) => {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}.${fileExt}`;
+                const filePath = `${user.id}/${fileName}`;
+
+                const { error: uploadError } = await supabase.storage
+                .from('property_images')
+                .upload(filePath, file);
+
+                if (uploadError) {
+                    throw uploadError;
+                }
+                
+                const { data: { publicUrl } } = supabase.storage
+                .from('property_images')
+                .getPublicUrl(filePath);
+
+                return publicUrl;
+            });
+
+            imageUrls = await Promise.all(uploadPromises);
+        } else {
+            imageUrls = [
+                "https://placehold.co/600x400.png",
+                "https://placehold.co/600x400.png",
+            ]
+        }
+
+
+        const features = formData.features.split(",").map((f) => f.trim()).filter(Boolean);
+
+        const newPropertyData = {
+          realtor_id: user.id,
+          title: formData.title,
+          price: formData.price,
+          currency: formData.currency,
+          location: formData.location,
+          address: formData.address,
+          type: formData.propertyType,
+          bedrooms: formData.numBedrooms,
+          bathrooms: formData.numBathrooms,
+          area: formData.area,
+          description: formData.description,
+          features: features,
+          images: imageUrls,
+        };
+        
+
+        const { data, error } = await supabase
+            .from('properties')
+            .insert(newPropertyData)
+            .select()
+            .single();
+
+
+        if (error) {
+            console.error('Error inserting property:', error);
+            throw error;
+        }
+
+        const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url, username').eq('user_id', user.id).single();
+
+        if (!profile) {
+            // This case is unlikely now due to the check above, but good for safety
+             throw new Error("Could not find realtor data after listing property.");
+        }
+
+        const newProperty: Property = {
+            ...data,
+            realtor: {
+                 user_id: user.id,
+                 full_name: profile.full_name || 'Anonymous',
+                 avatar_url: profile.avatar_url || 'https://placehold.co/100x100.png',
+                 username: profile.username || ''
             }
-            
-            const { data: { publicUrl } } = supabase.storage
-            .from('property_images')
-            .getPublicUrl(filePath);
+        }
 
-            return publicUrl;
-        });
+        addProperty(newProperty);
 
-        imageUrls = await Promise.all(uploadPromises);
-      } catch (error: any) {
-        console.error('Error uploading images:', error);
         toast({
-          title: "Image Upload Failed",
-          description: error.message || "An unknown error occurred during image upload.",
-          variant: "destructive",
+          title: t('newProperty.toast.listed.title'),
+          description: t('newProperty.toast.listed.description'),
         });
-        setIsSubmitting(false);
-        return;
-      }
-    } else {
-        imageUrls = [
-            "https://placehold.co/600x400.png",
-            "https://placehold.co/600x400.png",
-        ]
-    }
 
+        setFormData({
+            title: "",
+            price: 3500000,
+            currency: "USD",
+            location: "Beverly Hills",
+            address: "123 Rodeo Drive, Beverly Hills, CA",
+            propertyType: "villa",
+            numBedrooms: 4,
+            numBathrooms: 3,
+            area: 600,
+            features: "Swimming Pool, Garage, Ocean view",
+            description: "",
+          });
+        setImageFiles([]);
+        setImagePreviews([]);
+        router.push(`/properties/${newProperty.id}`);
 
-    const features = formData.features.split(",").map((f) => f.trim()).filter(Boolean);
-
-    const newPropertyData = {
-      realtor_id: user.id,
-      title: formData.title,
-      price: formData.price,
-      currency: formData.currency,
-      location: formData.location,
-      address: formData.address,
-      type: formData.propertyType,
-      bedrooms: formData.numBedrooms,
-      bathrooms: formData.numBathrooms,
-      area: formData.area,
-      description: formData.description,
-      features: features,
-      images: imageUrls,
-    };
-    
-
-    const { data, error } = await supabase
-        .from('properties')
-        .insert(newPropertyData)
-        .select()
-        .single();
-
-
-    if (error) {
-        console.error('Error inserting property:', error);
+    } catch (error: any) {
         toast({
             title: "Error Listing Property",
             description: error.message || 'An unknown error occurred.',
             variant: "destructive",
         });
+    } finally {
         setIsSubmitting(false);
-        return;
     }
-
-    const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url, username').eq('user_id', user.id).single();
-
-    if (!profile) {
-        toast({
-            title: "Error fetching realtor profile",
-            description: 'Could not find realtor data after listing property.',
-            variant: "destructive",
-        });
-        setIsSubmitting(false);
-        return;
-    }
-
-    const newProperty: Property = {
-        ...data,
-        realtor: {
-             user_id: user.id,
-             full_name: profile?.full_name || 'Anonymous',
-             avatar_url: profile?.avatar_url || 'https://placehold.co/100x100.png',
-             username: profile?.username || ''
-        }
-    }
-
-    addProperty(newProperty);
-
-    toast({
-      title: t('newProperty.toast.listed.title'),
-      description: t('newProperty.toast.listed.description'),
-    });
-
-    setFormData({
-        title: "",
-        price: 3500000,
-        currency: "USD",
-        location: "Beverly Hills",
-        address: "123 Rodeo Drive, Beverly Hills, CA",
-        propertyType: "villa",
-        numBedrooms: 4,
-        numBathrooms: 3,
-        area: 600,
-        features: "Swimming Pool, Garage, Ocean view",
-        description: "",
-      });
-    setImageFiles([]);
-    setImagePreviews([]);
-    setIsSubmitting(false);
-    router.push(`/properties/${newProperty.id}`);
   };
 
 
@@ -410,5 +409,3 @@ export default function NewPropertyPage() {
     </div>
   );
 }
-
-    
