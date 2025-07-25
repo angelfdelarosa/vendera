@@ -1,4 +1,8 @@
 {
+  "/(main)/favorites/page": "app/(main)/favorites/page.js",
   "/(main)/landing/page": "app/(main)/landing/page.js",
-  "/(main)/page": "app/(main)/page.js"
+  "/(main)/page": "app/(main)/page.js",
+  "/(main)/profile/[id]/page": "app/(main)/profile/[id]/page.js",
+  "/(main)/properties/[id]/page": "app/(main)/properties/[id]/page.js",
+  "/login/page": "app/login/page.js"
 }
