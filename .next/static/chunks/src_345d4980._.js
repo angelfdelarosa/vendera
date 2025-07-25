@@ -410,11 +410,14 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$l
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/textarea.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/select.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-client] (ecmascript) <export default as Loader2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/trash-2.js [app-client] (ecmascript) <export default as Trash2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/upload.js [app-client] (ecmascript) <export default as Upload>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/hooks/use-toast.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$usePropertyStore$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/hooks/usePropertyStore.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/image.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/hooks/useTranslation.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/context/AuthContext.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
 'use client';
@@ -433,6 +436,8 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+;
+const MAX_IMAGES = 5;
 function EditPropertyPage() {
     _s();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
@@ -457,6 +462,11 @@ function EditPropertyPage() {
         features: '',
         description: ''
     });
+    const [currentImageUrls, setCurrentImageUrls] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [imagesToDelete, setImagesToDelete] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [imageFiles, setImageFiles] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [imagePreviews, setImagePreviews] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const totalImageCount = currentImageUrls.length + imageFiles.length;
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "EditPropertyPage.useEffect": ()=>{
             const fetchProperty = {
@@ -482,6 +492,7 @@ function EditPropertyPage() {
                             description: fetchedProperty.description,
                             features: fetchedProperty.features.join(', ')
                         });
+                        setCurrentImageUrls(fetchedProperty.images);
                     }
                     setPageLoading(false);
                 }
@@ -506,6 +517,20 @@ function EditPropertyPage() {
         authLoading,
         router
     ]);
+    // Cleanup object URLs
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "EditPropertyPage.useEffect": ()=>{
+            return ({
+                "EditPropertyPage.useEffect": ()=>{
+                    imagePreviews.forEach({
+                        "EditPropertyPage.useEffect": (preview)=>URL.revokeObjectURL(preview)
+                    }["EditPropertyPage.useEffect"]);
+                }
+            })["EditPropertyPage.useEffect"];
+        }
+    }["EditPropertyPage.useEffect"], [
+        imagePreviews
+    ]);
     if (pageLoading || authLoading) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "flex justify-center items-center min-h-[calc(100vh-8rem)]",
@@ -513,12 +538,12 @@ function EditPropertyPage() {
                 className: "h-16 w-16 animate-spin text-primary"
             }, void 0, false, {
                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                lineNumber: 108,
+                lineNumber: 126,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-            lineNumber: 107,
+            lineNumber: 125,
             columnNumber: 7
         }, this);
     }
@@ -555,45 +580,111 @@ function EditPropertyPage() {
                 propertyType: value
             }));
     };
+    const handleImageChange = (e)=>{
+        if (e.target.files) {
+            const files = Array.from(e.target.files);
+            const remainingSlots = MAX_IMAGES - totalImageCount;
+            const filesToUpload = files.slice(0, remainingSlots);
+            if (files.length > remainingSlots) {
+                toast({
+                    title: `Se superó el límite de ${MAX_IMAGES} imágenes`,
+                    description: `Solo se agregarán las primeras ${remainingSlots} imágenes.`,
+                    variant: 'destructive'
+                });
+            }
+            setImageFiles((prev)=>[
+                    ...prev,
+                    ...filesToUpload
+                ]);
+            const newPreviews = filesToUpload.map((file)=>URL.createObjectURL(file));
+            setImagePreviews((prev)=>[
+                    ...prev,
+                    ...newPreviews
+                ]);
+        }
+    };
+    const handleDeleteExistingImage = (imageUrl)=>{
+        setCurrentImageUrls((prev)=>prev.filter((url)=>url !== imageUrl));
+        setImagesToDelete((prev)=>[
+                ...prev,
+                imageUrl
+            ]);
+    };
+    const handleDeleteNewImage = (index)=>{
+        const previewToDelete = imagePreviews[index];
+        URL.revokeObjectURL(previewToDelete);
+        setImageFiles((prev)=>prev.filter((_, i)=>i !== index));
+        setImagePreviews((prev)=>prev.filter((_, i)=>i !== index));
+    };
     const handleSubmit = async (e)=>{
         e.preventDefault();
         if (!user || !property) return;
         setIsSubmitting(true);
-        const updatedPropertyData = {
-            title: formData.title,
-            price: formData.price,
-            location: formData.location,
-            address: formData.address,
-            type: formData.propertyType,
-            bedrooms: formData.numBedrooms,
-            bathrooms: formData.numBathrooms,
-            area: formData.area,
-            description: formData.description,
-            features: formData.features.split(',').map((f)=>f.trim()).filter(Boolean)
-        };
-        const { data, error } = await supabase.from('properties').update(updatedPropertyData).eq('id', property.id).select().single();
-        if (error) {
+        try {
+            // 1. Delete images marked for deletion from Supabase Storage
+            if (imagesToDelete.length > 0) {
+                const filePaths = imagesToDelete.map((url)=>{
+                    const parts = url.split('/');
+                    return `${user.id}/${parts[parts.length - 1]}`;
+                });
+                const { error: deleteError } = await supabase.storage.from('property_images').remove(filePaths);
+                if (deleteError) throw deleteError;
+            }
+            // 2. Upload new images
+            let newImageUrls = [];
+            if (imageFiles.length > 0) {
+                const uploadPromises = imageFiles.map(async (file)=>{
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}.${fileExt}`;
+                    const filePath = `${user.id}/${fileName}`;
+                    const { error: uploadError } = await supabase.storage.from('property_images').upload(filePath, file);
+                    if (uploadError) throw uploadError;
+                    const { data: { publicUrl } } = supabase.storage.from('property_images').getPublicUrl(filePath);
+                    return publicUrl;
+                });
+                newImageUrls = await Promise.all(uploadPromises);
+            }
+            // 3. Combine image lists and update property data in DB
+            const finalImageUrls = [
+                ...currentImageUrls,
+                ...newImageUrls
+            ];
+            const updatedPropertyData = {
+                title: formData.title,
+                price: formData.price,
+                location: formData.location,
+                address: formData.address,
+                type: formData.propertyType,
+                bedrooms: formData.numBedrooms,
+                bathrooms: formData.numBathrooms,
+                area: formData.area,
+                description: formData.description,
+                features: formData.features.split(',').map((f)=>f.trim()).filter(Boolean),
+                images: finalImageUrls
+            };
+            const { data, error } = await supabase.from('properties').update(updatedPropertyData).eq('id', property.id).select().single();
+            if (error) throw error;
+            // Ensure realtor data is preserved from the original property object
+            const fullyUpdatedProperty = {
+                ...property,
+                ...data
+            };
+            updateProperty(fullyUpdatedProperty.id, fullyUpdatedProperty);
+            toast({
+                title: 'Propiedad actualizada',
+                description: 'Los cambios han sido guardados.'
+            });
+            router.push(`/properties/${property.id}`);
+        } catch (error) {
             console.error('Error updating property:', error);
             toast({
                 title: 'Error al actualizar',
-                description: error.message || "No se pudo guardar la propiedad. Verifique que todos los campos sean válidos.",
+                description: error.message || "No se pudo guardar la propiedad.",
                 variant: 'destructive'
             });
+        } finally{
             setIsSubmitting(false);
-            return;
         }
-        // Ensure realtor data is preserved from the original property object
-        const fullyUpdatedProperty = {
-            ...property,
-            ...data
-        };
-        updateProperty(fullyUpdatedProperty.id, fullyUpdatedProperty);
-        toast({
-            title: 'Propiedad actualizada',
-            description: 'Los cambios han sido guardados.'
-        });
-        setIsSubmitting(false);
-        router.push(`/profile/${property.realtor_id}`);
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "container mx-auto px-4 py-8",
@@ -609,20 +700,20 @@ function EditPropertyPage() {
                                 children: "Editar Propiedad"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                lineNumber: 194,
+                                lineNumber: 277,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                 children: "Actualiza los detalles de tu propiedad a continuación."
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                lineNumber: 197,
+                                lineNumber: 280,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                        lineNumber: 193,
+                        lineNumber: 276,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -636,7 +727,7 @@ function EditPropertyPage() {
                                         children: t('newProperty.form.title')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 203,
+                                        lineNumber: 286,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -646,13 +737,13 @@ function EditPropertyPage() {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 204,
+                                        lineNumber: 287,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                lineNumber: 202,
+                                lineNumber: 285,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -663,7 +754,7 @@ function EditPropertyPage() {
                                         children: t('newProperty.form.price')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 212,
+                                        lineNumber: 295,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -674,13 +765,13 @@ function EditPropertyPage() {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 213,
+                                        lineNumber: 296,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                lineNumber: 211,
+                                lineNumber: 294,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -691,7 +782,7 @@ function EditPropertyPage() {
                                         children: t('newProperty.form.location')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 222,
+                                        lineNumber: 305,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -700,13 +791,13 @@ function EditPropertyPage() {
                                         onChange: handleInputChange
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 223,
+                                        lineNumber: 306,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                lineNumber: 221,
+                                lineNumber: 304,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -717,7 +808,7 @@ function EditPropertyPage() {
                                         children: t('newProperty.form.address')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 230,
+                                        lineNumber: 313,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -726,13 +817,13 @@ function EditPropertyPage() {
                                         onChange: handleInputChange
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 231,
+                                        lineNumber: 314,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                lineNumber: 229,
+                                lineNumber: 312,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -743,7 +834,7 @@ function EditPropertyPage() {
                                         children: t('search.propertyType')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 238,
+                                        lineNumber: 321,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -756,12 +847,12 @@ function EditPropertyPage() {
                                                     placeholder: t('newProperty.form.type_placeholder')
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                                    lineNumber: 244,
+                                                    lineNumber: 327,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                                lineNumber: 243,
+                                                lineNumber: 326,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -771,7 +862,7 @@ function EditPropertyPage() {
                                                         children: t('property.types.house')
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                                        lineNumber: 247,
+                                                        lineNumber: 330,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -779,7 +870,7 @@ function EditPropertyPage() {
                                                         children: t('property.types.apartment')
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                                        lineNumber: 248,
+                                                        lineNumber: 331,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -787,7 +878,7 @@ function EditPropertyPage() {
                                                         children: t('property.types.condo')
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                                        lineNumber: 249,
+                                                        lineNumber: 332,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -795,25 +886,25 @@ function EditPropertyPage() {
                                                         children: t('property.types.villa')
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                                        lineNumber: 250,
+                                                        lineNumber: 333,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                                lineNumber: 246,
+                                                lineNumber: 329,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 239,
+                                        lineNumber: 322,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                lineNumber: 237,
+                                lineNumber: 320,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -827,7 +918,7 @@ function EditPropertyPage() {
                                                 children: t('newProperty.form.bedrooms')
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                                lineNumber: 256,
+                                                lineNumber: 339,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -837,13 +928,13 @@ function EditPropertyPage() {
                                                 onChange: handleNumberInputChange
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                                lineNumber: 257,
+                                                lineNumber: 340,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 255,
+                                        lineNumber: 338,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -854,7 +945,7 @@ function EditPropertyPage() {
                                                 children: t('newProperty.form.bathrooms')
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                                lineNumber: 265,
+                                                lineNumber: 348,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -864,19 +955,19 @@ function EditPropertyPage() {
                                                 onChange: handleNumberInputChange
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                                lineNumber: 266,
+                                                lineNumber: 349,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 264,
+                                        lineNumber: 347,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                lineNumber: 254,
+                                lineNumber: 337,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -887,7 +978,7 @@ function EditPropertyPage() {
                                         children: t('newProperty.form.area')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 275,
+                                        lineNumber: 358,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -897,13 +988,13 @@ function EditPropertyPage() {
                                         onChange: handleNumberInputChange
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 276,
+                                        lineNumber: 359,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                lineNumber: 274,
+                                lineNumber: 357,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -914,7 +1005,7 @@ function EditPropertyPage() {
                                         children: t('newProperty.form.features')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 284,
+                                        lineNumber: 367,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -924,13 +1015,13 @@ function EditPropertyPage() {
                                         onChange: handleInputChange
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 285,
+                                        lineNumber: 368,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                lineNumber: 283,
+                                lineNumber: 366,
                                 columnNumber: 14
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -941,7 +1032,7 @@ function EditPropertyPage() {
                                         children: t('property.description')
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 293,
+                                        lineNumber: 376,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -951,67 +1042,182 @@ function EditPropertyPage() {
                                         onChange: handleInputChange
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 294,
+                                        lineNumber: 377,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                lineNumber: 292,
+                                lineNumber: 375,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "md:col-span-2 space-y-2",
+                                className: "md:col-span-2 space-y-4",
                                 children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
-                                        children: "Fotos"
-                                    }, void 0, false, {
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                                children: [
+                                                    "Fotos (",
+                                                    totalImageCount,
+                                                    " / ",
+                                                    MAX_IMAGES,
+                                                    ")"
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
+                                                lineNumber: 386,
+                                                columnNumber: 19
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                className: "text-xs text-muted-foreground",
+                                                children: [
+                                                    "Gestiona las imágenes de tu propiedad. Puedes añadir hasta ",
+                                                    MAX_IMAGES,
+                                                    " fotos."
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
+                                                lineNumber: 387,
+                                                columnNumber: 20
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 302,
+                                        lineNumber: 385,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mt-2",
-                                        children: property.images.map((src, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "relative aspect-square",
-                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                    src: src,
-                                                    alt: `Property image ${index + 1}`,
-                                                    fill: true,
-                                                    className: "rounded-md object-cover"
-                                                }, void 0, false, {
+                                        className: "grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4",
+                                        children: [
+                                            currentImageUrls.map((src)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "relative group aspect-square",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                            src: src,
+                                                            alt: `Property image`,
+                                                            fill: true,
+                                                            className: "rounded-md object-cover"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
+                                                            lineNumber: 394,
+                                                            columnNumber: 23
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                            type: "button",
+                                                            variant: "destructive",
+                                                            size: "icon",
+                                                            className: "absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity",
+                                                            onClick: ()=>handleDeleteExistingImage(src),
+                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
+                                                                className: "h-4 w-4"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
+                                                                lineNumber: 407,
+                                                                columnNumber: 29
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
+                                                            lineNumber: 400,
+                                                            columnNumber: 24
+                                                        }, this)
+                                                    ]
+                                                }, src, true, {
                                                     fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                                    lineNumber: 306,
-                                                    columnNumber: 23
-                                                }, this)
-                                            }, index, false, {
+                                                    lineNumber: 393,
+                                                    columnNumber: 21
+                                                }, this)),
+                                            imagePreviews.map((src, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "relative group aspect-square",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                            src: src,
+                                                            alt: `Preview ${index + 1}`,
+                                                            fill: true,
+                                                            className: "rounded-md object-cover"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
+                                                            lineNumber: 413,
+                                                            columnNumber: 24
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                            type: "button",
+                                                            variant: "destructive",
+                                                            size: "icon",
+                                                            className: "absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity",
+                                                            onClick: ()=>handleDeleteNewImage(index),
+                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
+                                                                className: "h-4 w-4"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
+                                                                lineNumber: 426,
+                                                                columnNumber: 29
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
+                                                            lineNumber: 419,
+                                                            columnNumber: 24
+                                                        }, this)
+                                                    ]
+                                                }, src, true, {
+                                                    fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
+                                                    lineNumber: 412,
+                                                    columnNumber: 22
+                                                }, this)),
+                                            totalImageCount < MAX_IMAGES && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                                htmlFor: "image-upload",
+                                                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex flex-col items-center justify-center w-full h-full aspect-square rounded-md border-2 border-dashed cursor-pointer hover:bg-muted transition-colors", isSubmitting && 'cursor-not-allowed opacity-50'),
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__["Upload"], {
+                                                        className: "h-8 w-8 text-muted-foreground"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
+                                                        lineNumber: 432,
+                                                        columnNumber: 28
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "text-xs text-muted-foreground text-center mt-1",
+                                                        children: "Añadir Fotos"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
+                                                        lineNumber: 433,
+                                                        columnNumber: 28
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                                        id: "image-upload",
+                                                        type: "file",
+                                                        multiple: true,
+                                                        accept: "image/*",
+                                                        className: "sr-only",
+                                                        onChange: handleImageChange,
+                                                        disabled: isSubmitting
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
+                                                        lineNumber: 434,
+                                                        columnNumber: 28
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
                                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                                lineNumber: 305,
-                                                columnNumber: 21
-                                            }, this))
-                                    }, void 0, false, {
+                                                lineNumber: 431,
+                                                columnNumber: 26
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
                                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 303,
-                                        columnNumber: 17
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-xs text-muted-foreground",
-                                        children: "La edición de fotos no está disponible actualmente."
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                        lineNumber: 315,
+                                        lineNumber: 391,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                lineNumber: 301,
+                                lineNumber: 384,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                        lineNumber: 201,
+                        lineNumber: 284,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardFooter"], {
@@ -1024,39 +1230,39 @@ function EditPropertyPage() {
                                     className: "mr-2 h-4 w-4 animate-spin"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                                    lineNumber: 320,
+                                    lineNumber: 442,
                                     columnNumber: 32
                                 }, this),
                                 "Guardar Cambios"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                            lineNumber: 319,
+                            lineNumber: 441,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                        lineNumber: 318,
+                        lineNumber: 440,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-                lineNumber: 192,
+                lineNumber: 275,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-            lineNumber: 191,
+            lineNumber: 274,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/(main)/edit-property/[id]/page.tsx",
-        lineNumber: 190,
+        lineNumber: 273,
         columnNumber: 5
     }, this);
 }
-_s(EditPropertyPage, "6UJQJfWopRhqlf/swvKoRT3gTpE=", false, function() {
+_s(EditPropertyPage, "LHozp4vhkQFWNzZkzV5QSQl6o9E=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useParams"],
