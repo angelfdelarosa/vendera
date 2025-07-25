@@ -10,19 +10,60 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { Loader2 } from "lucide-react";
 import { usePropertyContext } from "@/context/PropertyContext";
 import { useAuth } from "@/context/AuthContext";
+import LandingPage from "./landing/page";
 
 export default function HomePage() {
   const { properties, isLoading: isLoadingProperties } = usePropertyContext();
   const { user, loading: isLoadingAuth } = useAuth();
-  const router = useRouter();
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
-  const { t } = useTranslation();
+  
+  const isLoading = isLoadingAuth || isLoadingProperties;
 
-  useEffect(() => {
-    if (!isLoadingProperties) {
-      setFilteredProperties(properties);
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LandingPage />;
+  }
+
+  return (
+    <Suspense fallback={<div>Loading search parameters...</div>}>
+      <HomePageContent 
+        properties={properties}
+        isLoadingProperties={isLoadingProperties}
+      />
+    </Suspense>
+  );
+}
+
+function HomePageContent({
+  properties,
+  isLoadingProperties,
+}: {
+  properties: Property[];
+  isLoadingProperties: boolean;
+}) {
+  const { t } = useTranslation();
+  const searchParams = useSearchParams();
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+
+   useEffect(() => {
+    const searchQuery = searchParams.get('q');
+    if (searchQuery) {
+      const results = properties.filter(p => 
+        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredProperties(results);
+    } else if (!isLoadingProperties) {
+        setFilteredProperties(properties);
     }
-  }, [properties, isLoadingProperties]);
+  }, [searchParams, properties, isLoadingProperties]);
 
   const locations = useMemo(() => {
     const locationSet = new Set(properties.map(p => p.location));
@@ -50,80 +91,6 @@ export default function HomePage() {
     });
     setFilteredProperties(results);
   };
-  
-  const isLoading = isLoadingAuth || isLoadingProperties;
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  return (
-    <Suspense fallback={<div>Loading search parameters...</div>}>
-      <HomePageContent 
-        properties={properties}
-        isLoadingProperties={isLoadingProperties}
-        user={user}
-        isLoadingAuth={isLoadingAuth}
-        router={router}
-        filteredProperties={filteredProperties}
-        setFilteredProperties={setFilteredProperties}
-        t={t}
-        locations={locations}
-        propertyTypes={propertyTypes}
-        handleSearch={handleSearch}
-      />
-    </Suspense>
-  );
-}
-
-function HomePageContent({
-  properties,
-  isLoadingProperties,
-  user,
-  isLoadingAuth,
-  router,
-  filteredProperties,
-  setFilteredProperties,
-  t,
-  locations,
-  propertyTypes,
-  handleSearch,
-}: {
-  properties: Property[];
-  isLoadingProperties: boolean;
-  user: any;
-  isLoadingAuth: boolean;
-  router: any;
-  filteredProperties: Property[];
-  setFilteredProperties: React.Dispatch<React.SetStateAction<Property[]>>;
-  t: (key: string) => string;
-  locations: string[];
-  propertyTypes: string[];
-  handleSearch: (filters: {
-    location: string;
-    type: string;
-    priceRange: [number, number];
-  }) => void;
-}) {
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const searchQuery = searchParams.get('q');
-    if (searchQuery) {
-      const results = properties.filter(p => 
-        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredProperties(results);
-    } else if (!isLoadingProperties) {
-        setFilteredProperties(properties);
-    }
-  }, [searchParams, properties, isLoadingProperties, setFilteredProperties]);
 
   return (
     <div className="container mx-auto px-4 py-12">

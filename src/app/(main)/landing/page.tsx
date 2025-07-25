@@ -68,7 +68,7 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-card">
         <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-12 items-center min-h-screen">
+            <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[calc(100vh-4rem)]">
                  {/* Text Column */}
                 <div className="text-center lg:text-left py-20 lg:py-0">
                     <h1 className="font-headline text-5xl md:text-7xl font-bold text-primary mb-6">

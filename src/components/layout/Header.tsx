@@ -23,25 +23,28 @@ export function Header() {
     setIsMounted(true);
   }, []);
 
-  const logoHref = user ? "/" : "/landing";
-  const isLanding = pathname === '/landing';
+  const logoHref = user ? "/" : "/";
+  const isLanding = pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
     };
 
-    if (isLanding) {
+    // Only add scroll listener if on the root page (which is the landing page for guests)
+    // and the user is not logged in.
+    if (isLanding && !user) {
       window.addEventListener("scroll", handleScroll);
       return () => {
         window.removeEventListener("scroll", handleScroll);
       };
     } else {
-        setScrolled(false);
+        // If not on landing or user is logged in, ensure header is not transparent.
+        setScrolled(true);
     }
-  }, [isLanding]);
+  }, [isLanding, user]);
   
-  const showTransparentNav = isLanding && !scrolled && isMounted;
+  const showTransparentNav = isLanding && !scrolled && !user && isMounted;
 
   return (
     <header className={cn(
@@ -55,7 +58,7 @@ export function Header() {
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium ml-10">
           <Link
             href="/"
-            className="transition-colors hover:text-accent text-foreground/60"
+            className={cn("transition-colors hover:text-accent", showTransparentNav ? 'text-white/80 hover:text-white' : 'text-foreground/60')}
           >
             {t('header.properties')}
           </Link>
