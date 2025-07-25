@@ -102,19 +102,21 @@ export function ChatWindow({ conversationId, recipient }: ChatWindowProps) {
 
     setIsSending(true);
 
+    const textToSend = newMessage;
+    setNewMessage(''); // Clear input immediately for better UX
+
     const { error } = await supabase
       .from('messages')
       .insert({
         conversation_id: conversationId,
         sender_id: authUser.id,
-        content: newMessage,
+        content: textToSend,
       });
 
     if (error) {
         console.error("Error sending message:", error);
         toast({ title: "Error", description: "Could not send message.", variant: "destructive" });
-    } else {
-        setNewMessage('');
+        setNewMessage(textToSend); // Restore message on error
     }
     
     setIsSending(false);
