@@ -60,6 +60,8 @@ export type ConversationFromDB = {
   property_id: string | null;
   buyer_id: string;
   seller_id: string;
+  last_message_sender_id: string | null;
+  last_message_read: boolean | null;
   property: {
     id: string;
     title: string;
@@ -73,3 +75,5 @@ export type ConversationFromDB = {
     sender_id: string;
   }[];
 };
+
+    

@@ -1,6 +1,7 @@
 
 import { create } from 'zustand';
 import type { Conversation, Message } from '@/types';
+import { createClient } from '@/lib/supabase/client';
 
 interface ChatState {
   conversations: Conversation[];
@@ -28,6 +29,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
         c.id === conversationId ? { ...c, unread: false } : c
       ),
     }));
+
+    // Also mark as read in the database
+    if (conversation?.unread) {
+      const supabase = createClient();
+      const markAsRead = async () => {
+        await supabase
+          .from('conversations')
+          .update({ last_message_read: true })
+          .eq('id', conversationId);
+      };
+      markAsRead();
+    }
   },
   addMessage: (conversationId, message) => {
     set((state) => ({
@@ -43,3 +56,5 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }));
   },
 }));
+
+    

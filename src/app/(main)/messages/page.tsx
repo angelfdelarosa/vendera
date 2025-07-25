@@ -35,6 +35,8 @@ export default function MessagesPage() {
           property_id,
           buyer_id,
           seller_id,
+          last_message_sender_id,
+          last_message_read,
           property:properties(id, title, images),
           buyer:profiles!conversations_buyer_id_fkey(user_id, full_name, avatar_url),
           seller:profiles!conversations_seller_id_fkey(user_id, full_name, avatar_url),
@@ -66,8 +68,7 @@ export default function MessagesPage() {
                 messages: [], // Real messages will be loaded in ChatWindow
                 timestamp: lastMessage ? lastMessage.created_at : convo.created_at,
                 lastMessage: lastMessage?.content || "No messages yet.",
-                // a real 'unread' implementation would require more logic
-                unread: Math.random() > 0.5 
+                unread: !convo.last_message_read && convo.last_message_sender_id !== user.id
             }
         });
         setConversations(transformedConversations);
@@ -195,3 +196,5 @@ const mockProperty: Property = {
     realtor_id: 'mock',
     realtor: { user_id: 'mock', full_name: 'mock', avatar_url: 'mock', username: 'mock' }
 }
+
+    

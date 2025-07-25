@@ -902,6 +902,8 @@ __turbopack_context__.s({
     "useChatStore": (()=>useChatStore)
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zustand$2f$esm$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/zustand/esm/index.mjs [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/supabase/client.ts [app-client] (ecmascript)");
+;
 ;
 const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zustand$2f$esm$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["create"])((set, get)=>({
         conversations: [],
@@ -925,6 +927,16 @@ const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                             unread: false
                         } : c)
                 }));
+            // Also mark as read in the database
+            if (conversation?.unread) {
+                const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createClient"])();
+                const markAsRead = async ()=>{
+                    await supabase.from('conversations').update({
+                        last_message_read: true
+                    }).eq('id', conversationId);
+                };
+                markAsRead();
+            }
         },
         addMessage: (conversationId, message)=>{
             set((state)=>({
