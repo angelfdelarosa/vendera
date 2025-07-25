@@ -284,24 +284,17 @@ const PropertyCardContent = ({ property, isClickable = true })=>{
                 className: "p-0 relative",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center"
-                    }, void 0, false, {
-                        fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                        lineNumber: 40,
-                        columnNumber: 18
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "absolute top-2 right-2 z-10",
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$properties$2f$FavoriteButton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FavoriteButton"], {
                             property: property
                         }, void 0, false, {
                             fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                            lineNumber: 44,
+                            lineNumber: 41,
                             columnNumber: 21
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                        lineNumber: 43,
+                        lineNumber: 40,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -311,12 +304,12 @@ const PropertyCardContent = ({ property, isClickable = true })=>{
                             children: priceDisplay
                         }, void 0, false, {
                             fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                            lineNumber: 47,
+                            lineNumber: 44,
                             columnNumber: 21
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                        lineNumber: 46,
+                        lineNumber: 43,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -328,7 +321,7 @@ const PropertyCardContent = ({ property, isClickable = true })=>{
                         "data-ai-hint": "house exterior"
                     }, void 0, false, {
                         fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                        lineNumber: 49,
+                        lineNumber: 46,
                         columnNumber: 17
                     }, this)
                 ]
@@ -345,7 +338,7 @@ const PropertyCardContent = ({ property, isClickable = true })=>{
                         children: t(`property.types.${property.type}`)
                     }, void 0, false, {
                         fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                        lineNumber: 59,
+                        lineNumber: 56,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardTitle"], {
@@ -353,7 +346,7 @@ const PropertyCardContent = ({ property, isClickable = true })=>{
                         children: t(property.title)
                     }, void 0, false, {
                         fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                        lineNumber: 60,
+                        lineNumber: 57,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -363,26 +356,26 @@ const PropertyCardContent = ({ property, isClickable = true })=>{
                                 className: "w-4 h-4 mr-1"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                                lineNumber: 64,
+                                lineNumber: 61,
                                 columnNumber: 17
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                 children: property.location
                             }, void 0, false, {
                                 fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                                lineNumber: 65,
+                                lineNumber: 62,
                                 columnNumber: 17
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                        lineNumber: 63,
+                        lineNumber: 60,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                lineNumber: 58,
+                lineNumber: 55,
                 columnNumber: 13
             }, this),
             isClickable && (user ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardFooter"], {
@@ -397,7 +390,7 @@ const PropertyCardContent = ({ property, isClickable = true })=>{
                                     className: "w-4 h-4"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                                    lineNumber: 73,
+                                    lineNumber: 70,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -408,13 +401,13 @@ const PropertyCardContent = ({ property, isClickable = true })=>{
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                                    lineNumber: 74,
+                                    lineNumber: 71,
                                     columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                            lineNumber: 72,
+                            lineNumber: 69,
                             columnNumber: 25
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -424,7 +417,7 @@ const PropertyCardContent = ({ property, isClickable = true })=>{
                                     className: "w-4 h-4"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                                    lineNumber: 77,
+                                    lineNumber: 74,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -435,13 +428,13 @@ const PropertyCardContent = ({ property, isClickable = true })=>{
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                                    lineNumber: 78,
+                                    lineNumber: 75,
                                     columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                            lineNumber: 76,
+                            lineNumber: 73,
                             columnNumber: 25
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -451,7 +444,7 @@ const PropertyCardContent = ({ property, isClickable = true })=>{
                                     className: "w-4 h-4"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                                    lineNumber: 81,
+                                    lineNumber: 78,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -462,24 +455,24 @@ const PropertyCardContent = ({ property, isClickable = true })=>{
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                                    lineNumber: 82,
+                                    lineNumber: 79,
                                     columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                            lineNumber: 80,
+                            lineNumber: 77,
                             columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                    lineNumber: 71,
+                    lineNumber: 68,
                     columnNumber: 21
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                lineNumber: 70,
+                lineNumber: 67,
                 columnNumber: 21
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardFooter"], {
                 className: "p-4 pt-0 flex items-start bg-secondary/30",
@@ -490,25 +483,25 @@ const PropertyCardContent = ({ property, isClickable = true })=>{
                             className: "h-3 w-3"
                         }, void 0, false, {
                             fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                            lineNumber: 89,
+                            lineNumber: 86,
                             columnNumber: 29
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                             children: "Inicia sesión para ver más detalles"
                         }, void 0, false, {
                             fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                            lineNumber: 90,
+                            lineNumber: 87,
                             columnNumber: 29
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                    lineNumber: 88,
+                    lineNumber: 85,
                     columnNumber: 25
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                lineNumber: 87,
+                lineNumber: 84,
                 columnNumber: 21
             }, this))
         ]
@@ -539,12 +532,12 @@ function PropertyCard({ property, isClickable = true }) {
                 isClickable: isClickable
             }, void 0, false, {
                 fileName: "[project]/src/components/properties/PropertyCard.tsx",
-                lineNumber: 105,
+                lineNumber: 102,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/properties/PropertyCard.tsx",
-            lineNumber: 104,
+            lineNumber: 101,
             columnNumber: 7
         }, this);
     }
@@ -555,12 +548,12 @@ function PropertyCard({ property, isClickable = true }) {
             isClickable: isClickable
         }, void 0, false, {
             fileName: "[project]/src/components/properties/PropertyCard.tsx",
-            lineNumber: 112,
+            lineNumber: 109,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/components/properties/PropertyCard.tsx",
-        lineNumber: 111,
+        lineNumber: 108,
         columnNumber: 5
     }, this);
 }

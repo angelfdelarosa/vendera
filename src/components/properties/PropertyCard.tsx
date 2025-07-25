@@ -37,9 +37,6 @@ const PropertyCardContent = ({ property, isClickable = true }: { property: Prope
     return (
         <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 shadow-lg group">
             <CardHeader className="p-0 relative">
-                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
-                    {/* Contact button removed as per user request */}
-                </div>
                 <div className="absolute top-2 right-2 z-10">
                     <FavoriteButton property={property} />
                 </div>
@@ -113,3 +110,5 @@ export function PropertyCard({ property, isClickable = true }: PropertyCardProps
     </div>
   );
 }
+
+    

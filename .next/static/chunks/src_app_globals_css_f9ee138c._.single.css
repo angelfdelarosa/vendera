@@ -473,6 +473,10 @@ body {
   top: -.5rem;
 }
 
+.right-12 {
+  right: 3rem;
+}
+
 .z-10 {
   z-index: 10;
 }
@@ -1490,6 +1494,10 @@ body {
 
 .bg-black\/30 {
   background-color: #0000004d;
+}
+
+.bg-black\/50 {
+  background-color: #00000080;
 }
 
 .fill-amber-500 {
