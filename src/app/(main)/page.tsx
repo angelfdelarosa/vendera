@@ -33,7 +33,7 @@ export default function HomePage() {
   return (
     <Suspense fallback={<div>Loading search parameters...</div>}>
       <HomePageContent 
-        properties={properties}
+        initialProperties={properties}
         isLoadingProperties={isLoadingProperties}
       />
     </Suspense>
@@ -41,56 +41,42 @@ export default function HomePage() {
 }
 
 function HomePageContent({
-  properties,
+  initialProperties,
   isLoadingProperties,
 }: {
-  properties: Property[];
+  initialProperties: Property[];
   isLoadingProperties: boolean;
 }) {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>(initialProperties);
 
    useEffect(() => {
+    // This effect now only handles the initial global search query from other pages.
+    // Filtering logic is handled by the PropertySearchFilters component.
     const searchQuery = searchParams.get('q');
     if (searchQuery) {
-      const results = properties.filter(p => 
+      const results = initialProperties.filter(p => 
         p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.description.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredProperties(results);
     } else if (!isLoadingProperties) {
-        setFilteredProperties(properties);
+        setFilteredProperties(initialProperties);
     }
-  }, [searchParams, properties, isLoadingProperties]);
+  }, [searchParams, initialProperties, isLoadingProperties]);
 
   const locations = useMemo(() => {
-    const locationSet = new Set(properties.map(p => p.location));
+    const locationSet = new Set(initialProperties.map(p => p.location));
     return Array.from(locationSet);
-  }, [properties]);
+  }, [initialProperties]);
 
   const propertyTypes = useMemo(() => {
-    const typeSet = new Set(properties.map(p => p.type));
+    const typeSet = new Set(initialProperties.map(p => p.type));
     return Array.from(typeSet);
-  }, [properties]);
-
-  const handleSearch = (filters: {
-    location: string;
-    type: string;
-    priceRange: [number, number];
-  }) => {
-    const { location, type, priceRange } = filters;
-    const [minPrice, maxPrice] = priceRange;
-
-    const results = properties.filter(property => {
-      const matchesLocation = !location || property.location === location;
-      const matchesType = !type || property.type === type;
-      const matchesPrice = property.price >= minPrice && property.price <= maxPrice;
-      return matchesLocation && matchesType && matchesPrice;
-    });
-    setFilteredProperties(results);
-  };
+  }, [initialProperties]);
+  
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -102,9 +88,10 @@ function HomePageContent({
           {t('home.subtitle')}
         </p>
         <PropertySearchFilters
+          allProperties={initialProperties}
           locations={locations}
           propertyTypes={propertyTypes}
-          onSearch={handleSearch}
+          onSearch={(results) => setFilteredProperties(results)}
         />
       </section>
 
