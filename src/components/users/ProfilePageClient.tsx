@@ -368,17 +368,19 @@ export default function ProfilePageClient() {
     if (!authUser || !supabase || isOwnProfile) return;
 
     try {
-        // Check if a conversation already exists
-        let { data: existingConvo, error: fetchError } = await supabase
+        // Check if a conversation already exists between the two users
+        const { data: existingConvo, error: fetchError } = await supabase
             .from('conversations')
             .select('id')
             .or(`and(buyer_id.eq.${authUser.id},seller_id.eq.${displayUser.user_id}),and(buyer_id.eq.${displayUser.user_id},seller_id.eq.${authUser.id})`)
             .maybeSingle();
 
-        if(fetchError) throw fetchError;
+        if (fetchError) {
+          throw fetchError;
+        }
 
         if (existingConvo) {
-            router.push('/messages');
+            router.push('/messages'); // Navigate to messages page if convo exists
             return;
         }
 
@@ -392,7 +394,9 @@ export default function ProfilePageClient() {
             .select('id')
             .single();
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          throw insertError;
+        }
         
         // This part would ideally refresh the chat store, but for now, we just redirect.
         // The store should fetch fresh data on the messages page.

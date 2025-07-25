@@ -214,10 +214,12 @@ function ChatWindow({ conversationId, recipient }) {
         e.preventDefault();
         if (!newMessage.trim() || !authUser || !supabase) return;
         setIsSending(true);
+        const textToSend = newMessage;
+        setNewMessage(''); // Clear input immediately for better UX
         const { error } = await supabase.from('messages').insert({
             conversation_id: conversationId,
             sender_id: authUser.id,
-            content: newMessage
+            content: textToSend
         });
         if (error) {
             console.error("Error sending message:", error);
@@ -226,8 +228,7 @@ function ChatWindow({ conversationId, recipient }) {
                 description: "Could not send message.",
                 variant: "destructive"
             });
-        } else {
-            setNewMessage('');
+            setNewMessage(textToSend); // Restore message on error
         }
         setIsSending(false);
     };
@@ -245,12 +246,12 @@ function ChatWindow({ conversationId, recipient }) {
                 className: "h-8 w-8 animate-spin text-primary"
             }, void 0, false, {
                 fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                lineNumber: 135,
+                lineNumber: 137,
                 columnNumber: 13
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/chat/ChatWindow.tsx",
-            lineNumber: 134,
+            lineNumber: 136,
             columnNumber: 9
         }, this);
     }
@@ -273,20 +274,20 @@ function ChatWindow({ conversationId, recipient }) {
                                                 src: getAvatar('seller') || undefined
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                                lineNumber: 154,
+                                                lineNumber: 156,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AvatarFallback"], {
                                                 children: getInitial('seller')
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                                lineNumber: 155,
+                                                lineNumber: 157,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                        lineNumber: 153,
+                                        lineNumber: 155,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -296,7 +297,7 @@ function ChatWindow({ conversationId, recipient }) {
                                                 children: message.text
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                                lineNumber: 166,
+                                                lineNumber: 168,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -304,13 +305,13 @@ function ChatWindow({ conversationId, recipient }) {
                                                 children: message.timestamp
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                                lineNumber: 167,
+                                                lineNumber: 169,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                        lineNumber: 158,
+                                        lineNumber: 160,
                                         columnNumber: 15
                                     }, this),
                                     message.sender === 'buyer' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Avatar"], {
@@ -320,26 +321,26 @@ function ChatWindow({ conversationId, recipient }) {
                                                 src: getAvatar('buyer') || undefined
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                                lineNumber: 171,
+                                                lineNumber: 173,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AvatarFallback"], {
                                                 children: getInitial('buyer')
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                                lineNumber: 172,
+                                                lineNumber: 174,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                        lineNumber: 170,
+                                        lineNumber: 172,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, message.id, true, {
                                 fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                lineNumber: 145,
+                                lineNumber: 147,
                                 columnNumber: 13
                             }, this)),
                         isSending && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -352,20 +353,20 @@ function ChatWindow({ conversationId, recipient }) {
                                             src: getAvatar('buyer') || undefined
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                            lineNumber: 180,
+                                            lineNumber: 182,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AvatarFallback"], {
                                             children: getInitial('buyer')
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                            lineNumber: 181,
+                                            lineNumber: 183,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                    lineNumber: 179,
+                                    lineNumber: 181,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -374,29 +375,29 @@ function ChatWindow({ conversationId, recipient }) {
                                         className: "h-5 w-5 animate-spin text-muted-foreground"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                        lineNumber: 184,
+                                        lineNumber: 186,
                                         columnNumber: 21
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                                    lineNumber: 183,
+                                    lineNumber: 185,
                                     columnNumber: 18
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                            lineNumber: 178,
+                            lineNumber: 180,
                             columnNumber: 14
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                    lineNumber: 143,
+                    lineNumber: 145,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                lineNumber: 142,
+                lineNumber: 144,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -411,7 +412,7 @@ function ChatWindow({ conversationId, recipient }) {
                         disabled: isSending
                     }, void 0, false, {
                         fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                        lineNumber: 194,
+                        lineNumber: 196,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -422,24 +423,24 @@ function ChatWindow({ conversationId, recipient }) {
                             className: "h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                            lineNumber: 202,
+                            lineNumber: 204,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                        lineNumber: 201,
+                        lineNumber: 203,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/chat/ChatWindow.tsx",
-                lineNumber: 190,
+                lineNumber: 192,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/chat/ChatWindow.tsx",
-        lineNumber: 141,
+        lineNumber: 143,
         columnNumber: 5
     }, this);
 }
