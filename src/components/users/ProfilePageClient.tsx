@@ -372,7 +372,7 @@ export default function ProfilePageClient() {
         const { data: existingConvo, error: fetchError } = await supabase
             .from('conversations')
             .select('id')
-            .or(`(user1_id.eq.${authUser.id},user2_id.eq.${displayUser.user_id}),(user1_id.eq.${displayUser.user_id},user2_id.eq.${authUser.id})`)
+            .or(`and(user1_id.eq.${authUser.id},user2_id.eq.${displayUser.user_id}),and(user1_id.eq.${displayUser.user_id},user2_id.eq.${authUser.id})`)
             .maybeSingle();
 
         if (fetchError) {
