@@ -6,7 +6,7 @@ import type { User, AuthError, SupabaseClient, RealtimeChannel } from '@supabase
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useChatStore } from '@/components/chat/use-chat-store';
-import type { Conversation as AppConversation, ConversationFromDB, UserProfile } from '@/types';
+import type { Conversation as AppConversation, ConversationFromDB, UserProfile, Property } from '@/types';
 
 
 interface AuthContextType {
@@ -31,15 +31,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchAndSetConversations = useCallback(async (userId: string) => {
     setChatLoading(true);
 
-    // Step 1: Fetch conversations and basic user info (from auth.users)
+    // Step 1: Fetch conversations without joins to satisfy RLS
     const { data: conversationsData, error: conversationsError } = await supabase
       .from('conversations')
-      .select(`
-        *,
-        property:properties(id, title, images),
-        sender:sender_id(id, email),
-        receiver:receiver_id(id, email)
-      `)
+      .select('*')
       .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
       .order('created_at', { ascending: false });
 
@@ -49,55 +44,70 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setChatLoading(false);
       return;
     }
+
+    if (!conversationsData || conversationsData.length === 0) {
+      setConversations([]);
+      setChatLoading(false);
+      return;
+    }
     
     const typedConversations = conversationsData as unknown as ConversationFromDB[];
 
-    // Step 2: Extract all unique user IDs to fetch their profiles
+    // Step 2: Collect all unique user and property IDs
     const userIds = new Set<string>();
+    const propertyIds = new Set<string>();
     typedConversations.forEach(convo => {
       userIds.add(convo.sender_id);
       userIds.add(convo.receiver_id);
+      if (convo.property_id) {
+        propertyIds.add(convo.property_id);
+      }
     });
 
-    // Step 3: Fetch profiles for all involved users
-    const { data: profilesData, error: profilesError } = await supabase
-      .from('profiles')
-      .select('user_id, full_name, avatar_url, username, created_at')
-      .in('user_id', Array.from(userIds));
+    // Step 3: Fetch profiles and properties in parallel
+    const [profilesResponse, propertiesResponse] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('user_id, full_name, avatar_url, username, created_at, email')
+          .in('user_id', Array.from(userIds)),
+        supabase
+          .from('properties')
+          .select('id, title, images')
+          .in('id', Array.from(propertyIds))
+    ]);
 
-    if (profilesError) {
-      console.error("Error fetching profiles for conversations:", profilesError);
-      // We can still proceed with partial data if needed
+    if (profilesResponse.error) {
+        console.error("Error fetching profiles:", profilesResponse.error);
     }
-
+     if (propertiesResponse.error) {
+        console.error("Error fetching properties:", propertiesResponse.error);
+    }
+    
     const profilesMap = new Map<string, UserProfile>(
-      profilesData?.map(p => [p.user_id, p as UserProfile]) || []
+        profilesResponse.data?.map(p => [p.user_id, p as UserProfile]) || []
+    );
+    const propertiesMap = new Map<string, Pick<Property, 'id' | 'title' | 'images'>>(
+        propertiesResponse.data?.map(p => [p.id, p as Pick<Property, 'id' | 'title' | 'images'>]) || []
     );
 
-    // Step 4: Transform and combine data
-    const transformedConversations = typedConversations.map(convo => {
-      const otherUserAuth = convo.sender_id === userId ? convo.receiver : convo.sender;
-      const otherUserProfile = profilesMap.get(otherUserAuth.id) || { user_id: otherUserAuth.id, full_name: otherUserAuth.email || 'Unknown User' };
-      
-      const finalOtherUser: UserProfile = {
-          user_id: otherUserAuth.id,
-          full_name: otherUserProfile.full_name || otherUserAuth.email,
-          avatar_url: otherUserProfile.avatar_url,
-          username: otherUserProfile.username,
-          created_at: otherUserProfile.created_at,
-          email: otherUserAuth.email || undefined,
-      };
 
-      return {
-        id: convo.id,
-        user: finalOtherUser,
-        property: convo.property || { id: 'deleted-property', title: 'Deleted Property', images: [] },
-        messages: [], // Messages are fetched separately
-        timestamp: convo.created_at,
-        lastMessage: convo.last_message || "No messages yet.",
-        unread: false, // This logic can be improved later
-      } as AppConversation;
-    });
+    // Step 4: Transform conversations with fetched data
+    const transformedConversations = typedConversations.map(convo => {
+        const otherUserId = convo.sender_id === userId ? convo.receiver_id : convo.sender_id;
+        const otherUserProfile = profilesMap.get(otherUserId) || { user_id: otherUserId, full_name: 'Unknown User', avatar_url: null, username: 'unknown' };
+        const property = convo.property_id ? propertiesMap.get(convo.property_id) : null;
+
+
+        return {
+            id: convo.id,
+            user: otherUserProfile,
+            property: property || { id: 'deleted-property', title: 'Deleted Property', images: [] },
+            messages: [],
+            timestamp: convo.created_at,
+            lastMessage: convo.last_message || "No messages yet.",
+            unread: false,
+        } as AppConversation;
+    }).filter(c => c.user && c.property);
 
     setConversations(transformedConversations);
     setChatLoading(false);

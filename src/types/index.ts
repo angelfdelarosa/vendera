@@ -29,7 +29,7 @@ export type UserProfile = {
   avatar_url: string | null;
   updated_at?: string | null;
   created_at?: string | null;
-  email?: string; // Added from auth.users
+  email?: string;
 };
 
 export interface Message {
@@ -42,7 +42,7 @@ export interface Message {
 export interface Conversation {
   id: string;
   user: UserProfile;
-  property: Property;
+  property: Pick<Property, 'id' | 'title' | 'images'>;
   messages: Message[];
   timestamp: string;
   unread: boolean;
@@ -58,7 +58,6 @@ export interface Rating {
   comment?: string | null;
 }
 
-// This type reflects the data structure coming directly from the Supabase query
 export type ConversationFromDB = {
   id: string;
   created_at: string;
@@ -66,17 +65,4 @@ export type ConversationFromDB = {
   last_message: string | null;
   sender_id: string;
   receiver_id: string;
-  sender: {
-    email: string | null;
-    id: string;
-  };
-  receiver: {
-    email: string | null;
-    id: string;
-  };
-  property: {
-    id: string;
-    title: string;
-    images: string[];
-  } | null;
 };

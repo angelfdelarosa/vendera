@@ -618,13 +618,8 @@ const AuthProvider = ({ children })=>{
     const fetchAndSetConversations = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "AuthProvider.useCallback[fetchAndSetConversations]": async (userId)=>{
             setChatLoading(true);
-            // Step 1: Fetch conversations and basic user info (from auth.users)
-            const { data: conversationsData, error: conversationsError } = await supabase.from('conversations').select(`
-        *,
-        property:properties(id, title, images),
-        sender:sender_id(id, email),
-        receiver:receiver_id(id, email)
-      `).or(`sender_id.eq.${userId},receiver_id.eq.${userId}`).order('created_at', {
+            // Step 1: Fetch conversations without joins to satisfy RLS
+            const { data: conversationsData, error: conversationsError } = await supabase.from('conversations').select('*').or(`sender_id.eq.${userId},receiver_id.eq.${userId}`).order('created_at', {
                 ascending: false
             });
             if (conversationsError) {
@@ -633,47 +628,62 @@ const AuthProvider = ({ children })=>{
                 setChatLoading(false);
                 return;
             }
+            if (!conversationsData || conversationsData.length === 0) {
+                setConversations([]);
+                setChatLoading(false);
+                return;
+            }
             const typedConversations = conversationsData;
-            // Step 2: Extract all unique user IDs to fetch their profiles
+            // Step 2: Collect all unique user and property IDs
             const userIds = new Set();
+            const propertyIds = new Set();
             typedConversations.forEach({
                 "AuthProvider.useCallback[fetchAndSetConversations]": (convo)=>{
                     userIds.add(convo.sender_id);
                     userIds.add(convo.receiver_id);
+                    if (convo.property_id) {
+                        propertyIds.add(convo.property_id);
+                    }
                 }
             }["AuthProvider.useCallback[fetchAndSetConversations]"]);
-            // Step 3: Fetch profiles for all involved users
-            const { data: profilesData, error: profilesError } = await supabase.from('profiles').select('user_id, full_name, avatar_url, username, created_at').in('user_id', Array.from(userIds));
-            if (profilesError) {
-                console.error("Error fetching profiles for conversations:", profilesError);
-            // We can still proceed with partial data if needed
+            // Step 3: Fetch profiles and properties in parallel
+            const [profilesResponse, propertiesResponse] = await Promise.all([
+                supabase.from('profiles').select('user_id, full_name, avatar_url, username, created_at, email').in('user_id', Array.from(userIds)),
+                supabase.from('properties').select('id, title, images').in('id', Array.from(propertyIds))
+            ]);
+            if (profilesResponse.error) {
+                console.error("Error fetching profiles:", profilesResponse.error);
             }
-            const profilesMap = new Map(profilesData?.map({
+            if (propertiesResponse.error) {
+                console.error("Error fetching properties:", propertiesResponse.error);
+            }
+            const profilesMap = new Map(profilesResponse.data?.map({
                 "AuthProvider.useCallback[fetchAndSetConversations]": (p)=>[
                         p.user_id,
                         p
                     ]
             }["AuthProvider.useCallback[fetchAndSetConversations]"]) || []);
-            // Step 4: Transform and combine data
+            const propertiesMap = new Map(propertiesResponse.data?.map({
+                "AuthProvider.useCallback[fetchAndSetConversations]": (p)=>[
+                        p.id,
+                        p
+                    ]
+            }["AuthProvider.useCallback[fetchAndSetConversations]"]) || []);
+            // Step 4: Transform conversations with fetched data
             const transformedConversations = typedConversations.map({
                 "AuthProvider.useCallback[fetchAndSetConversations].transformedConversations": (convo)=>{
-                    const otherUserAuth = convo.sender_id === userId ? convo.receiver : convo.sender;
-                    const otherUserProfile = profilesMap.get(otherUserAuth.id) || {
-                        user_id: otherUserAuth.id,
-                        full_name: otherUserAuth.email || 'Unknown User'
+                    const otherUserId = convo.sender_id === userId ? convo.receiver_id : convo.sender_id;
+                    const otherUserProfile = profilesMap.get(otherUserId) || {
+                        user_id: otherUserId,
+                        full_name: 'Unknown User',
+                        avatar_url: null,
+                        username: 'unknown'
                     };
-                    const finalOtherUser = {
-                        user_id: otherUserAuth.id,
-                        full_name: otherUserProfile.full_name || otherUserAuth.email,
-                        avatar_url: otherUserProfile.avatar_url,
-                        username: otherUserProfile.username,
-                        created_at: otherUserProfile.created_at,
-                        email: otherUserAuth.email || undefined
-                    };
+                    const property = convo.property_id ? propertiesMap.get(convo.property_id) : null;
                     return {
                         id: convo.id,
-                        user: finalOtherUser,
-                        property: convo.property || {
+                        user: otherUserProfile,
+                        property: property || {
                             id: 'deleted-property',
                             title: 'Deleted Property',
                             images: []
@@ -684,6 +694,8 @@ const AuthProvider = ({ children })=>{
                         unread: false
                     };
                 }
+            }["AuthProvider.useCallback[fetchAndSetConversations].transformedConversations"]).filter({
+                "AuthProvider.useCallback[fetchAndSetConversations].transformedConversations": (c)=>c.user && c.property
             }["AuthProvider.useCallback[fetchAndSetConversations].transformedConversations"]);
             setConversations(transformedConversations);
             setChatLoading(false);
@@ -788,7 +800,7 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 191,
+        lineNumber: 201,
         columnNumber: 5
     }, this);
 };
