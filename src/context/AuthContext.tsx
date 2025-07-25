@@ -31,10 +31,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchAndSetConversations = useCallback(async (userId: string) => {
     setChatLoading(true);
 
-    // Step 1: Fetch conversations without joins to satisfy RLS
+    // Step 1: Fetch conversations with sender/receiver user objects from auth.users
     const { data: conversationsData, error: conversationsError } = await supabase
       .from('conversations')
-      .select('*')
+      .select(`
+        id, 
+        created_at, 
+        last_message, 
+        property_id,
+        sender:sender_id(id, email),
+        receiver:receiver_id(id, email)
+      `)
       .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
       .order('created_at', { ascending: false });
 
@@ -57,8 +64,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const userIds = new Set<string>();
     const propertyIds = new Set<string>();
     typedConversations.forEach(convo => {
-      userIds.add(convo.sender_id);
-      userIds.add(convo.receiver_id);
+      if (convo.sender?.id) userIds.add(convo.sender.id);
+      if (convo.receiver?.id) userIds.add(convo.receiver.id);
       if (convo.property_id) {
         propertyIds.add(convo.property_id);
       }
@@ -90,13 +97,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         propertiesResponse.data?.map(p => [p.id, p as Pick<Property, 'id' | 'title' | 'images'>]) || []
     );
 
-
     // Step 4: Transform conversations with fetched data
     const transformedConversations = typedConversations.map(convo => {
-        const otherUserId = convo.sender_id === userId ? convo.receiver_id : convo.sender_id;
-        const otherUserProfile = profilesMap.get(otherUserId) || { user_id: otherUserId, full_name: 'Unknown User', avatar_url: null, username: 'unknown' };
+        const otherUserAuth = convo.sender?.id === userId ? convo.receiver : convo.sender;
+        const otherUserProfile = profilesMap.get(otherUserAuth?.id || '') || { user_id: otherUserAuth?.id || 'unknown', full_name: otherUserAuth?.email || 'Unknown User', avatar_url: null, username: 'unknown' };
+        
         const property = convo.property_id ? propertiesMap.get(convo.property_id) : null;
-
 
         return {
             id: convo.id,
@@ -105,7 +111,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             messages: [],
             timestamp: convo.created_at,
             lastMessage: convo.last_message || "No messages yet.",
-            unread: false,
+            unread: false, // This could be enhanced with a real-time count
         } as AppConversation;
     }).filter(c => c.user && c.property);
 

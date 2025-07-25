@@ -618,8 +618,15 @@ const AuthProvider = ({ children })=>{
     const fetchAndSetConversations = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "AuthProvider.useCallback[fetchAndSetConversations]": async (userId)=>{
             setChatLoading(true);
-            // Step 1: Fetch conversations without joins to satisfy RLS
-            const { data: conversationsData, error: conversationsError } = await supabase.from('conversations').select('*').or(`sender_id.eq.${userId},receiver_id.eq.${userId}`).order('created_at', {
+            // Step 1: Fetch conversations with sender/receiver user objects from auth.users
+            const { data: conversationsData, error: conversationsError } = await supabase.from('conversations').select(`
+        id, 
+        created_at, 
+        last_message, 
+        property_id,
+        sender:sender_id(id, email),
+        receiver:receiver_id(id, email)
+      `).or(`sender_id.eq.${userId},receiver_id.eq.${userId}`).order('created_at', {
                 ascending: false
             });
             if (conversationsError) {
@@ -639,8 +646,8 @@ const AuthProvider = ({ children })=>{
             const propertyIds = new Set();
             typedConversations.forEach({
                 "AuthProvider.useCallback[fetchAndSetConversations]": (convo)=>{
-                    userIds.add(convo.sender_id);
-                    userIds.add(convo.receiver_id);
+                    if (convo.sender?.id) userIds.add(convo.sender.id);
+                    if (convo.receiver?.id) userIds.add(convo.receiver.id);
                     if (convo.property_id) {
                         propertyIds.add(convo.property_id);
                     }
@@ -672,10 +679,10 @@ const AuthProvider = ({ children })=>{
             // Step 4: Transform conversations with fetched data
             const transformedConversations = typedConversations.map({
                 "AuthProvider.useCallback[fetchAndSetConversations].transformedConversations": (convo)=>{
-                    const otherUserId = convo.sender_id === userId ? convo.receiver_id : convo.sender_id;
-                    const otherUserProfile = profilesMap.get(otherUserId) || {
-                        user_id: otherUserId,
-                        full_name: 'Unknown User',
+                    const otherUserAuth = convo.sender?.id === userId ? convo.receiver : convo.sender;
+                    const otherUserProfile = profilesMap.get(otherUserAuth?.id || '') || {
+                        user_id: otherUserAuth?.id || 'unknown',
+                        full_name: otherUserAuth?.email || 'Unknown User',
                         avatar_url: null,
                         username: 'unknown'
                     };
@@ -800,7 +807,7 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 201,
+        lineNumber: 207,
         columnNumber: 5
     }, this);
 };

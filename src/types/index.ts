@@ -58,11 +58,16 @@ export interface Rating {
   comment?: string | null;
 }
 
+type UserFromAuth = {
+  id: string;
+  email: string;
+}
+
 export type ConversationFromDB = {
   id: string;
   created_at: string;
   property_id: string | null;
   last_message: string | null;
-  sender_id: string;
-  receiver_id: string;
+  sender: UserFromAuth | null;
+  receiver: UserFromAuth | null;
 };
