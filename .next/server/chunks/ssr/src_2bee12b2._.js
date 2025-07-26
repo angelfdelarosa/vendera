@@ -415,7 +415,7 @@ function Logo({ layout = 'horizontal' }) {
         className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])('flex items-center', isVertical ? 'flex-col gap-4' : 'flex-row gap-2'),
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-                src: "https://noyztbqdgfniixzmpuac.supabase.co/storage/v1/object/public/logo//logo2.png",
+                src: "https://wqckkfepxumugmrrrdtu.supabase.co/storage/v1/object/public/logos//logo.png",
                 alt: "VENDRA Logo",
                 width: isVertical ? 128 : 48,
                 height: isVertical ? 128 : 48,
@@ -837,7 +837,7 @@ function SignupPage() {
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "hidden bg-muted lg:block",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-                    src: "https://noyztbqdgfniixzmpuac.supabase.co/storage/v1/object/public/logo//login_image.png",
+                    src: "https://wqckkfepxumugmrrrdtu.supabase.co/storage/v1/object/public/logos//login_image.png",
                     alt: "Image",
                     width: "1920",
                     height: "1080",
