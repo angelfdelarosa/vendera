@@ -48,7 +48,7 @@ import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { Textarea } from '../ui/textarea';
-import { useChatStore } from '@/chat/use-chat-store';
+import { useChatStore } from '@/components/chat/use-chat-store';
 import { userService } from '@/lib/user.service';
 import { SubscriptionModal } from '../layout/SubscriptionModal';
 

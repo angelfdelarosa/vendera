@@ -1004,7 +1004,11 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$scroll$2d$area$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/scroll-area.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$usePropertyStore$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/hooks/usePropertyStore.ts [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/textarea.tsx [app-ssr] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/chat/use-chat-store.ts [app-ssr] (ecmascript)");
+(()=>{
+    const e = new Error("Cannot find module '@/chat/use-chat-store'");
+    e.code = 'MODULE_NOT_FOUND';
+    throw e;
+})();
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$user$2e$service$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/user.service.ts [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$layout$2f$SubscriptionModal$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/layout/SubscriptionModal.tsx [app-ssr] (ecmascript)");
 'use client';
@@ -1036,7 +1040,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$layout$
 function ProfilePageClient() {
     const { user: authUser, loading: authLoading, supabase, refreshUser } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useAuth"])();
     const { deleteProperty } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$usePropertyStore$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["usePropertyStore"])();
-    const { handleStartConversation } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useChatStore"])();
+    const { handleStartConversation } = useChatStore();
     const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useTranslation"])();
     const { toast } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useToast"])();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRouter"])();
@@ -1161,6 +1165,13 @@ function ProfilePageClient() {
             });
         }
     };
+    const handleRateUserClick = ()=>{
+        if (authUser?.profile?.subscription_status !== 'active') {
+            setSubModalOpen(true);
+        } else {
+            setIsRatingDialogOpen(true);
+        }
+    };
     const isLoadingInitial = loading || authLoading;
     const isOwnProfile = authUser && authUser.id === displayUser?.user_id;
     if (isLoadingInitial) {
@@ -1170,12 +1181,12 @@ function ProfilePageClient() {
                 className: "h-16 w-16 animate-spin text-primary"
             }, void 0, false, {
                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                lineNumber: 198,
+                lineNumber: 207,
                 columnNumber: 13
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-            lineNumber: 197,
+            lineNumber: 206,
             columnNumber: 9
         }, this);
     }
@@ -1190,7 +1201,7 @@ function ProfilePageClient() {
                         children: "Usuario no encontrado"
                     }, void 0, false, {
                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                        lineNumber: 207,
+                        lineNumber: 216,
                         columnNumber: 14
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1198,7 +1209,7 @@ function ProfilePageClient() {
                         children: "El perfil que buscas no existe."
                     }, void 0, false, {
                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                        lineNumber: 208,
+                        lineNumber: 217,
                         columnNumber: 14
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -1209,23 +1220,23 @@ function ProfilePageClient() {
                             children: "Ir al Inicio"
                         }, void 0, false, {
                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                            lineNumber: 210,
+                            lineNumber: 219,
                             columnNumber: 17
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                        lineNumber: 209,
+                        lineNumber: 218,
                         columnNumber: 14
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                lineNumber: 206,
+                lineNumber: 215,
                 columnNumber: 12
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-            lineNumber: 205,
+            lineNumber: 214,
             columnNumber: 9
         }, this);
     }
@@ -1326,7 +1337,7 @@ function ProfilePageClient() {
                 onClose: ()=>setSubModalOpen(false)
             }, void 0, false, {
                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                lineNumber: 288,
+                lineNumber: 297,
                 columnNumber: 5
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1343,12 +1354,12 @@ function ProfilePageClient() {
                                         className: "bg-primary/10 h-24"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                        lineNumber: 293,
+                                        lineNumber: 302,
                                         columnNumber: 14
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                    lineNumber: 292,
+                                    lineNumber: 301,
                                     columnNumber: 12
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1370,20 +1381,20 @@ function ProfilePageClient() {
                                                                     className: "object-cover"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                    lineNumber: 299,
+                                                                    lineNumber: 308,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AvatarFallback"], {
                                                                     children: userInitial
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                    lineNumber: 305,
+                                                                    lineNumber: 314,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 298,
+                                                            lineNumber: 307,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1394,7 +1405,7 @@ function ProfilePageClient() {
                                                                     children: displayUser.full_name
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                    lineNumber: 308,
+                                                                    lineNumber: 317,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1406,7 +1417,7 @@ function ProfilePageClient() {
                                                                                 className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])('w-5 h-5', i < Math.round(ratingData.average) ? 'fill-current' : 'text-muted-foreground fill-muted')
                                                                             }, i, false, {
                                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                lineNumber: 313,
+                                                                                lineNumber: 322,
                                                                                 columnNumber: 30
                                                                             }, this)),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1421,25 +1432,25 @@ function ProfilePageClient() {
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                            lineNumber: 315,
+                                                                            lineNumber: 324,
                                                                             columnNumber: 31
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                    lineNumber: 311,
+                                                                    lineNumber: 320,
                                                                     columnNumber: 26
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 307,
+                                                            lineNumber: 316,
                                                             columnNumber: 22
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 297,
+                                                    lineNumber: 306,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1457,19 +1468,19 @@ function ProfilePageClient() {
                                                                             className: "mr-2 h-4 w-4"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                            lineNumber: 327,
+                                                                            lineNumber: 336,
                                                                             columnNumber: 33
                                                                         }, this),
                                                                         " Edit Profile"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                    lineNumber: 326,
+                                                                    lineNumber: 335,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                lineNumber: 325,
+                                                                lineNumber: 334,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogContent"], {
@@ -1481,20 +1492,20 @@ function ProfilePageClient() {
                                                                                 children: t('profile.edit.title')
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                lineNumber: 332,
+                                                                                lineNumber: 341,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                                                                 children: t('profile.edit.description')
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                lineNumber: 333,
+                                                                                lineNumber: 342,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                        lineNumber: 331,
+                                                                        lineNumber: 340,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1508,7 +1519,7 @@ function ProfilePageClient() {
                                                                                         children: "Change Picture"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                        lineNumber: 337,
+                                                                                        lineNumber: 346,
                                                                                         columnNumber: 37
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -1518,13 +1529,13 @@ function ProfilePageClient() {
                                                                                         onChange: onSelectFile
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                        lineNumber: 338,
+                                                                                        lineNumber: 347,
                                                                                         columnNumber: 37
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                lineNumber: 336,
+                                                                                lineNumber: 345,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             imageFile && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1535,13 +1546,13 @@ function ProfilePageClient() {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                lineNumber: 341,
+                                                                                lineNumber: 350,
                                                                                 columnNumber: 37
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                        lineNumber: 335,
+                                                                        lineNumber: 344,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -1553,37 +1564,37 @@ function ProfilePageClient() {
                                                                                     className: "mr-2 h-4 w-4 animate-spin"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                    lineNumber: 348,
+                                                                                    lineNumber: 357,
                                                                                     columnNumber: 52
                                                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__["Upload"], {
                                                                                     className: "mr-2 h-4 w-4"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                    lineNumber: 348,
+                                                                                    lineNumber: 357,
                                                                                     columnNumber: 104
                                                                                 }, this),
                                                                                 "Upload & Save"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                            lineNumber: 347,
+                                                                            lineNumber: 356,
                                                                             columnNumber: 33
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                        lineNumber: 346,
+                                                                        lineNumber: 355,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                lineNumber: 330,
+                                                                lineNumber: 339,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                        lineNumber: 324,
+                                                        lineNumber: 333,
                                                         columnNumber: 22
                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                                                         onClick: onStartConversation,
@@ -1592,25 +1603,25 @@ function ProfilePageClient() {
                                                                 className: "mr-2"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                lineNumber: 356,
+                                                                lineNumber: 365,
                                                                 columnNumber: 25
                                                             }, this),
                                                             " Contactar al Vendedor"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                        lineNumber: 355,
+                                                        lineNumber: 364,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 322,
+                                                    lineNumber: 331,
                                                     columnNumber: 15
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                            lineNumber: 296,
+                                            lineNumber: 305,
                                             columnNumber: 13
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1624,7 +1635,7 @@ function ProfilePageClient() {
                                                             children: "Email"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 364,
+                                                            lineNumber: 373,
                                                             columnNumber: 22
                                                         }, this),
                                                         isOwnProfile || authUser?.profile?.subscription_status === 'active' ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1632,7 +1643,7 @@ function ProfilePageClient() {
                                                             children: displayUser.email || 'N/A'
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 366,
+                                                            lineNumber: 375,
                                                             columnNumber: 24
                                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                             className: "flex items-center gap-2",
@@ -1645,25 +1656,25 @@ function ProfilePageClient() {
                                                                         className: "mr-2 h-4 w-4"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                        lineNumber: 370,
+                                                                        lineNumber: 379,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     " Solo para miembros Pro"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                lineNumber: 369,
+                                                                lineNumber: 378,
                                                                 columnNumber: 28
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 368,
+                                                            lineNumber: 377,
                                                             columnNumber: 24
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 363,
+                                                    lineNumber: 372,
                                                     columnNumber: 18
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1674,7 +1685,7 @@ function ProfilePageClient() {
                                                             children: "Miembro desde"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 376,
+                                                            lineNumber: 385,
                                                             columnNumber: 22
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1682,13 +1693,13 @@ function ProfilePageClient() {
                                                             children: memberSince
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 377,
+                                                            lineNumber: 386,
                                                             columnNumber: 22
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 375,
+                                                    lineNumber: 384,
                                                     columnNumber: 18
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1699,7 +1710,7 @@ function ProfilePageClient() {
                                                             children: "Propiedades"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 380,
+                                                            lineNumber: 389,
                                                             columnNumber: 22
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1707,33 +1718,27 @@ function ProfilePageClient() {
                                                             children: userProperties.length
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 381,
+                                                            lineNumber: 390,
                                                             columnNumber: 22
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 379,
+                                                    lineNumber: 388,
                                                     columnNumber: 19
                                                 }, this),
                                                 !isOwnProfile && authUser && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
                                                     open: isRatingDialogOpen,
                                                     onOpenChange: setIsRatingDialogOpen,
                                                     children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogTrigger"], {
-                                                            asChild: true,
-                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
-                                                                variant: "outline",
-                                                                className: "w-full",
-                                                                children: "Calificar Usuario"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                lineNumber: 386,
-                                                                columnNumber: 29
-                                                            }, this)
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
+                                                            variant: "outline",
+                                                            className: "w-full",
+                                                            onClick: handleRateUserClick,
+                                                            children: "Calificar Usuario"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 385,
+                                                            lineNumber: 394,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogContent"], {
@@ -1747,20 +1752,20 @@ function ProfilePageClient() {
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                            lineNumber: 390,
+                                                                            lineNumber: 397,
                                                                             columnNumber: 33
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                                                             children: "Tu opinión ayuda a otros a encontrar agentes de confianza."
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                            lineNumber: 391,
+                                                                            lineNumber: 398,
                                                                             columnNumber: 33
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                    lineNumber: 389,
+                                                                    lineNumber: 396,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1779,13 +1784,13 @@ function ProfilePageClient() {
                                                                                     onMouseLeave: ()=>setHoverRating(0)
                                                                                 }, i, false, {
                                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                    lineNumber: 400,
+                                                                                    lineNumber: 407,
                                                                                     columnNumber: 45
                                                                                 }, this);
                                                                             })
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                            lineNumber: 396,
+                                                                            lineNumber: 403,
                                                                             columnNumber: 33
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -1795,13 +1800,13 @@ function ProfilePageClient() {
                                                                             className: "min-h-[100px]"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                            lineNumber: 412,
+                                                                            lineNumber: 419,
                                                                             columnNumber: 33
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                    lineNumber: 395,
+                                                                    lineNumber: 402,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -1812,7 +1817,7 @@ function ProfilePageClient() {
                                                                             children: "Cancelar"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                            lineNumber: 420,
+                                                                            lineNumber: 427,
                                                                             columnNumber: 33
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -1822,48 +1827,48 @@ function ProfilePageClient() {
                                                                                 className: "animate-spin"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                lineNumber: 422,
+                                                                                lineNumber: 429,
                                                                                 columnNumber: 49
                                                                             }, this) : "Enviar Calificación"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                            lineNumber: 421,
+                                                                            lineNumber: 428,
                                                                             columnNumber: 33
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                    lineNumber: 419,
+                                                                    lineNumber: 426,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 388,
+                                                            lineNumber: 395,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 384,
+                                                    lineNumber: 393,
                                                     columnNumber: 22
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                            lineNumber: 362,
+                                            lineNumber: 371,
                                             columnNumber: 13
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                    lineNumber: 295,
+                                    lineNumber: 304,
                                     columnNumber: 12
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                            lineNumber: 291,
+                            lineNumber: 300,
                             columnNumber: 9
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tabs"], {
@@ -1880,7 +1885,7 @@ function ProfilePageClient() {
                                                     className: "mr-2"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 435,
+                                                    lineNumber: 442,
                                                     columnNumber: 15
                                                 }, this),
                                                 " ",
@@ -1888,7 +1893,7 @@ function ProfilePageClient() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                            lineNumber: 434,
+                                            lineNumber: 441,
                                             columnNumber: 13
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1898,14 +1903,14 @@ function ProfilePageClient() {
                                                     className: "mr-2"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 438,
+                                                    lineNumber: 445,
                                                     columnNumber: 15
                                                 }, this),
                                                 " Valoraciones"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                            lineNumber: 437,
+                                            lineNumber: 444,
                                             columnNumber: 13
                                         }, this),
                                         isOwnProfile && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1915,7 +1920,7 @@ function ProfilePageClient() {
                                                     className: "mr-2"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 442,
+                                                    lineNumber: 449,
                                                     columnNumber: 21
                                                 }, this),
                                                 " ",
@@ -1923,13 +1928,13 @@ function ProfilePageClient() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                            lineNumber: 441,
+                                            lineNumber: 448,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                    lineNumber: 433,
+                                    lineNumber: 440,
                                     columnNumber: 9
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -1942,12 +1947,12 @@ function ProfilePageClient() {
                                                     children: "Propiedades Listadas"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 449,
+                                                    lineNumber: 456,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                lineNumber: 448,
+                                                lineNumber: 455,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1960,7 +1965,7 @@ function ProfilePageClient() {
                                                                     property: property
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                    lineNumber: 456,
+                                                                    lineNumber: 463,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 isOwnProfile && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1977,17 +1982,17 @@ function ProfilePageClient() {
                                                                                     className: "h-4 w-4"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                    lineNumber: 461,
+                                                                                    lineNumber: 468,
                                                                                     columnNumber: 37
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                lineNumber: 460,
+                                                                                lineNumber: 467,
                                                                                 columnNumber: 37
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                            lineNumber: 459,
+                                                                            lineNumber: 466,
                                                                             columnNumber: 33
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$alert$2d$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AlertDialog"], {
@@ -2001,17 +2006,17 @@ function ProfilePageClient() {
                                                                                             className: "h-4 w-4"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                            lineNumber: 467,
+                                                                                            lineNumber: 474,
                                                                                             columnNumber: 41
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                        lineNumber: 466,
+                                                                                        lineNumber: 473,
                                                                                         columnNumber: 37
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                    lineNumber: 465,
+                                                                                    lineNumber: 472,
                                                                                     columnNumber: 37
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$alert$2d$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AlertDialogContent"], {
@@ -2022,20 +2027,20 @@ function ProfilePageClient() {
                                                                                                     children: "¿Estás seguro?"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                                    lineNumber: 472,
+                                                                                                    lineNumber: 479,
                                                                                                     columnNumber: 41
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$alert$2d$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AlertDialogDescription"], {
                                                                                                     children: "Esta acción no se puede deshacer. Esto eliminará permanentemente la propiedad de los servidores."
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                                    lineNumber: 473,
+                                                                                                    lineNumber: 480,
                                                                                                     columnNumber: 41
                                                                                                 }, this)
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                            lineNumber: 471,
+                                                                                            lineNumber: 478,
                                                                                             columnNumber: 37
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$alert$2d$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AlertDialogFooter"], {
@@ -2044,7 +2049,7 @@ function ProfilePageClient() {
                                                                                                     children: "Cancelar"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                                    lineNumber: 478,
+                                                                                                    lineNumber: 485,
                                                                                                     columnNumber: 41
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$alert$2d$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AlertDialogAction"], {
@@ -2052,42 +2057,42 @@ function ProfilePageClient() {
                                                                                                     children: "Sí, eliminar propiedad"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                                    lineNumber: 479,
+                                                                                                    lineNumber: 486,
                                                                                                     columnNumber: 41
                                                                                                 }, this)
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                            lineNumber: 477,
+                                                                                            lineNumber: 484,
                                                                                             columnNumber: 37
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                    lineNumber: 470,
+                                                                                    lineNumber: 477,
                                                                                     columnNumber: 37
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                            lineNumber: 464,
+                                                                            lineNumber: 471,
                                                                             columnNumber: 33
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                    lineNumber: 458,
+                                                                    lineNumber: 465,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, property.id, true, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 455,
+                                                            lineNumber: 462,
                                                             columnNumber: 25
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 453,
+                                                    lineNumber: 460,
                                                     columnNumber: 21
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "text-center py-16",
@@ -2099,7 +2104,7 @@ function ProfilePageClient() {
                                                             })
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 492,
+                                                            lineNumber: 499,
                                                             columnNumber: 23
                                                         }, this),
                                                         isOwnProfile && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -2109,34 +2114,34 @@ function ProfilePageClient() {
                                                                 children: "Listar una propiedad"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                lineNumber: 497,
+                                                                lineNumber: 504,
                                                                 columnNumber: 27
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 496,
+                                                            lineNumber: 503,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 491,
+                                                    lineNumber: 498,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                lineNumber: 451,
+                                                lineNumber: 458,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                        lineNumber: 447,
+                                        lineNumber: 454,
                                         columnNumber: 14
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                    lineNumber: 446,
+                                    lineNumber: 453,
                                     columnNumber: 9
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -2149,12 +2154,12 @@ function ProfilePageClient() {
                                                     children: "Valoraciones Recibidas"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 508,
+                                                    lineNumber: 515,
                                                     columnNumber: 15
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                lineNumber: 507,
+                                                lineNumber: 514,
                                                 columnNumber: 13
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2176,12 +2181,12 @@ function ProfilePageClient() {
                                                                                         className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])('w-4 h-4', i < rating.rating ? 'fill-current' : 'text-muted-foreground/50 fill-muted')
                                                                                     }, i, false, {
                                                                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                        lineNumber: 519,
+                                                                                        lineNumber: 526,
                                                                                         columnNumber: 37
                                                                                     }, this))
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                lineNumber: 517,
+                                                                                lineNumber: 524,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2189,13 +2194,13 @@ function ProfilePageClient() {
                                                                                 children: new Date(rating.created_at).toLocaleDateString()
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                                lineNumber: 522,
+                                                                                lineNumber: 529,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                        lineNumber: 516,
+                                                                        lineNumber: 523,
                                                                         columnNumber: 26
                                                                     }, this),
                                                                     rating.comment && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2207,23 +2212,23 @@ function ProfilePageClient() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                        lineNumber: 525,
+                                                                        lineNumber: 532,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 ]
                                                             }, index, true, {
                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                lineNumber: 515,
+                                                                lineNumber: 522,
                                                                 columnNumber: 23
                                                             }, this))
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                        lineNumber: 513,
+                                                        lineNumber: 520,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 512,
+                                                    lineNumber: 519,
                                                     columnNumber: 17
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "text-center py-16",
@@ -2232,7 +2237,7 @@ function ProfilePageClient() {
                                                             className: "mx-auto h-12 w-12 text-muted-foreground/50 mb-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 533,
+                                                            lineNumber: 540,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2240,29 +2245,29 @@ function ProfilePageClient() {
                                                             children: "Este usuario aún no ha recibido ninguna valoración."
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 534,
+                                                            lineNumber: 541,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 532,
+                                                    lineNumber: 539,
                                                     columnNumber: 17
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                lineNumber: 510,
+                                                lineNumber: 517,
                                                 columnNumber: 13
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                        lineNumber: 506,
+                                        lineNumber: 513,
                                         columnNumber: 11
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                    lineNumber: 505,
+                                    lineNumber: 512,
                                     columnNumber: 9
                                 }, this),
                                 isOwnProfile && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -2275,12 +2280,12 @@ function ProfilePageClient() {
                                                     children: "Tus Propiedades Guardadas"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 544,
+                                                    lineNumber: 551,
                                                     columnNumber: 25
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                lineNumber: 543,
+                                                lineNumber: 550,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2291,12 +2296,12 @@ function ProfilePageClient() {
                                                             property: property
                                                         }, property.id, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 550,
+                                                            lineNumber: 557,
                                                             columnNumber: 29
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 548,
+                                                    lineNumber: 555,
                                                     columnNumber: 25
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "text-center py-16",
@@ -2306,7 +2311,7 @@ function ProfilePageClient() {
                                                             children: t('profile.empty.saved.description')
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 555,
+                                                            lineNumber: 562,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -2316,51 +2321,51 @@ function ProfilePageClient() {
                                                                 children: t('profile.empty.saved.button')
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                                lineNumber: 559,
+                                                                lineNumber: 566,
                                                                 columnNumber: 29
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                            lineNumber: 558,
+                                                            lineNumber: 565,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                    lineNumber: 554,
+                                                    lineNumber: 561,
                                                     columnNumber: 25
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                                lineNumber: 546,
+                                                lineNumber: 553,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                        lineNumber: 542,
+                                        lineNumber: 549,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                                    lineNumber: 541,
+                                    lineNumber: 548,
                                     columnNumber: 14
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                            lineNumber: 432,
+                            lineNumber: 439,
                             columnNumber: 9
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                    lineNumber: 290,
+                    lineNumber: 299,
                     columnNumber: 7
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/users/ProfilePageClient.tsx",
-                lineNumber: 289,
+                lineNumber: 298,
                 columnNumber: 5
             }, this)
         ]
