@@ -5,8 +5,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import type { User, AuthError, SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { useChatStore } from '@/components/chat/use-chat-store';
-import type { Conversation as AppConversation, ConversationFromDB, UserProfile } from '@/types';
+import type { UserProfile } from '@/types';
 import { userService } from '@/lib/user.service';
 
 
@@ -24,42 +23,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const supabase = createClient();
-  const router = useRouter();
-  const { setConversations, setLoading: setChatLoading } = useChatStore();
   const [user, setUser] = useState<(User & { profile?: UserProfile }) | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchAndSetConversations = useCallback(async (userId: string) => {
-    setChatLoading(true);
-    
-    const { data: convos, error: convosError } = await supabase
-      .from('conversations')
-      .select('*, buyer:profiles!buyer_id(*), seller:profiles!seller_id(*)')
-      .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
-
-    if (convosError) {
-      console.error("Error fetching conversations:", convosError);
-      setConversations([]);
-      setChatLoading(false);
-      return;
-    }
-    
-    if (convos) {
-       const transformedConversations = (convos as unknown as ConversationFromDB[]).map(c => {
-        const otherUser = c.buyer_id === userId ? c.seller! : c.buyer!;
-        return {
-            ...c,
-            lastMessage: "No messages yet.", 
-            otherUser,
-        } as AppConversation;
-      });
-      setConversations(transformedConversations);
-    } else {
-        setConversations([]);
-    }
-    setChatLoading(false);
-  }, [supabase, setConversations, setChatLoading]);
-  
   const refreshUser = async () => {
     const { data: { user: authData } } = await supabase.auth.getUser();
     if (authData) {
@@ -71,33 +37,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   
   useEffect(() => {
-    let channel: RealtimeChannel | null = null;
-
     const setupUserSession = async (sessionUser: User | null) => {
         setLoading(true);
         if (sessionUser) {
             const profile = await userService.getProfile(sessionUser.id);
             setUser({ ...sessionUser, profile: profile || undefined });
-
-            await fetchAndSetConversations(sessionUser.id);
-             channel = supabase
-                .channel('db-changes')
-                .on('postgres_changes', 
-                    { event: '*', schema: 'public', table: 'messages' },
-                    () => fetchAndSetConversations(sessionUser.id)
-                )
-                .on('postgres_changes', 
-                    { event: '*', schema: 'public', table: 'conversations' },
-                    () => fetchAndSetConversations(sessionUser.id)
-                )
-                .subscribe();
         } else {
             setUser(null);
-            setConversations([]);
-            if (channel) {
-                supabase.removeChannel(channel);
-                channel = null;
-            }
         }
         setLoading(false);
     };
@@ -114,11 +60,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return () => {
       subscription.unsubscribe();
-      if (channel) {
-          supabase.removeChannel(channel);
-      }
     };
-  }, [supabase, router, fetchAndSetConversations, setConversations]);
+  }, [supabase]);
 
 
   const login = async (email: string, pass: string) => {

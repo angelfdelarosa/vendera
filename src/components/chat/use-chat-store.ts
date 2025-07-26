@@ -1,6 +1,6 @@
 
 import { create } from 'zustand';
-import type { Conversation, UserProfile } from '@/types';
+import type { Conversation, ConversationFromDB, UserProfile } from '@/types';
 import { type SupabaseClient, type User } from '@supabase/supabase-js';
 
 interface ChatState {
@@ -11,6 +11,7 @@ interface ChatState {
   selectConversation: (conversationId: string | null) => void;
   setConversations: (conversations: Conversation[]) => void;
   updateConversation: (conversationId: string, updatedData: Partial<Conversation>) => void;
+  fetchConversations: (userId: string, supabase: SupabaseClient) => Promise<void>;
   handleStartConversation: (
     otherUser: UserProfile,
     authUser: User & { profile?: UserProfile },
@@ -46,6 +47,35 @@ export const useChatStore = create<ChatState>((set, get) => ({
         c.id === conversationId ? { ...c, ...updatedData } : c
       ),
     }));
+  },
+  fetchConversations: async (userId, supabase) => {
+    if (!userId || !supabase) return;
+    set({ loading: true });
+
+    const { data: convos, error: convosError } = await supabase
+      .from('conversations')
+      .select('*, buyer:profiles!buyer_id(*), seller:profiles!seller_id(*)')
+      .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
+
+    if (convosError) {
+      console.error("Error fetching conversations:", convosError);
+      set({ conversations: [], loading: false });
+      return;
+    }
+
+    if (convos) {
+       const transformedConversations = (convos as unknown as ConversationFromDB[]).map(c => {
+        const otherUser = c.buyer_id === userId ? c.seller! : c.buyer!;
+        return {
+            ...c,
+            lastMessage: "No messages yet.", 
+            otherUser,
+        } as Conversation;
+      });
+      set({ conversations: transformedConversations, loading: false });
+    } else {
+      set({ conversations: [], loading: false });
+    }
   },
   handleStartConversation: async (otherUser, authUser, supabase) => {
     if (!authUser || authUser.id === otherUser.user_id) {

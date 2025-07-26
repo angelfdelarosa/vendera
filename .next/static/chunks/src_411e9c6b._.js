@@ -20,7 +20,7 @@ function Logo({ layout = 'horizontal' }) {
         className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])('flex items-center', isVertical ? 'flex-col gap-4' : 'flex-row gap-2'),
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                src: "https://noyztbqdgfniixzmpuac.supabase.co/storage/v1/object/public/logo//logo2.png",
+                src: "https://wqckkfepxumugmrrrdtu.supabase.co/storage/v1/object/public/logos//logo.png",
                 alt: "VENDRA Logo",
                 width: isVertical ? 128 : 48,
                 height: isVertical ? 128 : 48,
@@ -902,15 +902,18 @@ __turbopack_context__.s({
     "useChatStore": (()=>useChatStore)
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zustand$2f$esm$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/zustand/esm/index.mjs [app-client] (ecmascript) <locals>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/supabase/client.ts [app-client] (ecmascript)");
-;
 ;
 const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zustand$2f$esm$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["create"])((set, get)=>({
         conversations: [],
         selectedConversation: null,
+        loading: true,
+        setLoading: (loading)=>set({
+                loading
+            }),
         setConversations: (conversations)=>set({
                 conversations,
-                selectedConversation: null
+                selectedConversation: get().selectedConversation ? conversations.find((c)=>c.id === get().selectedConversation?.id) || null : null,
+                loading: false
             }),
         selectConversation: (conversationId)=>{
             if (!conversationId) {
@@ -920,37 +923,10 @@ const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                 return;
             }
             const conversation = get().conversations.find((c)=>c.id === conversationId);
-            set((state)=>({
-                    selectedConversation: conversation || null,
-                    conversations: state.conversations.map((c)=>c.id === conversationId ? {
-                            ...c,
-                            unread: false
-                        } : c)
-                }));
-            if (conversation?.unread) {
-                const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createClient"])();
-                const markAsRead = async ()=>{
-                    const { data: { user } } = await supabase.auth.getUser();
-                    if (!user) return;
-                    await supabase.from('conversations').update({
-                        last_message_read: true
-                    }).eq('id', conversationId).neq('last_message_sender_id', user.id);
-                };
-                markAsRead();
-            }
-        },
-        addMessage: (conversationId, message)=>{
-            set((state)=>({
-                    conversations: state.conversations.map((c)=>c.id === conversationId ? {
-                            ...c,
-                            messages: [
-                                ...c.messages,
-                                message
-                            ],
-                            timestamp: new Date().toISOString(),
-                            lastMessage: message.text
-                        } : c)
-                }));
+            set({
+                selectedConversation: conversation || null
+            });
+        // Note: Read status should be updated in the backend when messages are fetched/viewed.
         },
         updateConversation: (conversationId, updatedData)=>{
             set((state)=>({
@@ -959,6 +935,88 @@ const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                             ...updatedData
                         } : c)
                 }));
+        },
+        fetchConversations: async (userId, supabase)=>{
+            if (!userId || !supabase) return;
+            set({
+                loading: true
+            });
+            const { data: convos, error: convosError } = await supabase.from('conversations').select('*, buyer:profiles!buyer_id(*), seller:profiles!seller_id(*)').or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
+            if (convosError) {
+                console.error("Error fetching conversations:", convosError);
+                set({
+                    conversations: [],
+                    loading: false
+                });
+                return;
+            }
+            if (convos) {
+                const transformedConversations = convos.map((c)=>{
+                    const otherUser = c.buyer_id === userId ? c.seller : c.buyer;
+                    return {
+                        ...c,
+                        lastMessage: "No messages yet.",
+                        otherUser
+                    };
+                });
+                set({
+                    conversations: transformedConversations,
+                    loading: false
+                });
+            } else {
+                set({
+                    conversations: [],
+                    loading: false
+                });
+            }
+        },
+        handleStartConversation: async (otherUser, authUser, supabase)=>{
+            if (!authUser || authUser.id === otherUser.user_id) {
+                console.log("Cannot start conversation with yourself.");
+                return null;
+            }
+            // Subscription check before starting conversation
+            if (authUser.profile?.subscription_status !== 'active') {
+                console.log("User does not have an active subscription.");
+                // The UI should prevent this, but this is a safeguard.
+                return null;
+            }
+            // Check if a conversation already exists between the two users
+            const { data: existing, error: existingError } = await supabase.from('conversations').select('id').or(`and(buyer_id.eq.${authUser.id},seller_id.eq.${otherUser.user_id}),and(buyer_id.eq.${otherUser.user_id},seller_id.eq.${authUser.id})`).maybeSingle();
+            if (existingError) {
+                console.error("Error checking for existing conversation", existingError);
+                return null;
+            }
+            if (existing) {
+                get().selectConversation(existing.id);
+                return existing.id;
+            }
+            // If no existing conversation, create a new one. Auth user is the buyer by default.
+            const { data: newConversationData, error } = await supabase.from('conversations').insert({
+                buyer_id: authUser.id,
+                seller_id: otherUser.user_id
+            }).select(`
+        *,
+        buyer:profiles!buyer_id(*),
+        seller:profiles!seller_id(*)
+      `).single();
+            if (error) {
+                console.error('Error creating conversation:', error);
+                return null;
+            }
+            const newConvo = {
+                ...newConversationData,
+                otherUser: newConversationData.seller,
+                lastMessage: "No messages yet."
+            };
+            set((state)=>({
+                    conversations: [
+                        newConvo,
+                        ...state.conversations
+                    ],
+                    selectedConversation: newConvo
+                }));
+            return newConvo.id;
         }
     }));
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
@@ -978,11 +1036,13 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$popover$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/popover.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/button.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$bell$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Bell$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/bell.js [app-client] (ecmascript) <export default as Bell>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-client] (ecmascript) <export default as Loader2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$message$2d$square$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MessageSquare$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/message-square.js [app-client] (ecmascript) <export default as MessageSquare>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/avatar.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/chat/use-chat-store.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/hooks/useTranslation.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/context/AuthContext.tsx [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
 'use client';
@@ -994,11 +1054,13 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+;
 function MessageNotifications() {
     _s();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
-    const { conversations, selectConversation } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useChatStore"])();
-    const unreadCount = conversations.filter((c)=>c.unread).length;
+    const { user } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"])();
+    const { conversations, selectConversation, loading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useChatStore"])();
+    const unreadCount = conversations.filter((c)=>!c.last_message_read && c.last_message_sender_id !== user?.id).length;
     const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTranslation"])();
     const handleNotificationClick = (conversationId)=>{
         selectConversation(conversationId);
@@ -1013,12 +1075,18 @@ function MessageNotifications() {
                     size: "icon",
                     className: "relative",
                     children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$bell$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Bell$3e$__["Bell"], {
+                        loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                            className: "h-[1.2rem] w-[1.2rem] animate-spin"
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/layout/MessageNotifications.tsx",
+                            lineNumber: 35,
+                            columnNumber: 14
+                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$bell$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Bell$3e$__["Bell"], {
                             className: "h-[1.2rem] w-[1.2rem]"
                         }, void 0, false, {
                             fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                            lineNumber: 33,
-                            columnNumber: 11
+                            lineNumber: 37,
+                            columnNumber: 14
                         }, this),
                         unreadCount > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                             className: "absolute top-1 right-1 flex h-2.5 w-2.5",
@@ -1027,20 +1095,20 @@ function MessageNotifications() {
                                     className: "animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                    lineNumber: 36,
+                                    lineNumber: 41,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                     className: "relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                    lineNumber: 37,
+                                    lineNumber: 42,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                            lineNumber: 35,
+                            lineNumber: 40,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1048,18 +1116,18 @@ function MessageNotifications() {
                             children: t('notifications.open')
                         }, void 0, false, {
                             fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                            lineNumber: 40,
+                            lineNumber: 45,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                    lineNumber: 32,
+                    lineNumber: 33,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                lineNumber: 31,
+                lineNumber: 32,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$popover$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PopoverContent"], {
@@ -1072,49 +1140,62 @@ function MessageNotifications() {
                             children: t('notifications.inbox')
                         }, void 0, false, {
                             fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                            lineNumber: 45,
+                            lineNumber: 50,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                        lineNumber: 44,
+                        lineNumber: 49,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "space-y-1 p-2 max-h-[400px] overflow-y-auto",
-                        children: conversations.length > 0 ? conversations.slice(0, 5).map((convo)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        children: loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex justify-center items-center p-8",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                                className: "animate-spin text-muted-foreground"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/layout/MessageNotifications.tsx",
+                                lineNumber: 55,
+                                columnNumber: 17
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/layout/MessageNotifications.tsx",
+                            lineNumber: 54,
+                            columnNumber: 14
+                        }, this) : conversations.length > 0 ? conversations.slice(0, 5).map((convo)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer",
                                 onClick: ()=>handleNotificationClick(convo.id),
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                        href: `/profile/${convo.user.user_id}`,
+                                        href: `/profile/${convo.otherUser.user_id}`,
                                         onClick: (e)=>e.stopPropagation(),
                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Avatar"], {
                                             className: "hover:ring-2 hover:ring-primary transition-all",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AvatarImage"], {
-                                                    src: convo.user.avatar_url || undefined
+                                                    src: convo.otherUser.avatar_url || undefined
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                                    lineNumber: 60,
+                                                    lineNumber: 69,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AvatarFallback"], {
-                                                    children: convo.user.full_name?.charAt(0)
+                                                    children: convo.otherUser.full_name?.charAt(0)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                                    lineNumber: 61,
+                                                    lineNumber: 70,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                            lineNumber: 59,
+                                            lineNumber: 68,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                        lineNumber: 55,
+                                        lineNumber: 64,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1124,33 +1205,33 @@ function MessageNotifications() {
                                                 className: "flex justify-between items-center",
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                        href: `/profile/${convo.user.user_id}`,
+                                                        href: `/profile/${convo.otherUser.user_id}`,
                                                         onClick: (e)=>e.stopPropagation(),
                                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                             className: "font-semibold text-sm hover:underline",
-                                                            children: convo.user.full_name
+                                                            children: convo.otherUser.full_name
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                                            lineNumber: 72,
+                                                            lineNumber: 81,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                                        lineNumber: 68,
+                                                        lineNumber: 77,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         className: "text-xs text-muted-foreground",
-                                                        children: convo.timestamp
+                                                        children: new Date(convo.created_at).toLocaleTimeString()
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                                        lineNumber: 76,
+                                                        lineNumber: 85,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                                lineNumber: 67,
+                                                lineNumber: 76,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1158,26 +1239,26 @@ function MessageNotifications() {
                                                 children: convo.lastMessage
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                                lineNumber: 80,
+                                                lineNumber: 89,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                        lineNumber: 66,
+                                        lineNumber: 75,
                                         columnNumber: 17
                                     }, this),
-                                    convo.unread && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    !convo.last_message_read && convo.last_message_sender_id !== user?.id && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "w-2 h-2 rounded-full bg-primary mt-1"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                        lineNumber: 85,
+                                        lineNumber: 94,
                                         columnNumber: 19
                                     }, this)
                                 ]
                             }, convo.id, true, {
                                 fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                lineNumber: 50,
+                                lineNumber: 59,
                                 columnNumber: 15
                             }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "text-center text-muted-foreground p-8",
@@ -1186,25 +1267,25 @@ function MessageNotifications() {
                                     className: "mx-auto h-8 w-8 mb-2"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                    lineNumber: 91,
+                                    lineNumber: 100,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                     children: t('notifications.noMessages')
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                    lineNumber: 92,
+                                    lineNumber: 101,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                            lineNumber: 90,
+                            lineNumber: 99,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                        lineNumber: 47,
+                        lineNumber: 52,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1217,35 +1298,36 @@ function MessageNotifications() {
                                 children: t('notifications.viewAll')
                             }, void 0, false, {
                                 fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                                lineNumber: 98,
+                                lineNumber: 107,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                            lineNumber: 97,
+                            lineNumber: 106,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                        lineNumber: 96,
+                        lineNumber: 105,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-                lineNumber: 43,
+                lineNumber: 48,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/layout/MessageNotifications.tsx",
-        lineNumber: 30,
+        lineNumber: 31,
         columnNumber: 5
     }, this);
 }
-_s(MessageNotifications, "BgYgefDyV/MXFZYN4gP6SvYbCKQ=", false, function() {
+_s(MessageNotifications, "6stoS+IuGvFAm+3azfMi+5Q/hco=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"],
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useChatStore"],
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTranslation"]
     ];
@@ -1393,6 +1475,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$layout$
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$search$2f$GlobalSearch$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/search/GlobalSearch.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/utils.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/chat/use-chat-store.ts [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
 "use client";
@@ -1406,10 +1489,12 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+;
 function Header() {
     _s();
     const { t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTranslation"])();
-    const { user } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"])();
+    const { user, supabase } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"])();
+    const { fetchConversations } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useChatStore"])();
     const pathname = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"])();
     const [scrolled, setScrolled] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [isMounted, setIsMounted] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
@@ -1418,8 +1503,20 @@ function Header() {
             setIsMounted(true);
         }
     }["Header.useEffect"], []);
-    const logoHref = user ? "/" : "/";
-    const isLanding = pathname === '/';
+    // Fetch conversations when user logs in
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "Header.useEffect": ()=>{
+            if (user && supabase) {
+                fetchConversations(user.id, supabase);
+            }
+        }
+    }["Header.useEffect"], [
+        user,
+        supabase,
+        fetchConversations
+    ]);
+    const logoHref = user ? "/" : "/landing";
+    const isLanding = pathname === '/landing';
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "Header.useEffect": ()=>{
             const handleScroll = {
@@ -1427,8 +1524,7 @@ function Header() {
                     setScrolled(window.scrollY > 10);
                 }
             }["Header.useEffect.handleScroll"];
-            // Only add scroll listener if on the root page (which is the landing page for guests)
-            // and the user is not logged in.
+            // Only add scroll listener if on the landing page for guests
             if (isLanding && !user) {
                 window.addEventListener("scroll", handleScroll);
                 return ({
@@ -1457,12 +1553,12 @@ function Header() {
                         layout: "horizontal"
                     }, void 0, false, {
                         fileName: "[project]/src/components/layout/Header.tsx",
-                        lineNumber: 56,
+                        lineNumber: 64,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/components/layout/Header.tsx",
-                    lineNumber: 55,
+                    lineNumber: 63,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
@@ -1470,11 +1566,11 @@ function Header() {
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                             href: "/",
-                            className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("transition-colors hover:text-accent", showTransparentNav ? 'text-white/80 hover:text-white' : 'text-foreground/60'),
+                            className: "transition-colors hover:text-accent text-foreground/60",
                             children: t('header.properties')
                         }, void 0, false, {
                             fileName: "[project]/src/components/layout/Header.tsx",
-                            lineNumber: 59,
+                            lineNumber: 67,
                             columnNumber: 11
                         }, this),
                         user && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -1485,7 +1581,7 @@ function Header() {
                                     children: t('header.favorites')
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/layout/Header.tsx",
-                                    lineNumber: 67,
+                                    lineNumber: 75,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1494,7 +1590,7 @@ function Header() {
                                     children: t('header.addProperty')
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/layout/Header.tsx",
-                                    lineNumber: 73,
+                                    lineNumber: 81,
                                     columnNumber: 15
                                 }, this)
                             ]
@@ -1502,19 +1598,19 @@ function Header() {
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/layout/Header.tsx",
-                    lineNumber: 58,
+                    lineNumber: 66,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "flex flex-1 items-center justify-center space-x-4 px-8",
                     children: user && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$search$2f$GlobalSearch$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["GlobalSearch"], {}, void 0, false, {
                         fileName: "[project]/src/components/layout/Header.tsx",
-                        lineNumber: 83,
+                        lineNumber: 91,
                         columnNumber: 22
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/components/layout/Header.tsx",
-                    lineNumber: 82,
+                    lineNumber: 90,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1522,36 +1618,37 @@ function Header() {
                     children: [
                         user && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$layout$2f$MessageNotifications$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["MessageNotifications"], {}, void 0, false, {
                             fileName: "[project]/src/components/layout/Header.tsx",
-                            lineNumber: 86,
+                            lineNumber: 94,
                             columnNumber: 20
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$layout$2f$UserNav$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["UserNav"], {}, void 0, false, {
                             fileName: "[project]/src/components/layout/Header.tsx",
-                            lineNumber: 87,
+                            lineNumber: 95,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/layout/Header.tsx",
-                    lineNumber: 85,
+                    lineNumber: 93,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/layout/Header.tsx",
-            lineNumber: 54,
+            lineNumber: 62,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/components/layout/Header.tsx",
-        lineNumber: 50,
+        lineNumber: 58,
         columnNumber: 5
     }, this);
 }
-_s(Header, "1JiMve5JqxriyTYSlp8mu+ASojM=", false, function() {
+_s(Header, "GMMDcArs6Fsm1BUVbzKtIJsdmBM=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$useTranslation$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTranslation"],
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuth"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useChatStore"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"]
     ];
 });
@@ -2018,7 +2115,7 @@ const PropertyProvider = ({ children })=>{
             const fetchAllProperties = {
                 "PropertyProvider.useEffect.fetchAllProperties": async ()=>{
                     setIsLoading(true);
-                    const { data: propertiesData, error: propertiesError } = await supabase.from('properties').select('*');
+                    const { data: propertiesData, error: propertiesError } = await supabase.from('properties').select('*').eq('is_active', true);
                     if (propertiesError) {
                         console.error("Error fetching properties:", propertiesError);
                         setIsLoading(false);
@@ -2084,7 +2181,7 @@ const PropertyProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/PropertyContext.tsx",
-        lineNumber: 78,
+        lineNumber: 79,
         columnNumber: 5
     }, this);
 };

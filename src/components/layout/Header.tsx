@@ -11,10 +11,12 @@ import { MessageNotifications } from "./MessageNotifications";
 import { GlobalSearch } from "../search/GlobalSearch";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useChatStore } from "@/components/chat/use-chat-store";
 
 export function Header() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, supabase } = useAuth();
+  const { fetchConversations } = useChatStore();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -22,6 +24,13 @@ export function Header() {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+  
+  // Fetch conversations when user logs in
+  useEffect(() => {
+    if (user && supabase) {
+        fetchConversations(user.id, supabase);
+    }
+  }, [user, supabase, fetchConversations]);
 
   const logoHref = user ? "/" : "/landing";
   const isLanding = pathname === '/landing';
