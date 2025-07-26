@@ -128,7 +128,7 @@ export default function ProfilePageClient() {
       // Fetch properties for this user
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('properties')
-        .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username, is_seller)`)
+        .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username)`)
         .eq('realtor_id', profileData.user_id);
       
       if (propertiesError) {
@@ -404,49 +404,7 @@ export default function ProfilePageClient() {
                      <span className='font-semibold'>{userProperties.length}</span>
                  </div>
                  {!isOwnProfile && authUser && (
-                     <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Button variant="outline" className='w-full' onClick={handleRateUserClick}>Calificar Usuario</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Califica a {displayUser.full_name}</DialogTitle>
-                                <DialogDescription>
-                                    Tu opinión ayuda a otros a encontrar agentes de confianza.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="flex flex-col items-center gap-4 py-4">
-                                <div className="flex justify-center items-center gap-2">
-                                    {[...Array(5)].map((_, i) => {
-                                        const ratingValue = i + 1;
-                                        return (
-                                            <Star 
-                                                key={i} 
-                                                className={cn("h-8 w-8 cursor-pointer transition-colors", 
-                                                    ratingValue <= (hoverRating || currentRating) ? "text-amber-500 fill-amber-500" : "text-muted-foreground"
-                                                )}
-                                                onClick={() => setCurrentRating(ratingValue)}
-                                                onMouseEnter={() => setHoverRating(ratingValue)}
-                                                onMouseLeave={() => setHoverRating(0)}
-                                            />
-                                        )
-                                    })}
-                                </div>
-                                <Textarea 
-                                    placeholder="Deja un comentario anónimo (opcional)..."
-                                    value={ratingComment}
-                                    onChange={(e) => setRatingComment(e.target.value)}
-                                    className="min-h-[100px]"
-                                />
-                            </div>
-                            <DialogFooter>
-                                <Button variant="ghost" onClick={() => setIsRatingDialogOpen(false)}>Cancelar</Button>
-                                <Button onClick={handleRatingSubmit} disabled={isRating}>
-                                    {isRating ? <Loader2 className="animate-spin" /> : "Enviar Calificación"}
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
+                     <Button variant="outline" className='w-full' onClick={handleRateUserClick}>Calificar Usuario</Button>
                  )}
             </div>
           </CardContent>
@@ -590,6 +548,48 @@ export default function ProfilePageClient() {
         </Tabs>
       </div>
     </div>
+    
+    {/* This Dialog should be outside the main return flow to avoid nesting issues */}
+    <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Califica a {displayUser.full_name}</DialogTitle>
+                <DialogDescription>
+                    Tu opinión ayuda a otros a encontrar agentes de confianza.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col items-center gap-4 py-4">
+                <div className="flex justify-center items-center gap-2">
+                    {[...Array(5)].map((_, i) => {
+                        const ratingValue = i + 1;
+                        return (
+                            <Star 
+                                key={i} 
+                                className={cn("h-8 w-8 cursor-pointer transition-colors", 
+                                    ratingValue <= (hoverRating || currentRating) ? "text-amber-500 fill-amber-500" : "text-muted-foreground"
+                                )}
+                                onClick={() => setCurrentRating(ratingValue)}
+                                onMouseEnter={() => setHoverRating(ratingValue)}
+                                onMouseLeave={() => setHoverRating(0)}
+                            />
+                        )
+                    })}
+                </div>
+                <Textarea 
+                    placeholder="Deja un comentario anónimo (opcional)..."
+                    value={ratingComment}
+                    onChange={(e) => setRatingComment(e.target.value)}
+                    className="min-h-[100px]"
+                />
+            </div>
+            <DialogFooter>
+                <Button variant="ghost" onClick={() => setIsRatingDialogOpen(false)}>Cancelar</Button>
+                <Button onClick={handleRatingSubmit} disabled={isRating}>
+                    {isRating ? <Loader2 className="animate-spin" /> : "Enviar Calificación"}
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
     </>
   );
 }
