@@ -17,6 +17,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   signup: (name: string, email: string, pass: string) => Promise<{ error: AuthError | null }>;
   supabase: SupabaseClient;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,6 +62,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
     setChatLoading(false);
   }, [supabase, setConversations, setChatLoading]);
+  
+  const refreshUser = async () => {
+    const { data: { user } } = await supabase.auth.refreshSession();
+    setUser(user);
+  };
   
   useEffect(() => {
     let channel: RealtimeChannel | null = null;
@@ -143,7 +149,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     login, 
     logout, 
     signup,
-    supabase
+    supabase,
+    refreshUser
   };
 
   return (

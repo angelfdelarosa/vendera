@@ -44,47 +44,16 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import ReactCrop, { type Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
-import { canvasPreview, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { Textarea } from '../ui/textarea';
 import { useChatStore } from '../chat/use-chat-store';
 import { userService } from '@/lib/user.service';
 
-function centerAspectCrop(
-  mediaWidth: number,
-  mediaHeight: number,
-  aspect: number
-) {
-  return centerCrop(
-    makeAspectCrop(
-      {
-        unit: '%',
-        width: 90,
-      },
-      aspect,
-      mediaWidth,
-      mediaHeight
-    ),
-    mediaWidth,
-    mediaHeight
-  );
-}
-
-// Debounce function to limit how often a function can run.
-function debounce(fn: Function, ms = 300) {
-  let timeoutId: ReturnType<typeof setTimeout>;
-  return function (this: any, ...args: any[]) {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => fn.apply(this, args), ms);
-  };
-}
-
 
 export default function ProfilePageClient() {
-  const { user: authUser, loading: authLoading, supabase } = useAuth();
+  const { user: authUser, loading: authLoading, supabase, refreshUser } = useAuth();
   const { deleteProperty } = usePropertyStore();
   const { handleStartConversation } = useChatStore();
   const { t } = useTranslation();
@@ -101,13 +70,7 @@ export default function ProfilePageClient() {
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
-  const [imgSrc, setImgSrc] = useState('')
-  const previewCanvasRef = useRef<HTMLCanvasElement>(null)
-  const imgRef = useRef<HTMLImageElement>(null)
-  const [crop, setCrop] = useState<Crop>()
-  const [completedCrop, setCompletedCrop] = useState<PixelCrop>()
-  const [aspect, setAspect] = useState<number | undefined>(1)
-
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   
   // Rating state
@@ -138,25 +101,6 @@ export default function ProfilePageClient() {
       const average = count > 0 ? data.reduce((acc, item) => acc + item.rating, 0) / count : 0;
       setRatingData({ average, count });
   };
-  
-  const debouncedCanvasPreview = debounce(async () => {
-    if (
-        completedCrop?.width &&
-        completedCrop.height &&
-        imgRef.current &&
-        previewCanvasRef.current
-        ) {
-        await canvasPreview(
-            imgRef.current,
-            previewCanvasRef.current,
-            completedCrop,
-        );
-    }
-  }, 100);
-
-  useEffect(() => {
-    debouncedCanvasPreview();
-  }, [completedCrop, debouncedCanvasPreview]);
   
   useEffect(() => {
     const fetchProfileAndProperties = async () => {
@@ -263,70 +207,31 @@ export default function ProfilePageClient() {
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
-      setCrop(undefined) // Makes crop preview update between images.
-      const reader = new FileReader()
-      reader.addEventListener('load', () =>
-        setImgSrc(reader.result?.toString() || ''),
-      )
-      reader.readAsDataURL(e.target.files[0])
+      setImageFile(e.target.files[0]);
     }
   }
 
-  function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
-    if (aspect) {
-      const { width, height } = e.currentTarget
-      setCrop(centerAspectCrop(width, height, aspect))
-    }
-  }
-
-  const getCroppedBlob = (canvas: HTMLCanvasElement): Promise<Blob | null> => {
-    return new Promise((resolve) => {
-        canvas.toBlob(blob => resolve(blob), 'image/png', 1);
-    });
-  };
-  
   const handleAvatarUpload = async () => {
-    if (!previewCanvasRef.current || !authUser || !completedCrop || !supabase) {
-         toast({ title: "Crop Error", description: "Please select an image and crop it first.", variant: "destructive" });
+    if (!imageFile || !authUser) {
+         toast({ title: "No se ha seleccionado ninguna imagen.", description: "Por favor, selecciona una imagen primero.", variant: "destructive" });
         return;
     }
-
     setIsUploading(true);
-
-    const canvas = previewCanvasRef.current;
-    const blob = await getCroppedBlob(canvas);
-
-    if (!blob) {
-        toast({ title: "Error", description: "Could not process image.", variant: "destructive" });
-        setIsUploading(false);
-        return;
-    }
-
-    const filePath = `${authUser.id}/${Date.now()}.png`;
-
     try {
-        const { error: uploadError } = await supabase.storage
-            .from('avatars')
-            .upload(filePath, blob, { upsert: true });
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(filePath);
-        
+        const publicUrl = await userService.uploadAvatar(authUser.id, imageFile);
         await userService.updateProfile(authUser.id, { avatar_url: publicUrl });
         
         setDisplayUser(prev => prev ? { ...prev, avatar_url: publicUrl } : null);
-        toast({ title: "Profile Picture Updated!", description: "Your new avatar is now live." });
+        await refreshUser(); // Refresh user data in context to update avatar in header
+        toast({ title: "¡Foto de perfil actualizada!", description: "Tu nuevo avatar está ahora visible." });
 
     } catch (error: any) {
         console.error("Error updating profile picture:", error);
-        toast({ title: "Upload Failed", description: error.message, variant: "destructive" });
+        toast({ title: "Fallo en la subida", description: error.message, variant: "destructive" });
     } finally {
         setIsUploading(false);
         setIsEditModalOpen(false);
-        setImgSrc('');
+        setImageFile(null);
     }
   };
 
@@ -416,56 +321,19 @@ export default function ProfilePageClient() {
                                 <DialogTitle>{t('profile.edit.title')}</DialogTitle>
                                 <DialogDescription>{t('profile.edit.description')}</DialogDescription>
                             </DialogHeader>
-                              <ScrollArea className="max-h-[70vh] p-4">
-                                <div className="grid gap-4 py-4">
-                                    <div className="grid w-full max-w-sm items-center gap-1.5">
-                                        <Label htmlFor="picture">Change Picture</Label>
-                                        <Input id="picture" type="file" accept="image/*" onChange={onSelectFile} />
-                                    </div>
-
-                                    {imgSrc && (
-                                      <div className="mt-4 flex flex-col items-center">
-                                          <ReactCrop
-                                            crop={crop}
-                                            onChange={(_, percentCrop) => setCrop(percentCrop)}
-                                            onComplete={(c) => setCompletedCrop(c)}
-                                            aspect={aspect}
-                                            circularCrop
-                                          >
-                                            <div className='relative w-full h-full'>
-                                                <Image
-                                                    ref={imgRef}
-                                                    alt="Crop me"
-                                                    src={imgSrc}
-                                                    fill
-                                                    style={{ objectFit: 'contain' }}
-                                                    onLoad={onImageLoad}
-                                                />
-                                            </div>
-                                          </ReactCrop>
-                                      </div>
-                                    )}
-                                    {!!completedCrop && (
-                                      <div className="mt-4 flex flex-col items-center">
-                                        <h3 className="text-sm font-medium mb-2">Preview</h3>
-                                          <div>
-                                              <canvas
-                                              ref={previewCanvasRef}
-                                              style={{
-                                                  border: '1px solid black',
-                                                  objectFit: 'contain',
-                                                  width: completedCrop.width,
-                                                  height: completedCrop.height,
-                                                  borderRadius: '50%'
-                                              }}
-                                              />
-                                          </div>
-                                      </div>
-                                    )}
+                            <div className="grid gap-4 py-4">
+                                <div className="grid w-full max-w-sm items-center gap-1.5">
+                                    <Label htmlFor="picture">Change Picture</Label>
+                                    <Input id="picture" type="file" accept="image/*" onChange={onSelectFile} />
                                 </div>
-                              </ScrollArea>
+                                {imageFile && (
+                                    <div className='text-sm text-muted-foreground'>
+                                        Selected: {imageFile.name}
+                                    </div>
+                                )}
+                            </div>
                             <DialogFooter>
-                                <Button onClick={handleAvatarUpload} disabled={isUploading || !completedCrop}>
+                                <Button onClick={handleAvatarUpload} disabled={isUploading || !imageFile}>
                                     {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
                                     Upload & Save
                                 </Button>

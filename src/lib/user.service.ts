@@ -59,7 +59,7 @@ class UserService {
       // Update profiles table
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .update(updates)
+        .update({ avatar_url: updates.avatar_url })
         .eq('user_id', userId)
         .select()
         .single();
@@ -71,6 +71,23 @@ class UserService {
       console.error('Profile update error:', error);
       throw error;
     }
+  }
+  
+  async uploadAvatar(userId: string, file: File): Promise<string> {
+    const filePath = `${userId}/${Date.now()}_${file.name}`;
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) {
+      throw new Error(`Failed to upload avatar: ${uploadError.message}`);
+    }
+
+    const { data } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
   }
 
   // Fetch user profile with retry logic
