@@ -6,16 +6,8 @@ import Link from "next/link";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Property } from "@/types";
-import { MapPin, BedDouble, Bath, Ruler, Lock, MessageSquare } from "lucide-react";
-import { FavoriteButton } from "./FavoriteButton";
+import { MapPin, BedDouble, Bath, Ruler } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { useAuth } from "@/context/AuthContext";
-import { Button } from "../ui/button";
-import { useChatStore } from "../chat/use-chat-store";
-import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
-import { SubscriptionModal } from "../layout/SubscriptionModal";
 
 interface PropertyCardProps {
   property: Property;

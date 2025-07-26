@@ -478,8 +478,15 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$d
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/components/ui/button.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$star$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Star$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/star.js [app-ssr] (ecmascript) <export default as Star>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/circle-check.js [app-ssr] (ecmascript) <export default as CheckCircle2>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-ssr] (ecmascript) <export default as Loader2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/hooks/use-toast.ts [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/context/AuthContext.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$user$2e$service$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/user.service.ts [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
 'use client';
+;
+;
+;
 ;
 ;
 ;
@@ -487,14 +494,35 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$toast
 ;
 function SubscriptionModal({ isOpen, onClose }) {
     const { toast } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useToast"])();
-    const handleUpgrade = ()=>{
-        // In a real app, this would redirect to a payment page (e.g., Stripe Checkout)
-        // For this simulation, we'll just show a toast.
-        toast({
-            title: "Función en desarrollo",
-            description: "La pasarela de pago se implementará próximamente."
-        });
-        onClose();
+    const { user, refreshUser } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$context$2f$AuthContext$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useAuth"])();
+    const [isUpgrading, setIsUpgrading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const handleUpgrade = async ()=>{
+        if (!user) {
+            toast({
+                title: "No estás autenticado",
+                description: "Debes iniciar sesión para actualizar tu plan.",
+                variant: 'destructive'
+            });
+            return;
+        }
+        setIsUpgrading(true);
+        try {
+            await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$user$2e$service$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["userService"].grantProSubscription(user.id);
+            await refreshUser();
+            toast({
+                title: "¡Bienvenido a Pro!",
+                description: "Has desbloqueado todas las funciones de VENDRA Pro."
+            });
+            onClose();
+        } catch (error) {
+            toast({
+                title: "Error en la actualización",
+                description: error.message || "No se pudo completar la actualización. Por favor, intenta de nuevo.",
+                variant: 'destructive'
+            });
+        } finally{
+            setIsUpgrading(false);
+        }
     };
     const features = [
         "Mensajería directa con vendedores",
@@ -516,12 +544,12 @@ function SubscriptionModal({ isOpen, onClose }) {
                                 className: "h-8 w-8 text-primary"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
-                                lineNumber: 45,
+                                lineNumber: 70,
                                 columnNumber: 17
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
-                            lineNumber: 44,
+                            lineNumber: 69,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogTitle"], {
@@ -529,7 +557,7 @@ function SubscriptionModal({ isOpen, onClose }) {
                             children: "Actualiza a VENDRA Pro"
                         }, void 0, false, {
                             fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
-                            lineNumber: 47,
+                            lineNumber: 72,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
@@ -537,13 +565,13 @@ function SubscriptionModal({ isOpen, onClose }) {
                             children: "Desbloquea la comunicación directa con los vendedores y más funciones exclusivas."
                         }, void 0, false, {
                             fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
-                            lineNumber: 48,
+                            lineNumber: 73,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
-                    lineNumber: 43,
+                    lineNumber: 68,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -557,7 +585,7 @@ function SubscriptionModal({ isOpen, onClose }) {
                                         className: "h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
-                                        lineNumber: 56,
+                                        lineNumber: 81,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -565,23 +593,23 @@ function SubscriptionModal({ isOpen, onClose }) {
                                         children: feature
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
-                                        lineNumber: 57,
+                                        lineNumber: 82,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, index, true, {
                                 fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
-                                lineNumber: 55,
+                                lineNumber: 80,
                                 columnNumber: 21
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
-                        lineNumber: 53,
+                        lineNumber: 78,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
-                    lineNumber: 52,
+                    lineNumber: 77,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -591,26 +619,36 @@ function SubscriptionModal({ isOpen, onClose }) {
                         size: "lg",
                         onClick: handleUpgrade,
                         className: "w-full",
-                        children: "Actualizar a Pro - $3.99/mes"
-                    }, void 0, false, {
+                        disabled: isUpgrading,
+                        children: [
+                            isUpgrading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                                className: "animate-spin mr-2"
+                            }, void 0, false, {
+                                fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
+                                lineNumber: 89,
+                                columnNumber: 29
+                            }, this),
+                            "Actualizar a Pro - $3.99/mes"
+                        ]
+                    }, void 0, true, {
                         fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
-                        lineNumber: 63,
+                        lineNumber: 88,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
-                    lineNumber: 62,
+                    lineNumber: 87,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
-            lineNumber: 42,
+            lineNumber: 67,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
-        lineNumber: 41,
+        lineNumber: 66,
         columnNumber: 5
     }, this);
 }
