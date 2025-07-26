@@ -12,10 +12,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageSquare, Calendar, Home } from 'lucide-react';
-import { BadgeCheck } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
-import { useFavorites } from '@/context/FavoritesContext';
+import { useFavoritesStore } from '@/hooks/useFavoritesStore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
@@ -71,7 +70,7 @@ export default function ProfilePageClient() {
   const router = useRouter();
   const params = useParams();
   const profileId = params.id as string;
-  const { favorites } = useFavorites();
+  const { favorites } = useFavoritesStore();
   
   const [displayUser, setDisplayUser] = useState<UserProfile | null>(null);
   const [userProperties, setUserProperties] = useState<Property[]>([]);

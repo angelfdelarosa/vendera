@@ -3,7 +3,7 @@
 
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useFavorites } from "@/context/FavoritesContext";
+import { useFavoritesStore } from "@/hooks/useFavoritesStore";
 import type { Property } from "@/types";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -15,7 +15,7 @@ interface FavoriteButtonProps {
 }
 
 export function FavoriteButton({ property, className }: FavoriteButtonProps) {
-  const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
   const { user } = useAuth();
   const isFavorited = isFavorite(property.id);
   const { t } = useTranslation();
