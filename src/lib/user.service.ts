@@ -60,7 +60,7 @@ class UserService {
     try {
       // Update auth user metadata for fields that are mirrored there
       if(updates.full_name || updates.avatar_url) {
-        const { error: authError } = await supabase.auth.updateUser({
+        const { data: { user } , error: authError } = await supabase.auth.updateUser({
           data: {
             full_name: updates.full_name,
             avatar_url: updates.avatar_url
@@ -109,7 +109,7 @@ class UserService {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*, created_at')
+        .select('*, created_at, subscription_status, is_seller')
         .eq('user_id', userId)
         .maybeSingle(); // Use maybeSingle to avoid error on no rows
 
@@ -123,7 +123,7 @@ class UserService {
         await new Promise(resolve => setTimeout(resolve, 500));
         const retryResult = await supabase
           .from('profiles')
-          .select('*, created_at')
+          .select('*, created_at, subscription_status, is_seller')
           .eq('user_id', userId)
           .maybeSingle();
 

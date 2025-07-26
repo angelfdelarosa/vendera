@@ -11,7 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageSquare, Calendar, Home, BadgeCheck } from 'lucide-react';
+import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageSquare, Calendar, Home } from 'lucide-react';
+import { BadgeCheck } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -128,7 +129,7 @@ export default function ProfilePageClient() {
       // Fetch properties for this user
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('properties')
-        .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username)`)
+        .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username, is_seller)`)
         .eq('realtor_id', profileData.user_id);
       
       if (propertiesError) {
@@ -243,7 +244,7 @@ export default function ProfilePageClient() {
     setIsUploading(true);
     try {
         const publicUrl = await userService.uploadAvatar(authUser.id, imageFile);
-        await userService.updateProfile(authUser.id, { avatar_url: publicUrl });
+        const { profile } = await userService.updateProfile(authUser.id, { avatar_url: publicUrl });
         
         setDisplayUser(prev => prev ? { ...prev, avatar_url: publicUrl } : null);
         await refreshUser(); // Refresh user data in context to update avatar in header
@@ -337,7 +338,7 @@ export default function ProfilePageClient() {
                              ))}
                               <span className="text-muted-foreground text-sm ml-2">
                                  {ratingData.average.toFixed(1)} ({ratingData.count} {t('profile.ratings')})
-                             </span>
+                               </span>
                          </div>
                     </div>
                 </div>

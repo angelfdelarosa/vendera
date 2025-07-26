@@ -652,7 +652,7 @@ class UserService {
         try {
             // Update auth user metadata for fields that are mirrored there
             if (updates.full_name || updates.avatar_url) {
-                const { error: authError } = await supabase.auth.updateUser({
+                const { data: { user }, error: authError } = await supabase.auth.updateUser({
                     data: {
                         full_name: updates.full_name,
                         avatar_url: updates.avatar_url
@@ -685,7 +685,7 @@ class UserService {
     // Fetch user profile with retry logic
     async getProfile(userId) {
         try {
-            const { data, error } = await supabase.from('profiles').select('*, created_at').eq('user_id', userId).maybeSingle(); // Use maybeSingle to avoid error on no rows
+            const { data, error } = await supabase.from('profiles').select('*, created_at, subscription_status, is_seller').eq('user_id', userId).maybeSingle(); // Use maybeSingle to avoid error on no rows
             if (error && error.code !== 'PGRST116') {
                 console.error('Fetch profile error:', error);
                 throw error;
@@ -693,7 +693,7 @@ class UserService {
             // If profile is not found, it could be due to db trigger delay. Retry once.
             if (!data) {
                 await new Promise((resolve)=>setTimeout(resolve, 500));
-                const retryResult = await supabase.from('profiles').select('*, created_at').eq('user_id', userId).maybeSingle();
+                const retryResult = await supabase.from('profiles').select('*, created_at, subscription_status, is_seller').eq('user_id', userId).maybeSingle();
                 if (retryResult.error) {
                     console.error('Retry fetch profile error:', retryResult.error);
                 }
@@ -775,11 +775,11 @@ const AuthProvider = ({ children })=>{
         setChatLoading
     ]);
     const refreshUser = async ()=>{
-        const { data: { user } } = await supabase.auth.refreshSession();
-        if (user) {
-            const profile = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$user$2e$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["userService"].getProfile(user.id);
+        const { data: { user: authData } } = await supabase.auth.getUser();
+        if (authData) {
+            const profile = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$user$2e$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["userService"].getProfile(authData.id);
             setUser({
-                ...user,
+                ...authData,
                 profile: profile || undefined
             });
         } else {
@@ -888,7 +888,7 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 155,
+        lineNumber: 156,
         columnNumber: 5
     }, this);
 };

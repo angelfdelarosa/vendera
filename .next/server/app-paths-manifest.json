@@ -1,10 +1,13 @@
 {
+  "/(main)/favorites/page": "app/(main)/favorites/page.js",
   "/(main)/landing/page": "app/(main)/landing/page.js",
+  "/(main)/messages/page": "app/(main)/messages/page.js",
   "/(main)/page": "app/(main)/page.js",
   "/(main)/profile/[id]/page": "app/(main)/profile/[id]/page.js",
   "/(main)/properties/[id]/page": "app/(main)/properties/[id]/page.js",
   "/(main)/properties/new/page": "app/(main)/properties/new/page.js",
   "/(main)/search/page": "app/(main)/search/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/login/page": "app/login/page.js"
 }

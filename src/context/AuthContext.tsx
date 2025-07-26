@@ -61,10 +61,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [supabase, setConversations, setChatLoading]);
   
   const refreshUser = async () => {
-    const { data: { user } } = await supabase.auth.refreshSession();
-    if (user) {
-        const profile = await userService.getProfile(user.id);
-        setUser({ ...user, profile: profile || undefined });
+    const { data: { user: authData } } = await supabase.auth.getUser();
+    if (authData) {
+        const profile = await userService.getProfile(authData.id);
+        setUser({ ...authData, profile: profile || undefined });
     } else {
         setUser(null);
     }
@@ -78,6 +78,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (sessionUser) {
             const profile = await userService.getProfile(sessionUser.id);
             setUser({ ...sessionUser, profile: profile || undefined });
+
             await fetchAndSetConversations(sessionUser.id);
              channel = supabase
                 .channel('db-changes')

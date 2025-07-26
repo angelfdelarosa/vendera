@@ -33,7 +33,7 @@ export type UserProfile = {
   created_at?: string | null;
   email?: string | null;
   subscription_status?: 'active' | 'inactive';
-  is_seller?: boolean;
+  is_seller: boolean;
 };
 
 export interface Message {

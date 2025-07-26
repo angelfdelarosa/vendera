@@ -196,7 +196,7 @@ export default function NewPropertyPage() {
         // Set user as seller if they aren't already
         if (!user.profile?.is_seller) {
             await userService.updateProfile(user.id, { is_seller: true });
-            await refreshUser();
+            await refreshUser(); // This will refresh the user in AuthContext
         }
 
         const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url, username, is_seller').eq('user_id', user.id).single();
@@ -212,7 +212,7 @@ export default function NewPropertyPage() {
                  full_name: profile.full_name || 'Anonymous',
                  avatar_url: profile.avatar_url || 'https://placehold.co/100x100.png',
                  username: profile.username || '',
-                 is_seller: profile.is_seller,
+                 is_seller: profile.is_seller || false,
             }
         }
 
