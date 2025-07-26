@@ -2,5 +2,9 @@
   "/(main)/landing/page": "app/(main)/landing/page.js",
   "/(main)/page": "app/(main)/page.js",
   "/(main)/profile/[id]/page": "app/(main)/profile/[id]/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js"
+  "/(main)/properties/[id]/page": "app/(main)/properties/[id]/page.js",
+  "/(main)/properties/new/page": "app/(main)/properties/new/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/login/page": "app/login/page.js",
+  "/signup/page": "app/signup/page.js"
 }

@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 import { usePropertyStore } from "@/hooks/usePropertyStore";
@@ -30,7 +30,9 @@ import type { Property } from "@/types";
 import Image from "next/image";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAuth } from "@/context/AuthContext";
+import { cn } from "@/lib/utils";
 
+const MAX_IMAGES = 5;
 
 export default function NewPropertyPage() {
   const router = useRouter();
@@ -62,6 +64,13 @@ export default function NewPropertyPage() {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   
+  // Cleanup object URLs on component unmount
+  useEffect(() => {
+    return () => {
+        imagePreviews.forEach(preview => URL.revokeObjectURL(preview));
+    }
+  }, [imagePreviews]);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -85,15 +94,31 @@ export default function NewPropertyPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      setImageFiles(files);
+      const totalImages = imageFiles.length + files.length;
 
-      // Free up memory from old previews
-      imagePreviews.forEach(preview => URL.revokeObjectURL(preview));
+      if (totalImages > MAX_IMAGES) {
+        toast({
+          title: `Límite de ${MAX_IMAGES} imágenes excedido`,
+          description: `Solo puedes subir un total de ${MAX_IMAGES} imágenes.`,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setImageFiles(prev => [...prev, ...files]);
 
       const newPreviews = files.map(file => URL.createObjectURL(file));
-      setImagePreviews(newPreviews);
+      setImagePreviews(prev => [...prev, ...newPreviews]);
     }
   };
+  
+  const handleDeleteImage = (index: number) => {
+    const previewToDelete = imagePreviews[index];
+    URL.revokeObjectURL(previewToDelete);
+
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  }
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -102,6 +127,12 @@ export default function NewPropertyPage() {
       toast({ title: "Authentication Error", description: "You must be logged in to list a property.", variant: "destructive" });
       return;
     }
+    
+    if (imageFiles.length === 0) {
+      toast({ title: "Se requieren imágenes", description: "Por favor, sube al menos una imagen.", variant: "destructive" });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -128,13 +159,7 @@ export default function NewPropertyPage() {
             });
 
             imageUrls = await Promise.all(uploadPromises);
-        } else {
-            imageUrls = [
-                "https://placehold.co/600x400.png",
-                "https://placehold.co/600x400.png",
-            ]
         }
-
 
         const features = formData.features.split(",").map((f) => f.trim()).filter(Boolean);
 
@@ -366,23 +391,41 @@ export default function NewPropertyPage() {
                 onChange={handleInputChange}
               />
             </div>
-            <div className="md:col-span-2 space-y-2">
-              <Label htmlFor="images">{t('newProperty.form.photos')}</Label>
-              <Input id="images" type="file" multiple accept="image/*" onChange={handleImageChange} />
-              {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mt-2">
+            <div className="md:col-span-2 space-y-4">
+               <div>
+                  <Label>Fotos ({imageFiles.length} / {MAX_IMAGES})</Label>
+                   <p className="text-xs text-muted-foreground">
+                        Gestiona las imágenes de tu propiedad. Puedes añadir hasta {MAX_IMAGES} fotos.
+                   </p>
+                </div>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
                   {imagePreviews.map((src, index) => (
-                    <div key={index} className="relative aspect-square">
+                    <div key={index} className="relative group aspect-square">
                       <Image
                         src={src}
                         alt={`Preview ${index + 1}`}
                         fill
                         className="rounded-md object-cover"
                       />
+                       <Button 
+                          type="button" 
+                          variant="destructive" 
+                          size="icon" 
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleDeleteImage(index)}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                       </Button>
                     </div>
                   ))}
-                </div>
-              )}
+                  {imageFiles.length < MAX_IMAGES && (
+                         <Label htmlFor="image-upload" className={cn("flex flex-col items-center justify-center w-full h-full aspect-square rounded-md border-2 border-dashed cursor-pointer hover:bg-muted transition-colors", isSubmitting && 'cursor-not-allowed opacity-50')}>
+                           <Upload className="h-8 w-8 text-muted-foreground" />
+                           <span className="text-xs text-muted-foreground text-center mt-1">Añadir Fotos</span>
+                           <Input id="image-upload" type="file" multiple accept="image/*" className="sr-only" onChange={handleImageChange} disabled={isSubmitting || imageFiles.length >= MAX_IMAGES} />
+                         </Label>
+                  )}
+              </div>
             </div>
           </CardContent>
           <CardFooter>
@@ -396,5 +439,3 @@ export default function NewPropertyPage() {
     </div>
   );
 }
-
-    

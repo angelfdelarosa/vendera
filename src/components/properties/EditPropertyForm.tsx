@@ -150,6 +150,12 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !property || !supabase) return;
+
+    if (totalImageCount === 0) {
+      toast({ title: "Se requieren imágenes", description: "Por favor, añade al menos una imagen para la propiedad.", variant: "destructive" });
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -215,6 +221,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
         });
         
         router.push(`/properties/${property.id}`);
+        router.refresh();
 
     } catch (error: any) {
         console.error('Error updating property:', error);
@@ -306,6 +313,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
                   <SelectItem value="apartment">{t('property.types.apartment')}</SelectItem>
                   <SelectItem value="condo">{t('property.types.condo')}</SelectItem>
                   <SelectItem value="villa">{t('property.types.villa')}</SelectItem>
+                  <SelectItem value="lot">{t('property.types.lot')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

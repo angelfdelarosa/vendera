@@ -172,7 +172,6 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 var { g: global, __dirname, k: __turbopack_refresh__, m: module } = __turbopack_context__;
 {
 __turbopack_context__.s({
-    "canvasPreview": (()=>canvasPreview),
     "cn": (()=>cn)
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/clsx/dist/clsx.mjs [app-client] (ecmascript)");
@@ -181,29 +180,6 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$tailwind$2d$
 ;
 function cn(...inputs) {
     return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$tailwind$2d$merge$2f$dist$2f$bundle$2d$mjs$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["twMerge"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["clsx"])(inputs));
-}
-async function canvasPreview(image, canvas, crop) {
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-        throw new Error('No 2d context');
-    }
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
-    const pixelRatio = window.devicePixelRatio;
-    canvas.width = Math.floor(crop.width * scaleX * pixelRatio);
-    canvas.height = Math.floor(crop.height * scaleY * pixelRatio);
-    ctx.scale(pixelRatio, pixelRatio);
-    ctx.imageSmoothingQuality = 'high';
-    const cropX = crop.x * scaleX;
-    const cropY = crop.y * scaleY;
-    const centerX = image.naturalWidth / 2;
-    const centerY = image.naturalHeight / 2;
-    ctx.save();
-    ctx.translate(-cropX, -cropY);
-    ctx.translate(centerX, centerY);
-    ctx.translate(-centerX, -centerY);
-    ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight, 0, 0, image.naturalWidth, image.naturalHeight);
-    ctx.restore();
 }
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(module, globalThis.$RefreshHelpers$);
@@ -668,7 +644,9 @@ class UserService {
             });
             if (authError) throw authError;
             // Update profiles table
-            const { data: profileData, error: profileError } = await supabase.from('profiles').update(updates).eq('user_id', userId).select().single();
+            const { data: profileData, error: profileError } = await supabase.from('profiles').update({
+                avatar_url: updates.avatar_url
+            }).eq('user_id', userId).select().single();
             if (profileError) throw profileError;
             return {
                 authUser: authData.user,
@@ -678,6 +656,17 @@ class UserService {
             console.error('Profile update error:', error);
             throw error;
         }
+    }
+    async uploadAvatar(userId, file) {
+        const filePath = `${userId}/${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, {
+            upsert: true
+        });
+        if (uploadError) {
+            throw new Error(`Failed to upload avatar: ${uploadError.message}`);
+        }
+        const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+        return data.publicUrl;
     }
     // Fetch user profile with retry logic
     async getProfile(userId) {
@@ -774,6 +763,10 @@ const AuthProvider = ({ children })=>{
         setConversations,
         setChatLoading
     ]);
+    const refreshUser = async ()=>{
+        const { data: { user } } = await supabase.auth.refreshSession();
+        setUser(user);
+    };
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "AuthProvider.useEffect": ()=>{
             let channel = null;
@@ -868,14 +861,15 @@ const AuthProvider = ({ children })=>{
         login,
         logout,
         signup,
-        supabase
+        supabase,
+        refreshUser
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(AuthContext.Provider, {
         value: value,
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 150,
+        lineNumber: 157,
         columnNumber: 5
     }, this);
 };
