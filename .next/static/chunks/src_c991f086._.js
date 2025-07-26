@@ -809,23 +809,11 @@ function MessagesPage() {
                                                         columnNumber: 20
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                        className: "text-xs text-muted-foreground truncate",
-                                                        children: [
-                                                            t('messages.re'),
-                                                            " ",
-                                                            t(convo.property.title)
-                                                        ]
-                                                    }, void 0, true, {
-                                                        fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                        lineNumber: 97,
-                                                        columnNumber: 21
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         className: "text-sm text-muted-foreground truncate",
                                                         children: convo.lastMessage
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                        lineNumber: 100,
+                                                        lineNumber: 97,
                                                         columnNumber: 20
                                                     }, this)
                                                 ]
@@ -838,7 +826,7 @@ function MessagesPage() {
                                                 className: "w-2 h-2 rounded-full bg-primary mt-1 flex-shrink-0"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                                lineNumber: 102,
+                                                lineNumber: 99,
                                                 columnNumber: 92
                                             }, this)
                                         ]
@@ -864,7 +852,7 @@ function MessagesPage() {
                             conversationId: selectedConversation.id
                         }, selectedConversation.id, false, {
                             fileName: "[project]/src/app/(main)/messages/page.tsx",
-                            lineNumber: 109,
+                            lineNumber: 106,
                             columnNumber: 13
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "flex flex-col items-center justify-center h-full text-center text-muted-foreground",
@@ -873,7 +861,7 @@ function MessagesPage() {
                                     className: "h-16 w-16 mb-4"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                    lineNumber: 115,
+                                    lineNumber: 112,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -881,25 +869,25 @@ function MessagesPage() {
                                     children: t('messages.select.title')
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                    lineNumber: 116,
+                                    lineNumber: 113,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                     children: t('messages.select.description')
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/(main)/messages/page.tsx",
-                                    lineNumber: 117,
+                                    lineNumber: 114,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/(main)/messages/page.tsx",
-                            lineNumber: 114,
+                            lineNumber: 111,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/(main)/messages/page.tsx",
-                        lineNumber: 107,
+                        lineNumber: 104,
                         columnNumber: 9
                     }, this)
                 ]
