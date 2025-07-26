@@ -7,18 +7,46 @@ import { PropertySearchFilters } from "@/components/properties/PropertySearchFil
 import type { Property } from "@/types";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Loader2 } from "lucide-react";
-import { usePropertyContext } from "@/context/PropertyContext";
+import { usePropertyStore } from "@/hooks/usePropertyStore";
+import { createClient } from "@/lib/supabase/client";
 
 function HomePage() {
   const { t } = useTranslation();
-  const { properties, isLoading } = usePropertyContext();
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>(properties);
+  const { properties, setProperties, isLoading, setIsLoading } = usePropertyStore();
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const supabase = createClient();
 
   useEffect(() => {
-    if (!isLoading) {
-      setFilteredProperties(properties);
+    const fetchAllProperties = async () => {
+      setIsLoading(true);
+      const { data: propertiesData, error: propertiesError } = await supabase
+        .from('properties')
+        .select('*, realtor:realtor_id(*)')
+        .eq('is_active', true);
+
+      if (propertiesError) {
+        console.error("Error fetching properties:", propertiesError);
+        setIsLoading(false);
+        return;
+      }
+      if (!propertiesData) {
+        setProperties([]);
+        return;
+      }
+      setProperties(propertiesData as unknown as Property[]);
+    };
+    
+    // Fetch only if properties aren't in the store yet.
+    if (properties.length === 0) {
+      fetchAllProperties();
+    } else {
+        setFilteredProperties(properties);
     }
-  }, [properties, isLoading]);
+  }, []); // Run only once on mount
+
+  useEffect(() => {
+    setFilteredProperties(properties);
+  }, [properties]);
 
   const locations = useMemo(() => {
     const locationSet = new Set(properties.map(p => p.location));
@@ -49,8 +77,6 @@ function HomePage() {
         </p>
         <PropertySearchFilters
           allProperties={properties}
-          locations={locations}
-          propertyTypes={propertyTypes}
           onSearch={(results) => setFilteredProperties(results)}
         />
       </section>

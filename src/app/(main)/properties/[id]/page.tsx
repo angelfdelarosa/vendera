@@ -19,12 +19,11 @@ import { BedDouble, Bath, Ruler, MapPin, Building, MessageSquare, Loader2, User 
 import { SimilarProperties } from '@/components/properties/SimilarProperties';
 import { FavoriteButton } from '@/components/properties/FavoriteButton';
 import { Button } from '@/components/ui/button';
-import { createClient } from '@/lib/supabase/client';
 import type { Property } from '@/types';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
-import { usePropertyContext } from '@/context/PropertyContext';
+import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { useChatStore } from '@/components/chat/use-chat-store';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -35,7 +34,7 @@ export default function PropertyDetailPage() {
   const params = useParams();
   const { id } = params;
   const { user, supabase } = useAuth();
-  const { properties } = usePropertyContext();
+  const { properties } = usePropertyStore();
   const [property, setProperty] = useState<Property | null | undefined>(undefined);
   const { t } = useTranslation();
   const { handleStartConversation } = useChatStore();

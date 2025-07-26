@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -18,15 +18,11 @@ import type { Property } from "@/types";
 
 interface PropertySearchFiltersProps {
   allProperties: Property[];
-  locations: string[];
-  propertyTypes: string[];
   onSearch: (results: Property[]) => void;
 }
 
 export function PropertySearchFilters({
   allProperties,
-  locations,
-  propertyTypes,
   onSearch,
 }: PropertySearchFiltersProps) {
   const { t } = useTranslation();
@@ -34,6 +30,11 @@ export function PropertySearchFilters({
   const [type, setType] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+
+  const locations = useMemo(() => {
+    const locationSet = new Set(allProperties.map(p => p.location));
+    return Array.from(locationSet);
+  }, [allProperties]);
 
   const handleSearch = () => {
     const filters = {
