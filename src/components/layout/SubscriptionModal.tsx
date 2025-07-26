@@ -61,7 +61,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
         </div>
         <DialogFooter className="sm:justify-center">
           <Button type="button" size="lg" onClick={handleUpgrade} className="w-full">
-            Actualizar a Pro - $9.99/mes
+            Actualizar a Pro - $3.99/mes
           </Button>
         </DialogFooter>
       </DialogContent>
