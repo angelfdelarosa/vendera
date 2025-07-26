@@ -1194,7 +1194,7 @@ function SubscriptionModal({ isOpen, onClose }) {
                         size: "lg",
                         onClick: handleUpgrade,
                         className: "w-full",
-                        children: "Actualizar a Pro - $9.99/mes"
+                        children: "Actualizar a Pro - $3.99/mes"
                     }, void 0, false, {
                         fileName: "[project]/src/components/layout/SubscriptionModal.tsx",
                         lineNumber: 63,

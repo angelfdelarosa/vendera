@@ -48,7 +48,7 @@ import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { Textarea } from '../ui/textarea';
-import { useChatStore } from '../chat/use-chat-store';
+import { useChatStore } from '@/chat/use-chat-store';
 import { userService } from '@/lib/user.service';
 import { SubscriptionModal } from '../layout/SubscriptionModal';
 
@@ -188,6 +188,15 @@ export default function ProfilePageClient() {
         toast({ title: 'Error', description: 'No se pudo iniciar la conversación.', variant: 'destructive' });
     }
   };
+
+  const handleRateUserClick = () => {
+    if (authUser?.profile?.subscription_status !== 'active') {
+      setSubModalOpen(true);
+    } else {
+      setIsRatingDialogOpen(true);
+    }
+  };
+
 
   const isLoadingInitial = loading || authLoading;
   const isOwnProfile = authUser && authUser.id === displayUser?.user_id;
@@ -382,9 +391,7 @@ export default function ProfilePageClient() {
                  </div>
                  {!isOwnProfile && authUser && (
                      <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
-                        <DialogTrigger asChild>
-                            <Button variant="outline" className='w-full'>Calificar Usuario</Button>
-                        </DialogTrigger>
+                        <Button variant="outline" className='w-full' onClick={handleRateUserClick}>Calificar Usuario</Button>
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>Califica a {displayUser.full_name}</DialogTitle>
