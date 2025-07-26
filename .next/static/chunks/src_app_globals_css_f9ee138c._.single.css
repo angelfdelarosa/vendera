@@ -1859,10 +1859,6 @@ body {
   color: hsl(var(--secondary-foreground));
 }
 
-.text-white\/80 {
-  color: #fffc;
-}
-
 .underline {
   text-decoration-line: underline;
 }
@@ -2159,11 +2155,6 @@ body {
 
 .hover\:text-primary-foreground:hover {
   color: hsl(var(--primary-foreground));
-}
-
-.hover\:text-white:hover {
-  --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity, 1));
 }
 
 .hover\:underline:hover {
