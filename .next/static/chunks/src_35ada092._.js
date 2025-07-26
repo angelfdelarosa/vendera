@@ -924,7 +924,7 @@ function NewPropertyPage() {
                 await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$user$2e$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["userService"].updateProfile(user.id, {
                     is_seller: true
                 });
-                await refreshUser();
+                await refreshUser(); // This will refresh the user in AuthContext
             }
             const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url, username, is_seller').eq('user_id', user.id).single();
             if (!profile) {
@@ -937,7 +937,7 @@ function NewPropertyPage() {
                     full_name: profile.full_name || 'Anonymous',
                     avatar_url: profile.avatar_url || 'https://placehold.co/100x100.png',
                     username: profile.username || '',
-                    is_seller: profile.is_seller
+                    is_seller: profile.is_seller || false
                 }
             };
             addProperty(newProperty);

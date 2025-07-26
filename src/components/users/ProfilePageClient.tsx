@@ -11,8 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageSquare, Calendar, Home } from 'lucide-react';
-import { BadgeCheck } from 'lucide-react';
+import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageSquare, Calendar, Home, BadgeCheck } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -53,6 +52,13 @@ import { useChatStore } from '@/components/chat/use-chat-store';
 import { userService } from '@/lib/user.service';
 import { SubscriptionModal } from '../layout/SubscriptionModal';
 import { Badge } from '../ui/badge';
+
+const BadgeCheckIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M3.85 8.62a4 4 0 0 1 4.78-4.78l.22.22a.68.68 0 0 0 .96.96l.22.22a4 4 0 0 1 4.78 4.78l-.22.22a.68.68 0 0 0-.96.96l-.22.22a4 4 0 0 1-4.78 4.78l-.22-.22a.68.68 0 0 0-.96-.96l-.22-.22a4 4 0 0 1-4.78-4.78Z"/>
+        <path d="m9 12 2 2 4-4"/>
+    </svg>
+);
 
 
 export default function ProfilePageClient() {
@@ -204,6 +210,24 @@ export default function ProfilePageClient() {
     }
   };
 
+   const handleMakePro = async () => {
+    if (!displayUser) return;
+    try {
+      await userService.makeUserPro(displayUser.user_id);
+      setDisplayUser(prev => prev ? { ...prev, subscription_status: 'active' } : null);
+      toast({
+        title: 'Usuario Actualizado',
+        description: `${displayUser.full_name} ahora es un miembro Pro.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error al actualizar',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
 
   const isLoadingInitial = loading || authLoading;
   const isOwnProfile = authUser && authUser.id === displayUser?.user_id;
@@ -327,7 +351,7 @@ export default function ProfilePageClient() {
                             </h1>
                             {displayUser.is_seller && (
                                 <Badge variant="secondary" className="gap-1 pl-2">
-                                    <BadgeCheck className="h-4 w-4 text-green-500" />
+                                    <BadgeCheckIcon className="h-4 w-4 text-green-500" />
                                     Vendedor
                                 </Badge>
                             )}
@@ -405,7 +429,12 @@ export default function ProfilePageClient() {
                      <span className='font-semibold'>{userProperties.length}</span>
                  </div>
                  {!isOwnProfile && authUser && (
-                     <Button variant="outline" className='w-full' onClick={handleRateUserClick}>Calificar Usuario</Button>
+                     <div className="flex flex-col items-center justify-center gap-2">
+                        <Button variant="outline" className='w-full' onClick={handleRateUserClick}>Calificar Usuario</Button>
+                        {displayUser.subscription_status !== 'active' && (
+                            <Button variant="secondary" className="w-full" onClick={handleMakePro}>Hacer Pro</Button>
+                        )}
+                     </div>
                  )}
             </div>
           </CardContent>

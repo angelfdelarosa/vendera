@@ -9,5 +9,6 @@
   "/(main)/search/page": "app/(main)/search/page.js",
   "/_not-found/page": "app/_not-found/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/login/page": "app/login/page.js"
+  "/login/page": "app/login/page.js",
+  "/signup/page": "app/signup/page.js"
 }

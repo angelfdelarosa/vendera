@@ -674,7 +674,8 @@ class UserService {
     async uploadAvatar(userId, file) {
         const filePath = `${userId}/${Date.now()}_${file.name}`;
         const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, {
-            upsert: true
+            upsert: true,
+            bypassRls: true
         });
         if (uploadError) {
             throw new Error(`Failed to upload avatar: ${uploadError.message}`);
@@ -702,6 +703,19 @@ class UserService {
             return data;
         } catch (error) {
             console.error('Unhandled fetch profile error:', error);
+            throw error;
+        }
+    }
+    async makeUserPro(userId) {
+        try {
+            const { error } = await supabase.from('profiles').update({
+                subscription_status: 'active'
+            }).eq('user_id', userId);
+            if (error) {
+                throw error;
+            }
+        } catch (error) {
+            console.error('Error making user pro:', error);
             throw error;
         }
     }
