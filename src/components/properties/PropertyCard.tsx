@@ -24,11 +24,6 @@ interface PropertyCardProps {
 
 const PropertyCardContent = ({ property }: { property: Property }) => {
     const { t } = useTranslation();
-    const { user, supabase } = useAuth();
-    const router = useRouter();
-    const { toast } = useToast();
-    const { handleStartConversation } = useChatStore();
-    const [isSubModalOpen, setSubModalOpen] = useState(false);
 
     const priceDisplay = new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -37,37 +32,10 @@ const PropertyCardContent = ({ property }: { property: Property }) => {
         maximumFractionDigits: 0,
     }).format(property.price).replace('US$', 'USD $').replace('DOP', 'DOP $');
 
-    const onStartConversation = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (!user) {
-            toast({ title: 'Debes iniciar sesión', description: 'Por favor, inicia sesión para contactar a un vendedor.', variant: 'destructive' });
-            router.push('/login');
-            return;
-        }
-        if (user.profile?.subscription_status !== 'active') {
-            setSubModalOpen(true);
-            return;
-        }
-        
-        const conversationId = await handleStartConversation(property.realtor, user, supabase);
-        if (conversationId) {
-            router.push('/messages');
-        } else {
-            toast({ title: 'Error', description: 'No se pudo iniciar la conversación.', variant: 'destructive' });
-        }
-    };
-
     return (
-        <>
-        <SubscriptionModal isOpen={isSubModalOpen} onClose={() => setSubModalOpen(false)} />
-        <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 shadow-lg group">
-             <Link href={`/properties/${property.id}`} className="block">
+        <Link href={`/properties/${property.id}`} className="block h-full">
+            <Card className="overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 shadow-lg group">
                 <CardHeader className="p-0 relative">
-                    <div className="absolute top-2 right-2 z-10">
-                        <FavoriteButton property={property} />
-                    </div>
                     <div className="absolute top-2 left-2 z-10 bg-primary/90 text-primary-foreground py-1.5 px-3 rounded-lg">
                         <p className="font-bold text-lg">{priceDisplay}</p>
                     </div>
@@ -89,6 +57,8 @@ const PropertyCardContent = ({ property }: { property: Property }) => {
                         <MapPin className="w-4 h-4 mr-1" />
                         <span>{property.location}</span>
                     </div>
+                </CardContent>
+                <CardFooter className="p-4 pt-0 mt-auto">
                     <div className="flex justify-between w-full text-sm text-muted-foreground border-t pt-4">
                         <div className="flex items-center gap-1">
                             <BedDouble className="w-4 h-4" />
@@ -103,15 +73,9 @@ const PropertyCardContent = ({ property }: { property: Property }) => {
                             <span>{property.area.toLocaleString()} {t('property.sqft')}</span>
                         </div>
                     </div>
-                </CardContent>
-            </Link>
-            <CardFooter className="p-4 pt-0">
-                <Button onClick={onStartConversation} className="w-full" variant="outline">
-                    <MessageSquare className="mr-2"/> Contactar
-                </Button>
-            </CardFooter>
-        </Card>
-        </>
+                </CardFooter>
+            </Card>
+        </Link>
     );
 };
 
