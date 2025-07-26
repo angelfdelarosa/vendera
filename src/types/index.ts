@@ -30,7 +30,7 @@ export type UserProfile = {
   avatar_url: string | null;
   updated_at?: string | null;
   created_at?: string | null;
-  email?: string;
+  email?: string | null;
 };
 
 export interface Message {
@@ -44,8 +44,8 @@ export interface Message {
 export interface Conversation {
   id: string;
   created_at: string;
-  buyer: UserProfile;
-  seller: UserProfile;
+  buyer_id: string;
+  seller_id: string;
   last_message_sender_id: string | null;
   last_message_read: boolean;
   lastMessage?: string;
@@ -72,6 +72,4 @@ export type ConversationFromDB = {
   last_message_read: boolean;
   buyer: UserProfile;
   seller: UserProfile;
-  messages: { content: string }[];
 };
-

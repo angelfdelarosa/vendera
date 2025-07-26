@@ -58,16 +58,17 @@ export default function LoginPage() {
 
     if (error) {
       toast({
-        title: 'Login Failed',
+        title: t('login.toast.error.title'),
         description: error.message,
         variant: 'destructive',
       });
     } else {
       toast({
-        title: 'Login Successful',
-        description: "Welcome back!",
+        title: t('login.toast.success.title'),
+        description: t('login.toast.success.description'),
       });
       router.push('/');
+      router.refresh(); // Refresh server components
     }
   };
 

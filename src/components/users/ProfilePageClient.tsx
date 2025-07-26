@@ -51,6 +51,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { Textarea } from '../ui/textarea';
 import { useChatStore } from '../chat/use-chat-store';
+import { userService } from '@/lib/user.service';
 
 function centerAspectCrop(
   mediaWidth: number,
@@ -165,15 +166,10 @@ export default function ProfilePageClient() {
       }
       setLoading(true);
 
-      // Fetch profile data from the new view
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', profileId)
-        .single();
+      const profileData = await userService.getProfile(profileId);
       
-      if (profileError || !profileData) {
-        console.error('Error fetching profile:', profileError);
+      if (!profileData) {
+        console.error('Error fetching profile or profile not found');
         setDisplayUser(null);
         setLoading(false);
         return;
@@ -319,16 +315,7 @@ export default function ProfilePageClient() {
             .from('avatars')
             .getPublicUrl(filePath);
         
-        const { error: updateUserError } = await supabase.auth.updateUser({
-            data: { avatar_url: publicUrl }
-        });
-        if (updateUserError) throw updateUserError;
-
-         const { error: updateProfileError } = await supabase
-          .from('profiles')
-          .update({ avatar_url: publicUrl, updated_at: new Date().toISOString() })
-          .eq('user_id', authUser.id);
-        if (updateProfileError) throw updateProfileError;
+        await userService.updateProfile(authUser.id, { avatar_url: publicUrl });
         
         setDisplayUser(prev => prev ? { ...prev, avatar_url: publicUrl } : null);
         toast({ title: "Profile Picture Updated!", description: "Your new avatar is now live." });
@@ -380,7 +367,7 @@ export default function ProfilePageClient() {
   };
   
   const userInitial = displayUser.full_name?.charAt(0).toUpperCase() || '?';
-  const memberSince = displayUser.created_at ? new Date(displayUser.created_at).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : 'N/A';
+  const memberSince = displayUser.created_at ? new Date(displayUser.created_at).toLocaleDateString(t('terms.locale_code')) : 'N/A';
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -498,7 +485,7 @@ export default function ProfilePageClient() {
             <div className='mt-6 border-t pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center'>
                  <div className="flex flex-col items-center gap-1">
                      <span className='text-sm text-muted-foreground'>Email</span>
-                     <span className='font-semibold'>{displayUser.username || 'N/A'}</span>
+                     <span className='font-semibold'>{displayUser.email || 'N/A'}</span>
                  </div>
                  <div className="flex flex-col items-center gap-1">
                      <span className='text-sm text-muted-foreground'>Miembro desde</span>

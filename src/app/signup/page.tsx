@@ -78,7 +78,9 @@ export default function SignupPage() {
         title: t('signup.toast.success.title'),
         description: t('signup.toast.success.description'),
       });
-      router.push('/'); // onAuthStateChange will handle user state, redirect to home
+      // The onAuthStateChange listener in AuthContext will handle user state
+      // and redirect to the home page after successful signup and login.
+      router.push('/'); 
     }
   };
 

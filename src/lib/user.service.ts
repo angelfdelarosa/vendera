@@ -21,7 +21,7 @@ class UserService {
         full_name: metadata.full_name || email.split('@')[0],
       };
 
-      // Sign up with Supabase Auth
+      // Sign up with Supabase Auth. The database trigger will handle profile creation.
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -33,8 +33,7 @@ class UserService {
       if (authError) throw authError;
       if (!authData.user) throw new Error("User not created in Auth.");
 
-      // The database trigger will create the profile. 
-      // We can fetch it to confirm and return it.
+      // Fetch profile to confirm and return it, using retry logic for trigger delay
       const profile = await this.getProfile(authData.user.id);
 
       return { user: authData.user, profile };
@@ -81,33 +80,32 @@ class UserService {
         .from('profiles')
         .select('*, created_at')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle(); // Use maybeSingle to avoid error on no rows
 
-      if (error) {
-        console.warn('Fetch profile warning:', error);
-        
-        // Retry mechanism for trigger delay on signup
-        if (error.code === 'PGRST116') {  // No rows returned
-          // Wait a short time and retry once
-          await new Promise(resolve => setTimeout(resolve, 500));
-          const retryResult = await supabase
-            .from('profiles')
-            .select('*, created_at')
-            .eq('user_id', userId)
-            .single();
-          
-          if(retryResult.error) {
-             console.error('Retry fetch profile error:', retryResult.error);
-          }
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "exact-single-row-selection-violation" which maybeSingle handles
+        console.error('Fetch profile error:', error);
+        throw error;
+      }
+      
+      // If profile is not found, it could be due to db trigger delay. Retry once.
+      if (!data) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const retryResult = await supabase
+          .from('profiles')
+          .select('*, created_at')
+          .eq('user_id', userId)
+          .maybeSingle();
 
-          return retryResult.data || null;
+        if (retryResult.error) {
+           console.error('Retry fetch profile error:', retryResult.error);
         }
         
-        return null;
+        return retryResult.data || null;
       }
+
       return data;
     } catch (error) {
-      console.error('Fetch profile error:', error);
+      console.error('Unhandled fetch profile error:', error);
       throw error; 
     }
   }

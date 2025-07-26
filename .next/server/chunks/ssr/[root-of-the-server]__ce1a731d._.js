@@ -689,7 +689,7 @@ class UserService {
             const userMetadata = {
                 full_name: metadata.full_name || email.split('@')[0]
             };
-            // Sign up with Supabase Auth
+            // Sign up with Supabase Auth. The database trigger will handle profile creation.
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email,
                 password,
@@ -699,8 +699,7 @@ class UserService {
             });
             if (authError) throw authError;
             if (!authData.user) throw new Error("User not created in Auth.");
-            // The database trigger will create the profile. 
-            // We can fetch it to confirm and return it.
+            // Fetch profile to confirm and return it, using retry logic for trigger delay
             const profile = await this.getProfile(authData.user.id);
             return {
                 user: authData.user,
@@ -737,24 +736,23 @@ class UserService {
     // Fetch user profile with retry logic
     async getProfile(userId) {
         try {
-            const { data, error } = await supabase.from('profiles').select('*, created_at').eq('user_id', userId).single();
-            if (error) {
-                console.warn('Fetch profile warning:', error);
-                // Retry mechanism for trigger delay on signup
-                if (error.code === 'PGRST116') {
-                    // Wait a short time and retry once
-                    await new Promise((resolve)=>setTimeout(resolve, 500));
-                    const retryResult = await supabase.from('profiles').select('*, created_at').eq('user_id', userId).single();
-                    if (retryResult.error) {
-                        console.error('Retry fetch profile error:', retryResult.error);
-                    }
-                    return retryResult.data || null;
+            const { data, error } = await supabase.from('profiles').select('*, created_at').eq('user_id', userId).maybeSingle(); // Use maybeSingle to avoid error on no rows
+            if (error && error.code !== 'PGRST116') {
+                console.error('Fetch profile error:', error);
+                throw error;
+            }
+            // If profile is not found, it could be due to db trigger delay. Retry once.
+            if (!data) {
+                await new Promise((resolve)=>setTimeout(resolve, 500));
+                const retryResult = await supabase.from('profiles').select('*, created_at').eq('user_id', userId).maybeSingle();
+                if (retryResult.error) {
+                    console.error('Retry fetch profile error:', retryResult.error);
                 }
-                return null;
+                return retryResult.data || null;
             }
             return data;
         } catch (error) {
-            console.error('Fetch profile error:', error);
+            console.error('Unhandled fetch profile error:', error);
             throw error;
         }
     }
@@ -788,35 +786,33 @@ const AuthProvider = ({ children })=>{
     const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRouter"])();
     const { setConversations, setLoading: setChatLoading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$chat$2f$use$2d$chat$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useChatStore"])();
+    const [user, setUser] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
     const fetchAndSetConversations = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (userId)=>{
         setChatLoading(true);
         const { data, error } = await supabase.from('conversations').select(`
         *,
         buyer:profiles!buyer_id(*),
-        seller:profiles!seller_id(*),
-        property:properties(*)
+        seller:profiles!seller_id(*)
       `).or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
         if (error) {
             console.error("Error fetching conversations:", error);
             setConversations([]);
-            setChatLoading(false);
-            return;
-        }
-        if (!data) {
+        } else if (data) {
+            const transformedConversations = data.map((convo)=>{
+                const otherUser = convo.buyer_id === userId ? convo.seller : convo.buyer;
+                return {
+                    ...convo,
+                    // This should be derived from the latest message if fetched
+                    // For now, we set a placeholder. The trigger will update the real last message info.
+                    lastMessage: "No messages yet.",
+                    otherUser
+                };
+            });
+            setConversations(transformedConversations);
+        } else {
             setConversations([]);
-            setChatLoading(false);
-            return;
         }
-        const transformedConversations = data.map((convo)=>{
-            const otherUser = convo.buyer_id === userId ? convo.seller : convo.buyer;
-            return {
-                ...convo,
-                lastMessage: "No messages yet.",
-                otherUser,
-                property: convo.property ? convo.property : undefined
-            };
-        });
-        setConversations(transformedConversations);
         setChatLoading(false);
     }, [
         supabase,
@@ -826,6 +822,8 @@ const AuthProvider = ({ children })=>{
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         let channel = null;
         const setupUserSession = async (sessionUser)=>{
+            setLoading(true);
+            setUser(sessionUser);
             if (sessionUser) {
                 await fetchAndSetConversations(sessionUser.id);
                 // Listen to changes on both conversations and messages tables.
@@ -847,21 +845,12 @@ const AuthProvider = ({ children })=>{
             }
             setLoading(false);
         };
-        // Set initial user synchronously
-        const initialSession = supabase.auth.getSession();
-        initialSession.then(({ data: { session } })=>{
-            const currentUser = session?.user ?? null;
-            setUser(currentUser);
-            setLoading(false); // Initial load complete
-            setupUserSession(currentUser);
+        // Set initial user synchronously and then setup session
+        supabase.auth.getSession().then(({ data: { session } })=>{
+            setupUserSession(session?.user ?? null);
         });
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session)=>{
-            const currentUser = session?.user ?? null;
-            setUser(currentUser); // Update user state on change
-            setupUserSession(currentUser);
-            if (event === 'SIGNED_IN') {
-                router.refresh();
-            }
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session)=>{
+            setupUserSession(session?.user ?? null);
         });
         return ()=>{
             subscription.unsubscribe();
@@ -886,15 +875,15 @@ const AuthProvider = ({ children })=>{
     };
     const logout = async ()=>{
         await supabase.auth.signOut();
-        setUser(null);
+    // The onAuthStateChange listener will handle setting user to null.
     };
     const signup = async (name, email, pass)=>{
         try {
-            const { user, profile } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$user$2e$service$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["userService"].signUp(email, pass, {
+            // Delegate signup logic to the user service
+            await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$user$2e$service$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["userService"].signUp(email, pass, {
                 full_name: name
             });
             // The onAuthStateChange listener will handle setting the user state.
-            // We can just return success here.
             return {
                 error: null
             };
@@ -904,8 +893,6 @@ const AuthProvider = ({ children })=>{
             };
         }
     };
-    const [user, setUser] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
-    const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
     const value = {
         user,
         loading,
@@ -919,7 +906,7 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 164,
+        lineNumber: 150,
         columnNumber: 5
     }, this);
 };

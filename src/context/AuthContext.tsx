@@ -25,6 +25,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const supabase = createClient();
   const router = useRouter();
   const { setConversations, setLoading: setChatLoading } = useChatStore();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchAndSetConversations = useCallback(async (userId: string) => {
     setChatLoading(true);
@@ -34,8 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .select(`
         *,
         buyer:profiles!buyer_id(*),
-        seller:profiles!seller_id(*),
-        property:properties(*)
+        seller:profiles!seller_id(*)
       `)
       .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
 
@@ -43,27 +44,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (error) {
       console.error("Error fetching conversations:", error);
       setConversations([]);
-      setChatLoading(false);
-      return;
-    }
-    
-    if (!data) {
+    } else if (data) {
+      const transformedConversations = (data as unknown as ConversationFromDB[]).map(convo => {
+          const otherUser = convo.buyer_id === userId ? convo.seller! : convo.buyer!;
+          return {
+              ...convo,
+              // This should be derived from the latest message if fetched
+              // For now, we set a placeholder. The trigger will update the real last message info.
+              lastMessage: "No messages yet.", 
+              otherUser,
+          } as AppConversation;
+      });
+      setConversations(transformedConversations);
+    } else {
         setConversations([]);
-        setChatLoading(false);
-        return;
     }
-
-    const transformedConversations = (data as unknown as ConversationFromDB[]).map(convo => {
-        const otherUser = convo.buyer_id === userId ? convo.seller! : convo.buyer!;
-        return {
-            ...convo,
-            lastMessage: "No messages yet.", // This should be derived from the latest message if fetched
-            otherUser,
-            property: convo.property ? convo.property : undefined
-        } as AppConversation;
-    });
-
-    setConversations(transformedConversations);
     setChatLoading(false);
   }, [supabase, setConversations, setChatLoading]);
   
@@ -71,6 +66,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let channel: RealtimeChannel | null = null;
 
     const setupUserSession = async (sessionUser: User | null) => {
+        setLoading(true);
+        setUser(sessionUser);
+
         if (sessionUser) {
             await fetchAndSetConversations(sessionUser.id);
             // Listen to changes on both conversations and messages tables.
@@ -95,23 +93,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(false);
     };
     
-    // Set initial user synchronously
-    const initialSession = supabase.auth.getSession();
-    initialSession.then(({ data: { session } }) => {
-        const currentUser = session?.user ?? null;
-        setUser(currentUser);
-        setLoading(false); // Initial load complete
-        setupUserSession(currentUser);
+    // Set initial user synchronously and then setup session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setupUserSession(session?.user ?? null);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        const currentUser = session?.user ?? null;
-        setUser(currentUser); // Update user state on change
-        setupUserSession(currentUser);
-        if (event === 'SIGNED_IN') {
-          router.refresh();
-        }
+      (_event, session) => {
+        setupUserSession(session?.user ?? null);
       }
     );
 
@@ -134,23 +123,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     await supabase.auth.signOut();
-    setUser(null);
+    // The onAuthStateChange listener will handle setting user to null.
   };
 
   const signup = async (name: string, email: string, pass: string) => {
     try {
-      const { user, profile } = await userService.signUp(email, pass, { full_name: name });
+      // Delegate signup logic to the user service
+      await userService.signUp(email, pass, { full_name: name });
       // The onAuthStateChange listener will handle setting the user state.
-      // We can just return success here.
       return { error: null };
     } catch (error: any) {
       return { error: error as AuthError };
     }
   };
   
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
   const value = { 
     user, 
     loading, 
