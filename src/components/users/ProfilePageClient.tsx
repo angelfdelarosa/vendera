@@ -11,7 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageSquare, Calendar, Home, BadgeCheck } from 'lucide-react';
+import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageSquare, Calendar, Home } from 'lucide-react';
+import { BadgeCheck } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -207,24 +208,6 @@ export default function ProfilePageClient() {
       setSubModalOpen(true);
     } else {
       setIsRatingDialogOpen(true);
-    }
-  };
-
-   const handleMakePro = async () => {
-    if (!displayUser) return;
-    try {
-      await userService.makeUserPro(displayUser.user_id);
-      setDisplayUser(prev => prev ? { ...prev, subscription_status: 'active' } : null);
-      toast({
-        title: 'Usuario Actualizado',
-        description: `${displayUser.full_name} ahora es un miembro Pro.`,
-      });
-    } catch (error: any) {
-      toast({
-        title: 'Error al actualizar',
-        description: error.message,
-        variant: 'destructive',
-      });
     }
   };
 
@@ -431,9 +414,6 @@ export default function ProfilePageClient() {
                  {!isOwnProfile && authUser && (
                      <div className="flex flex-col items-center justify-center gap-2">
                         <Button variant="outline" className='w-full' onClick={handleRateUserClick}>Calificar Usuario</Button>
-                        {displayUser.subscription_status !== 'active' && (
-                            <Button variant="secondary" className="w-full" onClick={handleMakePro}>Hacer Pro</Button>
-                        )}
                      </div>
                  )}
             </div>

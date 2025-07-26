@@ -140,22 +140,6 @@ class UserService {
       throw error; 
     }
   }
-
-  async makeUserPro(userId: string): Promise<void> {
-    try {
-        const { error } = await supabase
-            .from('profiles')
-            .update({ subscription_status: 'active' })
-            .eq('user_id', userId);
-
-        if (error) {
-            throw error;
-        }
-    } catch (error) {
-        console.error('Error making user pro:', error);
-        throw error;
-    }
-  }
 }
 
 // Export a single instance of the service

@@ -760,19 +760,6 @@ class UserService {
             throw error;
         }
     }
-    async makeUserPro(userId) {
-        try {
-            const { error } = await supabase.from('profiles').update({
-                subscription_status: 'active'
-            }).eq('user_id', userId);
-            if (error) {
-                throw error;
-            }
-        } catch (error) {
-            console.error('Error making user pro:', error);
-            throw error;
-        }
-    }
 }
 const userService = new UserService();
 }}),
