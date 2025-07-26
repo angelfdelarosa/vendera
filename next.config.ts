@@ -27,6 +27,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'wqckkfepxumugmrrrdtu.supabase.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'noyztbqdgfniixzmpuac.supabase.co',
         port: '',
         pathname: '/**',
@@ -34,8 +40,8 @@ const nextConfig: NextConfig = {
     ],
   },
   env: {
-    NEXT_PUBLIC_SUPABASE_URL: 'https://noyztbqdgfniixzmpuac.supabase.co',
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5veXp0YnFkZ2ZuaWl4em1wdWFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMyOTcwNzEsImV4cCI6MjA2ODg3MzA3MX0.WcQOBRjEYQun3eFIzSrupRFmjJArY2jXToMURoylciY',
+    NEXT_PUBLIC_SUPABASE_URL: 'https://wqckkfepxumugmrrrdtu.supabase.co',
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxY2trZmVweHVtdWdtcnJyZHR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0OTM0MTksImV4cCI6MjA2OTA2OTQxOX0.vSZ4I-hJ4cUEvImvi8STTvA4UF19ZOVILoG5U17MsRM',
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
