@@ -22,15 +22,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Trash2, Upload } from "lucide-react";
+import { Loader2, Trash2, Upload, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
 import { usePropertyStore } from "@/hooks/usePropertyStore";
 import type { Property } from "@/types";
 import Image from "next/image";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { SubscriptionModal } from "@/components/layout/SubscriptionModal";
+import { userService } from "@/lib/user.service";
 
 const MAX_IMAGES = 5;
 
@@ -39,7 +40,8 @@ export default function NewPropertyPage() {
   const { toast } = useToast();
   const addProperty = usePropertyStore((state) => state.addProperty);
   const { t } = useTranslation();
-  const { user, loading: authLoading, supabase } = useAuth();
+  const { user, loading: authLoading, supabase, refreshUser } = useAuth();
+  const [isSubModalOpen, setSubModalOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -191,7 +193,13 @@ export default function NewPropertyPage() {
             throw error;
         }
 
-        const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url, username').eq('user_id', user.id).single();
+        // Set user as seller if they aren't already
+        if (!user.profile?.is_seller) {
+            await userService.updateProfile(user.id, { is_seller: true });
+            await refreshUser();
+        }
+
+        const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url, username, is_seller').eq('user_id', user.id).single();
 
         if (!profile) {
              throw new Error("Could not find realtor data after listing property.");
@@ -203,7 +211,8 @@ export default function NewPropertyPage() {
                  user_id: user.id,
                  full_name: profile.full_name || 'Anonymous',
                  avatar_url: profile.avatar_url || 'https://placehold.co/100x100.png',
-                 username: profile.username || ''
+                 username: profile.username || '',
+                 is_seller: profile.is_seller,
             }
         }
 
@@ -250,6 +259,35 @@ export default function NewPropertyPage() {
         <p className="ml-4">Redirecting to login...</p>
       </div>
     );
+  }
+
+  if (user.profile?.subscription_status !== 'active') {
+      return (
+          <>
+              <SubscriptionModal isOpen={isSubModalOpen} onClose={() => setSubModalOpen(false)} />
+              <div className="container mx-auto px-4 py-12 text-center">
+                  <Card className="max-w-md mx-auto p-8 border">
+                      <CardHeader className="items-center">
+                          <div className="bg-primary/10 p-3 rounded-full mb-4">
+                            <Star className="h-8 w-8 text-primary" />
+                          </div>
+                          <CardTitle>Conviértete en Vendedor Pro</CardTitle>
+                          <CardDescription>
+                              Para listar propiedades en VENDRA, necesitas una suscripción activa.
+                          </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                          <p className="text-muted-foreground mb-6">
+                              Desbloquea la capacidad de publicar tus propiedades y llegar a miles de compradores potenciales.
+                          </p>
+                          <Button onClick={() => setSubModalOpen(true)}>
+                              Actualizar a Pro
+                          </Button>
+                      </CardContent>
+                  </Card>
+              </div>
+          </>
+      );
   }
 
   return (

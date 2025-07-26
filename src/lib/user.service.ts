@@ -33,14 +33,14 @@ class UserService {
       if (authError) throw authError;
       if (!authData.user) throw new Error("User not created in Auth.");
 
-      // Manually set subscription_status to inactive for new users
+      // Manually set subscription_status to inactive and is_seller to false for new users
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ subscription_status: 'inactive' })
+        .update({ subscription_status: 'inactive', is_seller: false })
         .eq('user_id', authData.user.id);
 
       if (profileError) {
-          console.error("Could not set initial subscription status for user:", profileError);
+          console.error("Could not set initial profile status for user:", profileError);
           // This is not a fatal error for signup, so we just log it.
       }
 
@@ -58,27 +58,29 @@ class UserService {
   // Update user profile
   async updateProfile(userId: string, updates: Partial<UserProfile>) {
     try {
-      // Update auth user metadata
-      const { data: authData, error: authError } = await supabase.auth.updateUser({
-        data: {
-          full_name: updates.full_name,
-          avatar_url: updates.avatar_url
-        }
-      });
+      // Update auth user metadata for fields that are mirrored there
+      if(updates.full_name || updates.avatar_url) {
+        const { error: authError } = await supabase.auth.updateUser({
+          data: {
+            full_name: updates.full_name,
+            avatar_url: updates.avatar_url
+          }
+        });
+        if (authError) throw authError;
+      }
+      
 
-      if (authError) throw authError;
-
-      // Update profiles table
+      // Update profiles table with all provided updates
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .update({ avatar_url: updates.avatar_url })
+        .update(updates)
         .eq('user_id', userId)
         .select()
         .single();
 
       if (profileError) throw profileError;
 
-      return { authUser: authData.user, profile: profileData };
+      return { profile: profileData };
     } catch (error) {
       console.error('Profile update error:', error);
       throw error;

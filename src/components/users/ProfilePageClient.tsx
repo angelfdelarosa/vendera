@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageSquare, Calendar, Home } from 'lucide-react';
+import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageSquare, Calendar, Home, BadgeCheck } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -51,6 +51,7 @@ import { Textarea } from '../ui/textarea';
 import { useChatStore } from '@/components/chat/use-chat-store';
 import { userService } from '@/lib/user.service';
 import { SubscriptionModal } from '../layout/SubscriptionModal';
+import { Badge } from '../ui/badge';
 
 
 export default function ProfilePageClient() {
@@ -127,7 +128,7 @@ export default function ProfilePageClient() {
       // Fetch properties for this user
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('properties')
-        .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username)`)
+        .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username, is_seller)`)
         .eq('realtor_id', profileData.user_id);
       
       if (propertiesError) {
@@ -190,6 +191,11 @@ export default function ProfilePageClient() {
   };
 
   const handleRateUserClick = () => {
+    if (!authUser) {
+      toast({ title: 'Debes iniciar sesión', description: 'Por favor, inicia sesión para calificar.', variant: 'destructive' });
+      router.push('/login');
+      return;
+    }
     if (authUser?.profile?.subscription_status !== 'active') {
       setSubModalOpen(true);
     } else {
@@ -314,9 +320,17 @@ export default function ProfilePageClient() {
                       <AvatarFallback>{userInitial}</AvatarFallback>
                     </Avatar>
                      <div className="pt-4 text-center sm:text-left">
-                        <h1 className="text-3xl font-headline font-bold text-primary">
-                          {displayUser.full_name}
-                        </h1>
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-3xl font-headline font-bold text-primary">
+                              {displayUser.full_name}
+                            </h1>
+                            {displayUser.is_seller && (
+                                <Badge variant="secondary" className="gap-1 pl-2">
+                                    <BadgeCheck className="h-4 w-4 text-green-500" />
+                                    Vendedor
+                                </Badge>
+                            )}
+                        </div>
                          <div className="flex items-center justify-center sm:justify-start text-amber-500 mt-2">
                              {[...Array(5)].map((_, i) => (
                              <Star key={i} className={cn('w-5 h-5', i < Math.round(ratingData.average) ? 'fill-current' : 'text-muted-foreground fill-muted')} />
@@ -371,7 +385,7 @@ export default function ProfilePageClient() {
             <div className='mt-6 border-t pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center'>
                  <div className="flex flex-col items-center gap-1">
                      <span className='text-sm text-muted-foreground'>Email</span>
-                     {isOwnProfile || authUser?.profile?.subscription_status === 'active' ? (
+                     {isOwnProfile || (authUser && authUser?.profile?.subscription_status === 'active') ? (
                        <span className='font-semibold'>{displayUser.email || 'N/A'}</span>
                      ) : (
                        <div className='flex items-center gap-2'>
@@ -391,7 +405,9 @@ export default function ProfilePageClient() {
                  </div>
                  {!isOwnProfile && authUser && (
                      <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
-                        <Button variant="outline" className='w-full' onClick={handleRateUserClick}>Calificar Usuario</Button>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" className='w-full' onClick={handleRateUserClick}>Calificar Usuario</Button>
+                        </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>Califica a {displayUser.full_name}</DialogTitle>

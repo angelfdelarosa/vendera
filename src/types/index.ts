@@ -20,6 +20,7 @@ export type Property = {
     full_name: string | null;
     avatar_url: string | null;
     username: string | null;
+    is_seller?: boolean;
   };
 };
 
@@ -32,6 +33,7 @@ export type UserProfile = {
   created_at?: string | null;
   email?: string | null;
   subscription_status?: 'active' | 'inactive';
+  is_seller?: boolean;
 };
 
 export interface Message {
