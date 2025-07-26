@@ -19,6 +19,7 @@ import { userService } from '@/lib/user.service';
 import type { UserProfile } from '@/types';
 import { useAuth } from '@/context/AuthContext';
 import Image from 'next/image';
+import { ScrollArea } from '../ui/scroll-area';
 
 interface SellerOnboardingFormProps {
   user: UserProfile;
@@ -107,106 +108,108 @@ export function SellerOnboardingForm({ user, onFormSubmit }: SellerOnboardingFor
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
-      <h3 className="text-lg font-semibold border-b pb-2">1. Información Personal</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="full_name">Nombre Completo</Label>
-          <Input id="full_name" {...form.register('full_name')} />
-          {form.formState.errors.full_name && <p className="text-sm text-destructive">{form.formState.errors.full_name.message}</p>}
+    <ScrollArea className="pr-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
+        <h3 className="text-lg font-semibold border-b pb-2">1. Información Personal</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="full_name">Nombre Completo</Label>
+            <Input id="full_name" {...form.register('full_name')} />
+            {form.formState.errors.full_name && <p className="text-sm text-destructive">{form.formState.errors.full_name.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="national_id">Cédula de Identidad</Label>
+            <Input id="national_id" placeholder="001-1234567-8" {...form.register('national_id')} />
+            {form.formState.errors.national_id && <p className="text-sm text-destructive">{form.formState.errors.national_id.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="birth_date">Fecha de Nacimiento</Label>
+            <Controller
+              control={form.control}
+              name="birth_date"
+              render={({ field }) => (
+                  <Popover>
+                  <PopoverTrigger asChild>
+                      <Button
+                      variant={"outline"}
+                      className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                      )}
+                      >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {field.value ? format(field.value, "PPP", { locale: es }) : <span>Selecciona una fecha</span>}
+                      </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                      <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                      captionLayout="dropdown-buttons"
+                      fromYear={1930}
+                      toYear={new Date().getFullYear() - 18}
+                      />
+                  </PopoverContent>
+                  </Popover>
+              )}
+              />
+              {form.formState.errors.birth_date && <p className="text-sm text-destructive">{form.formState.errors.birth_date.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="nationality">Nacionalidad</Label>
+            <Input id="nationality" {...form.register('nationality')} />
+            {form.formState.errors.nationality && <p className="text-sm text-destructive">{form.formState.errors.nationality.message}</p>}
+          </div>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="national_id">Cédula de Identidad</Label>
-          <Input id="national_id" placeholder="001-1234567-8" {...form.register('national_id')} />
-           {form.formState.errors.national_id && <p className="text-sm text-destructive">{form.formState.errors.national_id.message}</p>}
+        
+        <h3 className="text-lg font-semibold border-b pb-2 pt-4">2. Contacto</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                  <Label htmlFor="email">Correo Electrónico</Label>
+                  <Input id="email" value={user.email || ''} readOnly disabled />
+              </div>
+              <div className="space-y-2">
+                  <Label htmlFor="phone_number">Número de Teléfono</Label>
+                  <Input id="phone_number" {...form.register('phone_number')} />
+                  {form.formState.errors.phone_number && <p className="text-sm text-destructive">{form.formState.errors.phone_number.message}</p>}
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                  <Label htmlFor="full_address">Dirección Completa</Label>
+                  <Input id="full_address" {...form.register('full_address')} />
+                  {form.formState.errors.full_address && <p className="text-sm text-destructive">{form.formState.errors.full_address.message}</p>}
+              </div>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="birth_date">Fecha de Nacimiento</Label>
-          <Controller
-            control={form.control}
-            name="birth_date"
-            render={({ field }) => (
-                <Popover>
-                <PopoverTrigger asChild>
-                    <Button
-                    variant={"outline"}
-                    className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                    )}
-                    >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {field.value ? format(field.value, "PPP", { locale: es }) : <span>Selecciona una fecha</span>}
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                    <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    initialFocus
-                    captionLayout="dropdown-buttons"
-                    fromYear={1930}
-                    toYear={new Date().getFullYear() - 18}
-                    />
-                </PopoverContent>
-                </Popover>
-            )}
-            />
-            {form.formState.errors.birth_date && <p className="text-sm text-destructive">{form.formState.errors.birth_date.message}</p>}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="nationality">Nacionalidad</Label>
-          <Input id="nationality" {...form.register('nationality')} />
-           {form.formState.errors.nationality && <p className="text-sm text-destructive">{form.formState.errors.nationality.message}</p>}
-        </div>
-      </div>
-      
-      <h3 className="text-lg font-semibold border-b pb-2 pt-4">2. Contacto</h3>
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-                <Label htmlFor="email">Correo Electrónico</Label>
-                <Input id="email" value={user.email || ''} readOnly disabled />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="phone_number">Número de Teléfono</Label>
-                <Input id="phone_number" {...form.register('phone_number')} />
-                {form.formState.errors.phone_number && <p className="text-sm text-destructive">{form.formState.errors.phone_number.message}</p>}
-            </div>
-             <div className="md:col-span-2 space-y-2">
-                <Label htmlFor="full_address">Dirección Completa</Label>
-                <Input id="full_address" {...form.register('full_address')} />
-                 {form.formState.errors.full_address && <p className="text-sm text-destructive">{form.formState.errors.full_address.message}</p>}
-            </div>
-      </div>
 
-       <h3 className="text-lg font-semibold border-b pb-2 pt-4">3. Documentos</h3>
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {['front', 'back'].map((side) => (
-             <div key={side} className="space-y-2">
-                <Label>Cédula/ID ({side === 'front' ? 'Frontal' : 'Trasera'})</Label>
-                <Label htmlFor={`id-${side}-upload`} className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted transition-colors relative">
-                    {side === 'front' && idFrontPreview && <Image src={idFrontPreview} alt="ID Front Preview" layout="fill" className="object-contain rounded-lg p-1" />}
-                    {side === 'back' && idBackPreview && <Image src={idBackPreview} alt="ID Back Preview" layout="fill" className="object-contain rounded-lg p-1" />}
-                    
-                    {!(side === 'front' && idFrontPreview) && !(side === 'back' && idBackPreview) && (
-                        <div className="flex flex-col items-center justify-center">
-                            <UploadCloud className="w-10 h-10 text-muted-foreground" />
-                            <p className="text-sm text-muted-foreground">Haz clic para subir</p>
-                        </div>
-                    )}
-                    <Input id={`id-${side}-upload`} type="file" className="sr-only" onChange={(e) => handleFileChange(e, side as 'front' | 'back')} />
-                </Label>
-             </div>
-        ))}
-       </div>
+        <h3 className="text-lg font-semibold border-b pb-2 pt-4">3. Documentos</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {['front', 'back'].map((side) => (
+              <div key={side} className="space-y-2">
+                  <Label>Cédula/ID ({side === 'front' ? 'Frontal' : 'Trasera'})</Label>
+                  <Label htmlFor={`id-${side}-upload`} className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted transition-colors relative">
+                      {side === 'front' && idFrontPreview && <Image src={idFrontPreview} alt="ID Front Preview" layout="fill" className="object-contain rounded-lg p-1" />}
+                      {side === 'back' && idBackPreview && <Image src={idBackPreview} alt="ID Back Preview" layout="fill" className="object-contain rounded-lg p-1" />}
+                      
+                      {!(side === 'front' && idFrontPreview) && !(side === 'back' && idBackPreview) && (
+                          <div className="flex flex-col items-center justify-center">
+                              <UploadCloud className="w-10 h-10 text-muted-foreground" />
+                              <p className="text-sm text-muted-foreground">Haz clic para subir</p>
+                          </div>
+                      )}
+                      <Input id={`id-${side}-upload`} type="file" className="sr-only" onChange={(e) => handleFileChange(e, side as 'front' | 'back')} />
+                  </Label>
+              </div>
+          ))}
+        </div>
 
-      <div className="flex justify-end pt-6">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Guardar Información
-        </Button>
-      </div>
-    </form>
+        <div className="flex justify-end pt-6">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Guardar Información
+          </Button>
+        </div>
+      </form>
+    </ScrollArea>
   );
 }

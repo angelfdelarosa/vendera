@@ -398,7 +398,7 @@ export default function ProfilePageClient() {
                                          <UserCog className="mr-2" /> Editar Información Personal
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="sm:max-w-4xl">
+                                <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto">
                                     <DialogHeader>
                                         <DialogTitle>Completar Información de Vendedor</DialogTitle>
                                         <DialogDescription>Esta información es necesaria para poder listar propiedades en VENDRA.</DialogDescription>

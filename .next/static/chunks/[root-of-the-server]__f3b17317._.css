@@ -477,6 +477,14 @@ body {
   top: 50%;
 }
 
+.bottom-auto {
+  bottom: auto;
+}
+
+.top-auto {
+  top: auto;
+}
+
 .z-10 {
   z-index: 10;
 }
@@ -516,6 +524,11 @@ body {
 .my-6 {
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
+}
+
+.my-\[10vh\] {
+  margin-top: 10vh;
+  margin-bottom: 10vh;
 }
 
 .-ml-4 {
@@ -780,6 +793,14 @@ body {
 
 .max-h-screen {
   max-height: 100vh;
+}
+
+.max-h-\[80vh\] {
+  max-height: 80vh;
+}
+
+.max-h-\[85vh\] {
+  max-height: 85vh;
 }
 
 .min-h-\[100px\] {
@@ -1687,6 +1708,10 @@ body {
 
 .pl-2 {
   padding-left: .5rem;
+}
+
+.pr-6 {
+  padding-right: 1.5rem;
 }
 
 .text-left {
