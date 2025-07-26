@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { BedDouble, Bath, Ruler, MapPin, Building, Lock, Loader2 } from 'lucide-react';
+import { BedDouble, Bath, Ruler, MapPin, Building, MessageSquare, Loader2 } from 'lucide-react';
 import { SimilarProperties } from '@/components/properties/SimilarProperties';
 import { FavoriteButton } from '@/components/properties/FavoriteButton';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,10 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
 import { usePropertyContext } from '@/context/PropertyContext';
+import { useChatStore } from '@/components/chat/use-chat-store';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+import { SubscriptionModal } from '@/components/layout/SubscriptionModal';
 
 
 export default function PropertyDetailPage() {
@@ -34,19 +38,21 @@ export default function PropertyDetailPage() {
   const { properties } = usePropertyContext();
   const [property, setProperty] = useState<Property | null | undefined>(undefined);
   const { t } = useTranslation();
+  const { handleStartConversation } = useChatStore();
+  const { toast } = useToast();
+  const router = useRouter();
+  const [isSubModalOpen, setSubModalOpen] = useState(false);
 
   useEffect(() => {
     const findProperty = async () => {
       if (!id || !supabase) return;
       
-      // First, try to find the property in the global store
       const fromStore = properties.find(p => p.id === id);
       if (fromStore) {
         setProperty(fromStore);
         return;
       }
       
-      // If not in store, fetch from DB
       const { data, error } = await supabase
         .from('properties')
         .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username)`)
@@ -62,6 +68,26 @@ export default function PropertyDetailPage() {
     };
     findProperty();
   }, [id, properties, supabase]);
+
+  const onStartConversation = async () => {
+    if (!user) {
+      toast({ title: 'Debes iniciar sesión', description: 'Por favor, inicia sesión para contactar a un vendedor.', variant: 'destructive' });
+      router.push('/login');
+      return;
+    }
+    if (user.profile?.subscription_status !== 'active') {
+      setSubModalOpen(true);
+      return;
+    }
+    if (!property) return;
+    
+    const conversationId = await handleStartConversation(property.realtor, user, supabase);
+    if (conversationId) {
+        router.push('/messages');
+    } else {
+        toast({ title: 'Error', description: 'No se pudo iniciar la conversación.', variant: 'destructive' });
+    }
+  };
 
 
   if (property === undefined) {
@@ -85,6 +111,8 @@ export default function PropertyDetailPage() {
 
 
   return (
+    <>
+    <SubscriptionModal isOpen={isSubModalOpen} onClose={() => setSubModalOpen(false)} />
     <div className="container mx-auto px-4 py-8">
       <div className="grid lg:grid-cols-3 gap-8 mb-8">
         <div className="lg:col-span-2">
@@ -123,7 +151,7 @@ export default function PropertyDetailPage() {
               </CardTitle>
               <p className="flex items-center text-muted-foreground pt-2">
                 <MapPin className="w-4 h-4 mr-2" />
-                {user ? property.address : property.location}
+                {property.address}
               </p>
             </CardHeader>
             <CardContent>
@@ -136,112 +164,101 @@ export default function PropertyDetailPage() {
             </CardContent>
           </Card>
           
-           {user && (
-             <Card>
-                <CardHeader>
-                  <CardTitle className="font-headline text-xl">
-                    {t('property.realtorInfo')}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Link href={`/profile/${property.realtor.user_id}`}>
-                    <div className="flex items-center gap-4 hover:bg-muted p-2 rounded-lg transition-colors">
-                      <Avatar className="h-16 w-16">
-                        <AvatarImage
-                          src={property.realtor.avatar_url || undefined}
-                          alt={property.realtor.full_name || ''}
-                          data-ai-hint="person face"
-                          className="object-cover"
-                        />
-                        <AvatarFallback>
-                          {property.realtor.full_name?.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-grow">
-                          <p className="font-semibold text-lg hover:underline">
-                            {property.realtor.full_name}
-                          </p>
-                        <p className="text-sm text-muted-foreground">
-                          {t('property.certifiedRealtor')}
+           <Card>
+              <CardHeader>
+                <CardTitle className="font-headline text-xl">
+                  {t('property.realtorInfo')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Link href={`/profile/${property.realtor.user_id}`}>
+                  <div className="flex items-center gap-4 hover:bg-muted p-2 rounded-lg transition-colors">
+                    <Avatar className="h-16 w-16">
+                      <AvatarImage
+                        src={property.realtor.avatar_url || undefined}
+                        alt={property.realtor.full_name || ''}
+                        data-ai-hint="person face"
+                        className="object-cover"
+                      />
+                      <AvatarFallback>
+                        {property.realtor.full_name?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-grow">
+                        <p className="font-semibold text-lg hover:underline">
+                          {property.realtor.full_name}
                         </p>
-                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {t('property.certifiedRealtor')}
+                      </p>
                     </div>
-                  </Link>
-                </CardContent>
-             </Card>
-           )}
+                  </div>
+                </Link>
+                 <Button onClick={onStartConversation} className="w-full">
+                    <MessageSquare className="mr-2"/> Contactar Vendedor
+                </Button>
+              </CardContent>
+           </Card>
         </div>
       </div>
       
-      { user ? (
-          <Card>
-          <CardHeader>
-              <CardTitle className="font-headline text-2xl">
-              {t('property.details')}
-              </CardTitle>
-          </CardHeader>
-          <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-6">
-              <div className="bg-secondary/50 p-4 rounded-lg">
-                  <BedDouble className="mx-auto mb-2 h-8 w-8 text-primary" />
-                  <p className="font-semibold">{property.bedrooms} {t('property.bedrooms')}</p>
-              </div>
-              <div className="bg-secondary/50 p-4 rounded-lg">
-                  <Bath className="mx-auto mb-2 h-8 w-8 text-primary" />
-                  <p className="font-semibold">{property.bathrooms} {t('property.bathrooms')}</p>
-              </div>
-              <div className="bg-secondary/50 p-4 rounded-lg">
-                  <Ruler className="mx-auto mb-2 h-8 w-8 text-primary" />
-                  <p className="font-semibold">
-                  {property.area.toLocaleString()} m²
+      <Card>
+      <CardHeader>
+          <CardTitle className="font-headline text-2xl">
+          {t('property.details')}
+          </CardTitle>
+      </CardHeader>
+      <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-6">
+          <div className="bg-secondary/50 p-4 rounded-lg">
+              <BedDouble className="mx-auto mb-2 h-8 w-8 text-primary" />
+              <p className="font-semibold">{property.bedrooms} {t('property.bedrooms')}</p>
+          </div>
+          <div className="bg-secondary/50 p-4 rounded-lg">
+              <Bath className="mx-auto mb-2 h-8 w-8 text-primary" />
+              <p className="font-semibold">{property.bathrooms} {t('property.bathrooms')}</p>
+          </div>
+          <div className="bg-secondary/50 p-4 rounded-lg">
+              <Ruler className="mx-auto mb-2 h-8 w-8 text-primary" />
+              <p className="font-semibold">
+              {property.area.toLocaleString()} m²
+              </p>
+          </div>
+          <div className="bg-secondary/50 p-4 rounded-lg">
+              <Building className="mx-auto mb-2 h-8 w-8 text-primary" />
+              <p className="font-semibold">{t(`property.types.${property.type}`)}</p>
+          </div>
+          </div>
+
+          <Separator className="my-6" />
+
+          <div className="grid md:grid-cols-2 gap-8">
+              <div>
+                  <h3 className="font-headline text-xl font-semibold mb-4">
+                      {t('property.description')}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                      {t(property.description)}
                   </p>
               </div>
-              <div className="bg-secondary/50 p-4 rounded-lg">
-                  <Building className="mx-auto mb-2 h-8 w-8 text-primary" />
-                  <p className="font-semibold">{t(`property.types.${property.type}`)}</p>
-              </div>
-              </div>
-
-              <Separator className="my-6" />
-
-              <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                      <h3 className="font-headline text-xl font-semibold mb-4">
-                          {t('property.description')}
-                      </h3>
-                      <p className="text-muted-foreground leading-relaxed">
-                          {t(property.description)}
-                      </p>
-                  </div>
-                  <div>
-                      <h3 className="font-headline text-xl font-semibold mb-4">
-                          {t('property.features')}
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                          {property.features.map((feature, index) => (
-                          <Badge key={index} variant="outline">
-                              {feature}
-                          </Badge>
-                          ))}
-                      </div>
+              <div>
+                  <h3 className="font-headline text-xl font-semibold mb-4">
+                      {t('property.features')}
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                      {property.features.map((feature, index) => (
+                      <Badge key={index} variant="outline">
+                          {feature}
+                      </Badge>
+                      ))}
                   </div>
               </div>
-          </CardContent>
-          </Card>
-      ) : (
-          <Card>
-              <CardContent className="p-10 text-center">
-                  <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-xl font-semibold mb-2 text-primary">Detalles completos de la propiedad bloqueados</h3>
-                  <p className="text-muted-foreground mb-4 max-w-md mx-auto">Inicia sesión o crea una cuenta para ver todos los detalles de la propiedad, incluida la información del vendedor, descripción, características y más.</p>
-                  <Button asChild size="lg">
-                      <Link href="/login">Iniciar sesión para ver detalles</Link>
-                  </Button>
-              </CardContent>
-          </Card>
-      )}
+          </div>
+      </CardContent>
+      </Card>
 
       <SimilarProperties currentPropertyId={property.id} />
     </div>
+    </>
   );
 }

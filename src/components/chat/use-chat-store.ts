@@ -13,7 +13,7 @@ interface ChatState {
   updateConversation: (conversationId: string, updatedData: Partial<Conversation>) => void;
   handleStartConversation: (
     otherUser: UserProfile,
-    authUser: User,
+    authUser: User & { profile?: UserProfile },
     supabase: SupabaseClient
   ) => Promise<string | null>;
 }
@@ -50,6 +50,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
   handleStartConversation: async (otherUser, authUser, supabase) => {
     if (!authUser || authUser.id === otherUser.user_id) {
       console.log("Cannot start conversation with yourself.");
+      return null;
+    }
+    
+    // Subscription check before starting conversation
+    if (authUser.profile?.subscription_status !== 'active') {
+      console.log("User does not have an active subscription.");
+      // The UI should prevent this, but this is a safeguard.
       return null;
     }
 

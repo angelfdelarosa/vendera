@@ -6,12 +6,12 @@ import type { User, AuthError, SupabaseClient, RealtimeChannel } from '@supabase
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useChatStore } from '@/components/chat/use-chat-store';
-import type { Conversation as AppConversation, ConversationFromDB, Property } from '@/types';
+import type { Conversation as AppConversation, ConversationFromDB, UserProfile } from '@/types';
 import { userService } from '@/lib/user.service';
 
 
 interface AuthContextType {
-  user: User | null;
+  user: (User & { profile?: UserProfile }) | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<{ error: AuthError | null }>;
   logout: () => Promise<void>;
@@ -26,35 +26,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const supabase = createClient();
   const router = useRouter();
   const { setConversations, setLoading: setChatLoading } = useChatStore();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<(User & { profile?: UserProfile }) | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchAndSetConversations = useCallback(async (userId: string) => {
     setChatLoading(true);
-
-    const { data, error } = await supabase
+    
+    const { data: convos, error: convosError } = await supabase
       .from('conversations')
-      .select(`
-        *,
-        buyer:profiles!buyer_id(*),
-        seller:profiles!seller_id(*)
-      `)
+      .select('*, buyer:profiles!buyer_id(*), seller:profiles!seller_id(*)')
       .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
 
-
-    if (error) {
-      console.error("Error fetching conversations:", error);
+    if (convosError) {
+      console.error("Error fetching conversations:", convosError);
       setConversations([]);
-    } else if (data) {
-      const transformedConversations = (data as unknown as ConversationFromDB[]).map(convo => {
-          const otherUser = convo.buyer_id === userId ? convo.seller! : convo.buyer!;
-          return {
-              ...convo,
-              // This should be derived from the latest message if fetched
-              // For now, we set a placeholder. The trigger will update the real last message info.
-              lastMessage: "No messages yet.", 
-              otherUser,
-          } as AppConversation;
+      setChatLoading(false);
+      return;
+    }
+    
+    if (convos) {
+       const transformedConversations = (convos as unknown as ConversationFromDB[]).map(c => {
+        const otherUser = c.buyer_id === userId ? c.seller! : c.buyer!;
+        return {
+            ...c,
+            lastMessage: "No messages yet.", 
+            otherUser,
+        } as AppConversation;
       });
       setConversations(transformedConversations);
     } else {
@@ -65,7 +62,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
   const refreshUser = async () => {
     const { data: { user } } = await supabase.auth.refreshSession();
-    setUser(user);
+    if (user) {
+        const profile = await userService.getProfile(user.id);
+        setUser({ ...user, profile: profile || undefined });
+    } else {
+        setUser(null);
+    }
   };
   
   useEffect(() => {
@@ -73,11 +75,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const setupUserSession = async (sessionUser: User | null) => {
         setLoading(true);
-        setUser(sessionUser);
-
         if (sessionUser) {
+            const profile = await userService.getProfile(sessionUser.id);
+            setUser({ ...sessionUser, profile: profile || undefined });
             await fetchAndSetConversations(sessionUser.id);
-            // Listen to changes on both conversations and messages tables.
              channel = supabase
                 .channel('db-changes')
                 .on('postgres_changes', 
@@ -90,6 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 )
                 .subscribe();
         } else {
+            setUser(null);
             setConversations([]);
             if (channel) {
                 supabase.removeChannel(channel);
@@ -99,7 +101,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(false);
     };
     
-    // Set initial user synchronously and then setup session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setupUserSession(session?.user ?? null);
     });
@@ -129,14 +130,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     await supabase.auth.signOut();
-    // The onAuthStateChange listener will handle setting user to null.
   };
 
   const signup = async (name: string, email: string, pass: string) => {
     try {
-      // Delegate signup logic to the user service
       await userService.signUp(email, pass, { full_name: name });
-      // The onAuthStateChange listener will handle setting the user state.
       return { error: null };
     } catch (error: any) {
       return { error: error as AuthError };

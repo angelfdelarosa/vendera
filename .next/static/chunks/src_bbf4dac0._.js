@@ -545,6 +545,12 @@ const useChatStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                 console.log("Cannot start conversation with yourself.");
                 return null;
             }
+            // Subscription check before starting conversation
+            if (authUser.profile?.subscription_status !== 'active') {
+                console.log("User does not have an active subscription.");
+                // The UI should prevent this, but this is a safeguard.
+                return null;
+            }
             // Check if a conversation already exists between the two users
             const { data: existing, error: existingError } = await supabase.from('conversations').select('id').or(`and(buyer_id.eq.${authUser.id},seller_id.eq.${otherUser.user_id}),and(buyer_id.eq.${otherUser.user_id},seller_id.eq.${authUser.id})`).maybeSingle();
             if (existingError) {
@@ -621,6 +627,14 @@ class UserService {
             });
             if (authError) throw authError;
             if (!authData.user) throw new Error("User not created in Auth.");
+            // Manually set subscription_status to inactive for new users
+            const { error: profileError } = await supabase.from('profiles').update({
+                subscription_status: 'inactive'
+            }).eq('user_id', authData.user.id);
+            if (profileError) {
+                console.error("Could not set initial subscription status for user:", profileError);
+            // This is not a fatal error for signup, so we just log it.
+            }
             // Fetch profile to confirm and return it, using retry logic for trigger delay
             const profile = await this.getProfile(authData.user.id);
             return {
@@ -731,22 +745,19 @@ const AuthProvider = ({ children })=>{
     const fetchAndSetConversations = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "AuthProvider.useCallback[fetchAndSetConversations]": async (userId)=>{
             setChatLoading(true);
-            const { data, error } = await supabase.from('conversations').select(`
-        *,
-        buyer:profiles!buyer_id(*),
-        seller:profiles!seller_id(*)
-      `).or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
-            if (error) {
-                console.error("Error fetching conversations:", error);
+            const { data: convos, error: convosError } = await supabase.from('conversations').select('*, buyer:profiles!buyer_id(*), seller:profiles!seller_id(*)').or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
+            if (convosError) {
+                console.error("Error fetching conversations:", convosError);
                 setConversations([]);
-            } else if (data) {
-                const transformedConversations = data.map({
-                    "AuthProvider.useCallback[fetchAndSetConversations].transformedConversations": (convo)=>{
-                        const otherUser = convo.buyer_id === userId ? convo.seller : convo.buyer;
+                setChatLoading(false);
+                return;
+            }
+            if (convos) {
+                const transformedConversations = convos.map({
+                    "AuthProvider.useCallback[fetchAndSetConversations].transformedConversations": (c)=>{
+                        const otherUser = c.buyer_id === userId ? c.seller : c.buyer;
                         return {
-                            ...convo,
-                            // This should be derived from the latest message if fetched
-                            // For now, we set a placeholder. The trigger will update the real last message info.
+                            ...c,
                             lastMessage: "No messages yet.",
                             otherUser
                         };
@@ -765,7 +776,15 @@ const AuthProvider = ({ children })=>{
     ]);
     const refreshUser = async ()=>{
         const { data: { user } } = await supabase.auth.refreshSession();
-        setUser(user);
+        if (user) {
+            const profile = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$user$2e$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["userService"].getProfile(user.id);
+            setUser({
+                ...user,
+                profile: profile || undefined
+            });
+        } else {
+            setUser(null);
+        }
     };
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "AuthProvider.useEffect": ()=>{
@@ -773,10 +792,13 @@ const AuthProvider = ({ children })=>{
             const setupUserSession = {
                 "AuthProvider.useEffect.setupUserSession": async (sessionUser)=>{
                     setLoading(true);
-                    setUser(sessionUser);
                     if (sessionUser) {
+                        const profile = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$user$2e$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["userService"].getProfile(sessionUser.id);
+                        setUser({
+                            ...sessionUser,
+                            profile: profile || undefined
+                        });
                         await fetchAndSetConversations(sessionUser.id);
-                        // Listen to changes on both conversations and messages tables.
                         channel = supabase.channel('db-changes').on('postgres_changes', {
                             event: '*',
                             schema: 'public',
@@ -791,6 +813,7 @@ const AuthProvider = ({ children })=>{
                             "AuthProvider.useEffect.setupUserSession": ()=>fetchAndSetConversations(sessionUser.id)
                         }["AuthProvider.useEffect.setupUserSession"]).subscribe();
                     } else {
+                        setUser(null);
                         setConversations([]);
                         if (channel) {
                             supabase.removeChannel(channel);
@@ -800,7 +823,6 @@ const AuthProvider = ({ children })=>{
                     setLoading(false);
                 }
             }["AuthProvider.useEffect.setupUserSession"];
-            // Set initial user synchronously and then setup session
             supabase.auth.getSession().then({
                 "AuthProvider.useEffect": ({ data: { session } })=>{
                     setupUserSession(session?.user ?? null);
@@ -837,15 +859,12 @@ const AuthProvider = ({ children })=>{
     };
     const logout = async ()=>{
         await supabase.auth.signOut();
-    // The onAuthStateChange listener will handle setting user to null.
     };
     const signup = async (name, email, pass)=>{
         try {
-            // Delegate signup logic to the user service
             await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$user$2e$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["userService"].signUp(email, pass, {
                 full_name: name
             });
-            // The onAuthStateChange listener will handle setting the user state.
             return {
                 error: null
             };
@@ -869,7 +888,7 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 157,
+        lineNumber: 155,
         columnNumber: 5
     }, this);
 };

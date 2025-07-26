@@ -31,6 +31,7 @@ export type UserProfile = {
   updated_at?: string | null;
   created_at?: string | null;
   email?: string | null;
+  subscription_status?: 'active' | 'inactive';
 };
 
 export interface Message {

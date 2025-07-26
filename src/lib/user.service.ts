@@ -33,6 +33,18 @@ class UserService {
       if (authError) throw authError;
       if (!authData.user) throw new Error("User not created in Auth.");
 
+      // Manually set subscription_status to inactive for new users
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ subscription_status: 'inactive' })
+        .eq('user_id', authData.user.id);
+
+      if (profileError) {
+          console.error("Could not set initial subscription status for user:", profileError);
+          // This is not a fatal error for signup, so we just log it.
+      }
+
+
       // Fetch profile to confirm and return it, using retry logic for trigger delay
       const profile = await this.getProfile(authData.user.id);
 

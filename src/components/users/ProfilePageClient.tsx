@@ -50,6 +50,7 @@ import { usePropertyStore } from '@/hooks/usePropertyStore';
 import { Textarea } from '../ui/textarea';
 import { useChatStore } from '../chat/use-chat-store';
 import { userService } from '@/lib/user.service';
+import { SubscriptionModal } from '../layout/SubscriptionModal';
 
 
 export default function ProfilePageClient() {
@@ -69,6 +70,7 @@ export default function ProfilePageClient() {
   const [ratingData, setRatingData] = useState<{ average: number, count: number }>({ average: 0, count: 0 });
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSubModalOpen, setSubModalOpen] = useState(false);
   
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -168,10 +170,17 @@ export default function ProfilePageClient() {
   };
 
   const onStartConversation = async () => {
-    if (!authUser || !supabase || !displayUser) {
+    if (!authUser) {
         toast({ title: 'Debes iniciar sesión', description: 'Por favor, inicia sesión para contactar a un vendedor.', variant: 'destructive' });
+        router.push('/login');
         return;
     }
+    if (authUser.profile?.subscription_status !== 'active') {
+      setSubModalOpen(true);
+      return;
+    }
+    if (!supabase || !displayUser) return;
+
     const conversationId = await handleStartConversation(displayUser, authUser, supabase);
     if (conversationId) {
         router.push('/messages');
@@ -275,6 +284,8 @@ export default function ProfilePageClient() {
   const memberSince = displayUser.created_at ? new Date(displayUser.created_at).toLocaleDateString(t('terms.locale_code')) : 'N/A';
 
   return (
+    <>
+    <SubscriptionModal isOpen={isSubModalOpen} onClose={() => setSubModalOpen(false)} />
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <Card className="overflow-hidden shadow-lg rounded-2xl">
@@ -341,11 +352,9 @@ export default function ProfilePageClient() {
                         </DialogContent>
                      </Dialog>
                   ) : (
-                    authUser && (
-                         <Button onClick={onStartConversation}>
-                            <MessageSquare className="mr-2"/> Contactar al Vendedor
-                        </Button>
-                    )
+                    <Button onClick={onStartConversation}>
+                        <MessageSquare className="mr-2"/> Contactar al Vendedor
+                    </Button>
                   )}
               </div>
             </div>
@@ -412,114 +421,116 @@ export default function ProfilePageClient() {
           </CardContent>
         </Card>
 
-        { authUser ? (
-            <Tabs defaultValue="listed" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="listed">
-                  <Building className="mr-2" /> {t('profile.tabs.listed')}
-                </TabsTrigger>
-                <TabsTrigger value="ratings">
-                  <Star className="mr-2" /> Valoraciones
-                </TabsTrigger>
+        <Tabs defaultValue="listed" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="listed">
+              <Building className="mr-2" /> {t('profile.tabs.listed')}
+            </TabsTrigger>
+            <TabsTrigger value="ratings">
+              <Star className="mr-2" /> Valoraciones
+            </TabsTrigger>
+            {isOwnProfile && (
                 <TabsTrigger value="saved">
                     <Heart className="mr-2" /> {t('profile.tabs.saved')}
                 </TabsTrigger>
-            </TabsList>
-            <TabsContent value="listed">
-                 <Card className="mt-4">
-                    <CardHeader>
-                        <CardTitle>Propiedades Listadas</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {userProperties.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {userProperties.map((property) => (
-                            <div key={property.id} className="relative group">
-                                <PropertyCard property={property} />
-                               {isOwnProfile && (
-                                <div className="absolute top-2 right-12 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <Button size="icon" variant="outline" className="bg-background" asChild>
-                                        <Link href={`/edit-property/${property.id}`}>
-                                        <Edit className="h-4 w-4" />
-                                        </Link>
-                                    </Button>
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                        <Button size="icon" variant="destructive">
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                            Esta acción no se puede deshacer. Esto eliminará permanentemente la propiedad de los servidores.
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => handleDeleteProperty(property.id)}>
-                                            Sí, eliminar propiedad
-                                            </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
-                                </div>
-                               )}
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-16">
-                          <p className="text-muted-foreground mb-4">
-                            {isOwnProfile ? t('profile.empty.listed.own') : t('profile.empty.listed.other', { name: displayUser.full_name })}
-                          </p>
-                          {isOwnProfile && (
-                            <Button asChild>
-                              <Link href="/properties/new">Listar una propiedad</Link>
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-            </TabsContent>
-            <TabsContent value="ratings">
-              <Card className="mt-4">
+            )}
+        </TabsList>
+        <TabsContent value="listed">
+             <Card className="mt-4">
                 <CardHeader>
-                  <CardTitle>Valoraciones Recibidas</CardTitle>
+                    <CardTitle>Propiedades Listadas</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {ratings.length > 0 ? (
-                    <ScrollArea className="h-[400px]">
-                      <div className="space-y-6">
-                        {ratings.map((rating, index) => (
-                          <div key={index} className="flex flex-col gap-2 border-b pb-4 last:border-b-0">
-                             <div className="flex items-center gap-2">
-                                <div className="flex items-center text-amber-500">
-                                    {[...Array(5)].map((_, i) => (
-                                        <Star key={i} className={cn('w-4 h-4', i < rating.rating ? 'fill-current' : 'text-muted-foreground/50 fill-muted')} />
-                                    ))}
-                                </div>
-                                <p className="text-xs text-muted-foreground">{new Date(rating.created_at).toLocaleDateString()}</p>
-                             </div>
-                             {rating.comment && (
-                                <p className="text-muted-foreground italic">"{rating.comment}"</p>
-                             )}
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
+                  {userProperties.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {userProperties.map((property) => (
+                        <div key={property.id} className="relative group">
+                            <PropertyCard property={property} />
+                           {isOwnProfile && (
+                            <div className="absolute top-2 right-12 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button size="icon" variant="outline" className="bg-background" asChild>
+                                    <Link href={`/edit-property/${property.id}`}>
+                                    <Edit className="h-4 w-4" />
+                                    </Link>
+                                </Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                    <Button size="icon" variant="destructive">
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                        Esta acción no se puede deshacer. Esto eliminará permanentemente la propiedad de los servidores.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteProperty(property.id)}>
+                                        Sí, eliminar propiedad
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </div>
+                           )}
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <div className="text-center py-16">
-                      <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
-                      <p className="text-muted-foreground">Este usuario aún no ha recibido ninguna valoración.</p>
+                      <p className="text-muted-foreground mb-4">
+                        {isOwnProfile ? t('profile.empty.listed.own') : t('profile.empty.listed.other', { name: displayUser.full_name })}
+                      </p>
+                      {isOwnProfile && (
+                        <Button asChild>
+                          <Link href="/properties/new">Listar una propiedad</Link>
+                        </Button>
+                      )}
                     </div>
                   )}
                 </CardContent>
               </Card>
-            </TabsContent>
-            <TabsContent value="saved">
+        </TabsContent>
+        <TabsContent value="ratings">
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>Valoraciones Recibidas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {ratings.length > 0 ? (
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-6">
+                    {ratings.map((rating, index) => (
+                      <div key={index} className="flex flex-col gap-2 border-b pb-4 last:border-b-0">
+                         <div className="flex items-center gap-2">
+                            <div className="flex items-center text-amber-500">
+                                {[...Array(5)].map((_, i) => (
+                                    <Star key={i} className={cn('w-4 h-4', i < rating.rating ? 'fill-current' : 'text-muted-foreground/50 fill-muted')} />
+                                ))}
+                            </div>
+                            <p className="text-xs text-muted-foreground">{new Date(rating.created_at).toLocaleDateString()}</p>
+                         </div>
+                         {rating.comment && (
+                            <p className="text-muted-foreground italic">"{rating.comment}"</p>
+                         )}
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              ) : (
+                <div className="text-center py-16">
+                  <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+                  <p className="text-muted-foreground">Este usuario aún no ha recibido ninguna valoración.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        {isOwnProfile && (
+             <TabsContent value="saved">
                 <Card className="mt-4">
                     <CardHeader>
                         <CardTitle>Tus Propiedades Guardadas</CardTitle>
@@ -534,7 +545,7 @@ export default function ProfilePageClient() {
                     ) : (
                         <div className="text-center py-16">
                         <p className="text-muted-foreground mb-4">
-                            {isOwnProfile ? t('profile.empty.saved.description') : `Aún no has guardado ninguna de las propiedades de ${displayUser.full_name}.`}
+                            {t('profile.empty.saved.description')}
                         </p>
                         <Button asChild>
                             <Link href="/">{t('profile.empty.saved.button')}</Link>
@@ -544,20 +555,10 @@ export default function ProfilePageClient() {
                     </CardContent>
                 </Card>
             </TabsContent>
-            </Tabs>
-        ) : (
-            <Card>
-                <CardContent className="p-10 text-center">
-                    <Lock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-xl font-semibold mb-2 text-primary">Contenido exclusivo para miembros</h3>
-                    <p className="text-muted-foreground mb-4">Inicia sesión para ver las propiedades listadas y guardadas de este usuario.</p>
-                     <Button asChild size="lg">
-                        <Link href="/login">Iniciar Sesión</Link>
-                    </Button>
-                </CardContent>
-            </Card>
         )}
+        </Tabs>
       </div>
     </div>
+    </>
   );
 }
