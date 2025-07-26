@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { BedDouble, Bath, Ruler, MapPin, Building, MessageSquare, Loader2 } from 'lucide-react';
+import { BedDouble, Bath, Ruler, MapPin, Building, MessageSquare, Loader2, User } from 'lucide-react';
 import { SimilarProperties } from '@/components/properties/SimilarProperties';
 import { FavoriteButton } from '@/components/properties/FavoriteButton';
 import { Button } from '@/components/ui/button';
@@ -194,8 +194,10 @@ export default function PropertyDetailPage() {
                     </div>
                   </div>
                 </Link>
-                 <Button onClick={onStartConversation} className="w-full">
-                    <MessageSquare className="mr-2"/> Contactar Vendedor
+                 <Button asChild className="w-full">
+                    <Link href={`/profile/${property.realtor.user_id}`}>
+                      <User className="mr-2"/> Ver Perfil del Vendedor
+                    </Link>
                 </Button>
               </CardContent>
            </Card>
