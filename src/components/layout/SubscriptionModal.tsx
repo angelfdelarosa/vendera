@@ -10,8 +10,11 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Star, CheckCircle2 } from 'lucide-react';
+import { Star, CheckCircle2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
+import { userService } from '@/lib/user.service';
+import { useState } from 'react';
 
 interface SubscriptionModalProps {
   isOpen: boolean;
@@ -20,15 +23,37 @@ interface SubscriptionModalProps {
 
 export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
   const { toast } = useToast();
+  const { user, refreshUser } = useAuth();
+  const [isUpgrading, setIsUpgrading] = useState(false);
 
-  const handleUpgrade = () => {
-    // In a real app, this would redirect to a payment page (e.g., Stripe Checkout)
-    // For this simulation, we'll just show a toast.
-    toast({
-      title: "Función en desarrollo",
-      description: "La pasarela de pago se implementará próximamente.",
-    });
-    onClose();
+  const handleUpgrade = async () => {
+    if (!user) {
+      toast({
+        title: "No estás autenticado",
+        description: "Debes iniciar sesión para actualizar tu plan.",
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsUpgrading(true);
+    try {
+      await userService.grantProSubscription(user.id);
+      await refreshUser();
+      toast({
+        title: "¡Bienvenido a Pro!",
+        description: "Has desbloqueado todas las funciones de VENDRA Pro.",
+      });
+      onClose();
+    } catch (error: any) {
+      toast({
+        title: "Error en la actualización",
+        description: error.message || "No se pudo completar la actualización. Por favor, intenta de nuevo.",
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUpgrading(false);
+    }
   };
   
   const features = [
@@ -60,7 +85,8 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
             </ul>
         </div>
         <DialogFooter className="sm:justify-center">
-          <Button type="button" size="lg" onClick={handleUpgrade} className="w-full">
+          <Button type="button" size="lg" onClick={handleUpgrade} className="w-full" disabled={isUpgrading}>
+            {isUpgrading && <Loader2 className="animate-spin mr-2" />}
             Actualizar a Pro - $3.99/mes
           </Button>
         </DialogFooter>

@@ -686,7 +686,7 @@ class UserService {
     // Fetch user profile with retry logic
     async getProfile(userId) {
         try {
-            const { data, error } = await supabase.from('profiles').select('*, created_at, subscription_status, is_seller').eq('user_id', userId).maybeSingle(); // Use maybeSingle to avoid error on no rows
+            const { data, error } = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle(); // Use maybeSingle to avoid error on no rows
             if (error && error.code !== 'PGRST116') {
                 console.error('Fetch profile error:', error);
                 throw error;
@@ -694,7 +694,7 @@ class UserService {
             // If profile is not found, it could be due to db trigger delay. Retry once.
             if (!data) {
                 await new Promise((resolve)=>setTimeout(resolve, 500));
-                const retryResult = await supabase.from('profiles').select('*, created_at, subscription_status, is_seller').eq('user_id', userId).maybeSingle();
+                const retryResult = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle();
                 if (retryResult.error) {
                     console.error('Retry fetch profile error:', retryResult.error);
                 }
@@ -703,6 +703,21 @@ class UserService {
             return data;
         } catch (error) {
             console.error('Unhandled fetch profile error:', error);
+            throw error;
+        }
+    }
+    // Grant Pro subscription
+    async grantProSubscription(userId) {
+        try {
+            const { data: profileData, error: profileError } = await supabase.from('profiles').update({
+                subscription_status: 'active'
+            }).eq('user_id', userId).select().single();
+            if (profileError) throw profileError;
+            return {
+                profile: profileData
+            };
+        } catch (error) {
+            console.error('Grant Pro subscription error:', error);
             throw error;
         }
     }
