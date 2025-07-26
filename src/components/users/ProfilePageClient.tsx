@@ -362,7 +362,15 @@ export default function ProfilePageClient() {
             <div className='mt-6 border-t pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center'>
                  <div className="flex flex-col items-center gap-1">
                      <span className='text-sm text-muted-foreground'>Email</span>
-                     <span className='font-semibold'>{displayUser.email || 'N/A'}</span>
+                     {isOwnProfile || authUser?.profile?.subscription_status === 'active' ? (
+                       <span className='font-semibold'>{displayUser.email || 'N/A'}</span>
+                     ) : (
+                       <div className='flex items-center gap-2'>
+                           <Button variant="outline" size="sm" onClick={() => setSubModalOpen(true)}>
+                            <Lock className="mr-2 h-4 w-4" /> Solo para miembros Pro
+                           </Button>
+                       </div>
+                     )}
                  </div>
                  <div className="flex flex-col items-center gap-1">
                      <span className='text-sm text-muted-foreground'>Miembro desde</span>
@@ -562,3 +570,5 @@ export default function ProfilePageClient() {
     </>
   );
 }
+
+    
