@@ -127,8 +127,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
     
     const newConvo: Conversation = {
-      ...newConversationData,
-      otherUser: newConversationData.seller, 
+      ...(newConversationData as ConversationFromDB),
+      otherUser: newConversationData.seller!, 
       lastMessage: "No messages yet.",
     };
 

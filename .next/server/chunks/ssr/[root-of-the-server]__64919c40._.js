@@ -775,7 +775,7 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 99,
+        lineNumber: 98,
         columnNumber: 5
     }, this);
 };

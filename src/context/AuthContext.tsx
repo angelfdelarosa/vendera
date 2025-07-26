@@ -2,8 +2,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import type { User, AuthError, SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
-import { usePathname, useRouter } from 'next/navigation';
+import type { User, AuthError, SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import type { UserProfile } from '@/types';
 import { userService } from '@/lib/user.service';
