@@ -1,104 +1,184 @@
--- Comprehensive profiles table
-DROP TABLE IF EXISTS public.profiles;
+-- First, drop all foreign key constraints referencing profiles
+DO $$
+BEGIN
+    -- Drop foreign key constraints from various tables
+    IF EXISTS (SELECT 1 FROM information_schema.table_constraints 
+               WHERE table_schema = 'public' AND constraint_type = 'FOREIGN KEY' 
+               AND constraint_name LIKE '%profiles_user_id_fkey') THEN
+        
+        -- Ratings table
+        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'ratings') THEN
+            ALTER TABLE public.ratings 
+            DROP CONSTRAINT IF EXISTS ratings_rated_user_id_fkey,
+            DROP CONSTRAINT IF EXISTS ratings_rater_user_id_fkey;
+        END IF;
 
+        -- Properties table
+        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'properties') THEN
+            ALTER TABLE public.properties 
+            DROP CONSTRAINT IF EXISTS properties_realtor_id_fkey;
+        END IF;
+
+        -- Conversations table
+        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'conversations') THEN
+            ALTER TABLE public.conversations 
+            DROP CONSTRAINT IF EXISTS conversations_buyer_id_fkey,
+            DROP CONSTRAINT IF EXISTS conversations_seller_id_fkey,
+            DROP CONSTRAINT IF EXISTS conversations_last_message_sender_id_fkey;
+        END IF;
+
+        -- Messages table
+        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'messages') THEN
+            ALTER TABLE public.messages 
+            DROP CONSTRAINT IF EXISTS messages_sender_id_fkey;
+        END IF;
+    END IF;
+END $$;
+
+-- Drop the existing tables in dependency order
+DROP TABLE IF EXISTS public.messages;
+DROP TABLE IF EXISTS public.ratings;
+DROP TABLE IF EXISTS public.conversations;
+DROP TABLE IF EXISTS public.properties;
+DROP TABLE IF EXISTS public.profiles;
+DROP TYPE IF EXISTS public.property_type;
+DROP TYPE IF EXISTS public.currency_type;
+
+-- Recreate the ENUM types
+CREATE TYPE public.property_type AS ENUM ('house', 'apartment', 'condo', 'villa', 'lot');
+CREATE TYPE public.currency_type AS ENUM ('USD', 'DOP');
+
+-- Recreate the profiles table
 CREATE TABLE public.profiles (
-    user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-    email TEXT UNIQUE,
-    full_name TEXT,
-    username TEXT,
-    avatar_url TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  updated_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()),
+  username TEXT UNIQUE,
+  full_name TEXT,
+  avatar_url TEXT,
+  CONSTRAINT username_length CHECK (char_length(username) >= 3)
 );
 
--- Ensure unique constraints are flexible
-CREATE UNIQUE INDEX idx_unique_username ON public.profiles (username) 
-WHERE username IS NOT NULL;
-
--- RLS Policies
+-- Recreate policies for profiles
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public profiles are viewable by everyone." ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Users can insert their own profile." ON public.profiles FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own profile." ON public.profiles FOR UPDATE USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can view own profile" 
-ON public.profiles FOR SELECT 
-USING (auth.uid() = user_id);
+-- Recreate the properties table
+CREATE TABLE public.properties (
+  id UUID DEFAULT extensions.uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+  realtor_id UUID NOT NULL REFERENCES public.profiles(user_id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  price NUMERIC NOT NULL CHECK (price > 0),
+  currency currency_type DEFAULT 'USD'::public.currency_type,
+  location TEXT,
+  address TEXT,
+  type property_type,
+  bedrooms INT DEFAULT 0,
+  bathrooms INT DEFAULT 0,
+  area INT,
+  description TEXT,
+  features TEXT[],
+  images TEXT[],
+  is_active BOOLEAN DEFAULT true
+);
 
-CREATE POLICY "Users can update own profile" 
-ON public.profiles FOR UPDATE 
-USING (auth.uid() = user_id)
-WITH CHECK (auth.uid() = user_id);
+-- Recreate policies for properties
+ALTER TABLE public.properties ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Properties are viewable by everyone." ON public.properties FOR SELECT USING (is_active = true);
+CREATE POLICY "Authenticated users can create properties." ON public.properties FOR INSERT WITH CHECK (auth.uid() = realtor_id);
+CREATE POLICY "Users can update their own properties." ON public.properties FOR UPDATE USING (auth.uid() = realtor_id);
+CREATE POLICY "Users can delete their own properties." ON public.properties FOR DELETE USING (auth.uid() = realtor_id);
 
--- Trigger to update updated_at timestamp
-CREATE OR REPLACE FUNCTION public.update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-   NEW.updated_at = timezone('utc'::text, now());
-   RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+-- Recreate the conversations table
+CREATE TABLE public.conversations (
+  id UUID DEFAULT extensions.uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+  buyer_id UUID NOT NULL REFERENCES public.profiles(user_id) ON DELETE CASCADE,
+  seller_id UUID NOT NULL REFERENCES public.profiles(user_id) ON DELETE CASCADE,
+  last_message_sender_id UUID REFERENCES public.profiles(user_id),
+  last_message_read BOOLEAN DEFAULT FALSE,
+  CONSTRAINT unique_conversation_pair UNIQUE (buyer_id, seller_id)
+);
 
-CREATE TRIGGER update_profiles_updated_at
-BEFORE UPDATE ON public.profiles
-FOR EACH ROW
-EXECUTE FUNCTION public.update_updated_at_column();
+-- Recreate policies for conversations
+ALTER TABLE public.conversations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage their own conversations." ON public.conversations FOR ALL USING (auth.uid() = buyer_id OR auth.uid() = seller_id);
 
--- Comprehensive user creation trigger
+-- Recreate the messages table
+CREATE TABLE public.messages (
+  id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+  conversation_id UUID NOT NULL REFERENCES public.conversations(id) ON DELETE CASCADE,
+  sender_id UUID NOT NULL REFERENCES public.profiles(user_id) ON DELETE CASCADE,
+  content TEXT NOT NULL
+);
+
+-- Recreate policies for messages
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view messages in their conversations." ON public.messages FOR SELECT USING (conversation_id IN (SELECT id FROM public.conversations));
+CREATE POLICY "Users can send messages in their conversations." ON public.messages FOR INSERT WITH CHECK (auth.uid() = sender_id AND conversation_id IN (SELECT id FROM public.conversations));
+
+-- Recreate the ratings table
+CREATE TABLE public.ratings (
+  id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+  rated_user_id UUID NOT NULL REFERENCES public.profiles(user_id) ON DELETE CASCADE,
+  rater_user_id UUID NOT NULL REFERENCES public.profiles(user_id) ON DELETE CASCADE,
+  rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  comment TEXT,
+  CONSTRAINT unique_rating_pair UNIQUE (rated_user_id, rater_user_id)
+);
+
+-- Recreate policies for ratings
+ALTER TABLE public.ratings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Ratings are viewable by everyone." ON public.ratings FOR SELECT USING (true);
+CREATE POLICY "Users can manage their own ratings." ON public.ratings FOR ALL
+USING (auth.uid() = rater_user_id)
+WITH CHECK (auth.uid() = rater_user_id AND rated_user_id <> rater_user_id);
+
+-- Recreate the handle_new_user function
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
-DECLARE
-    generated_username TEXT;
-    generated_avatar_url TEXT;
 BEGIN
-    -- Generate a unique username
-    generated_username := LOWER(
-        COALESCE(
-            NEW.raw_user_meta_data->>'username', 
-            REGEXP_REPLACE(NEW.email, '@.*', ''),
-            'user_' || SUBSTRING(MD5(NEW.id::TEXT), 1, 8)
-        )
-    );
-
-    -- Ensure username is unique by appending a number if needed
-    LOOP
-        BEGIN
-            -- Generate avatar URL
-            generated_avatar_url := COALESCE(
-                NEW.raw_user_meta_data->>'avatar_url',
-                'https://ui-avatars.com/api/?name=' || 
-                COALESCE(
-                    REPLACE(NEW.raw_user_meta_data->>'full_name', ' ', '+'),
-                    REPLACE(NEW.email, '@', '+')
-                )
-            );
-
-            -- Insert profile
-            INSERT INTO public.profiles (
-                user_id, 
-                email, 
-                full_name, 
-                username, 
-                avatar_url
-            ) VALUES (
-                NEW.id,
-                NEW.email,
-                COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
-                generated_username,
-                generated_avatar_url
-            );
-            
-            EXIT;
-        EXCEPTION WHEN unique_violation THEN
-            -- If username exists, modify it
-            generated_username := generated_username || '_' || 
-                SUBSTRING(MD5(NEW.id::TEXT), 1, 4);
-        END;
-    END LOOP;
-
-    RETURN NEW;
+  INSERT INTO public.profiles (user_id, full_name, avatar_url, username, created_at)
+  VALUES (
+    NEW.id,
+    NEW.raw_user_meta_data->>'full_name',
+    NEW.raw_user_meta_data->>'avatar_url',
+    NEW.email, -- Assuming email is unique and used as username initially
+    NEW.created_at -- Sync created_at from auth.users
+  );
+  RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Recreate the trigger
+-- Recreate the trigger for new user creation
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
-AFTER INSERT ON auth.users
-FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Recreate the function and trigger for updating conversations
+CREATE OR REPLACE FUNCTION public.update_conversation_on_new_message()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE public.conversations
+  SET
+    last_message_sender_id = NEW.sender_id,
+    last_message_read = FALSE
+  WHERE id = NEW.conversation_id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_new_message_update_conversation ON public.messages;
+CREATE TRIGGER on_new_message_update_conversation
+  AFTER INSERT ON public.messages
+  FOR EACH ROW
+  EXECUTE FUNCTION public.update_conversation_on_new_message();
+
+-- Ensure Supabase Realtime is enabled for the tables
+ALTER PUBLICATION supabase_realtime ADD TABLE public.profiles, public.properties, public.conversations, public.messages, public.ratings;
