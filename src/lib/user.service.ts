@@ -17,8 +17,6 @@ class UserService {
         throw new Error('Email and password are required');
       }
       
-      // We only pass the full_name. The database trigger (`handle_new_user`)
-      // is responsible for generating the username and default avatar_url.
       const userMetadata = {
         full_name: metadata.full_name || email.split('@')[0],
       };
@@ -76,7 +74,7 @@ class UserService {
     }
   }
 
-  // Fetch user profile
+  // Fetch user profile with retry logic
   async getProfile(userId: string): Promise<UserProfile | null> {
     try {
       const { data, error } = await supabase
@@ -87,6 +85,24 @@ class UserService {
 
       if (error) {
         console.warn('Fetch profile warning:', error);
+        
+        // Retry mechanism for trigger delay on signup
+        if (error.code === 'PGRST116') {  // No rows returned
+          // Wait a short time and retry once
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const retryResult = await supabase
+            .from('profiles')
+            .select('*, created_at')
+            .eq('user_id', userId)
+            .single();
+          
+          if(retryResult.error) {
+             console.error('Retry fetch profile error:', retryResult.error);
+          }
+
+          return retryResult.data || null;
+        }
+        
         return null;
       }
       return data;
