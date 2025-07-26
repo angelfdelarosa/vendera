@@ -36,7 +36,7 @@ class UserService {
       // Manually set subscription_status to inactive and is_seller to false for new users
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ subscription_status: 'inactive', is_seller: false })
+        .update({ subscription_status: 'inactive', is_seller: false, is_profile_complete: false })
         .eq('user_id', authData.user.id);
 
       if (profileError) {
@@ -99,6 +99,23 @@ class UserService {
 
     const { data } = supabase.storage
       .from('avatars')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  }
+  
+  async uploadIdentityDocument(userId: string, file: File): Promise<string> {
+    const filePath = `${userId}/${Date.now()}_${file.name}`;
+    const { error: uploadError } = await supabase.storage
+      .from('identity_documents')
+      .upload(filePath, file, { upsert: true, bypassRls: true });
+
+    if (uploadError) {
+      throw new Error(`Failed to upload ID document: ${uploadError.message}`);
+    }
+    
+    const { data } = supabase.storage
+      .from('identity_documents')
       .getPublicUrl(filePath);
 
     return data.publicUrl;

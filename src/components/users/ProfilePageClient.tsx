@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageSquare, Calendar, Home } from 'lucide-react';
+import { Star, Loader2, Building, Heart, Edit, Mail, Lock, Upload, Trash2, MessageSquare, Calendar, Home, UserCog, Camera } from 'lucide-react';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import Link from 'next/link';
 import { useFavoritesStore } from '@/hooks/useFavoritesStore';
@@ -52,6 +52,7 @@ import { useChatStore } from '@/components/chat/use-chat-store';
 import { userService } from '@/lib/user.service';
 import { SubscriptionModal } from '../layout/SubscriptionModal';
 import { Badge } from '../ui/badge';
+import { SellerOnboardingForm } from './SellerOnboardingForm';
 
 const BadgeCheckIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -79,6 +80,7 @@ export default function ProfilePageClient() {
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSubModalOpen, setSubModalOpen] = useState(false);
+  const [isEditInfoModalOpen, setIsEditInfoModalOpen] = useState(false);
   
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -112,45 +114,45 @@ export default function ProfilePageClient() {
       setRatingData({ average, count });
   };
   
-  useEffect(() => {
-    const fetchProfileAndProperties = async () => {
-      if (!profileId || !supabase) {
-        setLoading(false);
-        return;
-      }
-      setLoading(true);
-
-      const profileData = await userService.getProfile(profileId);
-      
-      if (!profileData) {
-        console.error('Error fetching profile or profile not found');
-        setDisplayUser(null);
-        setLoading(false);
-        return;
-      }
-      
-      setDisplayUser(profileData as UserProfile);
-      fetchRatingData(profileData.user_id);
-
-      // Fetch properties for this user
-      const { data: propertiesData, error: propertiesError } = await supabase
-        .from('properties')
-        .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username, is_seller)`)
-        .eq('realtor_id', profileData.user_id);
-      
-      if (propertiesError) {
-        console.error('Error fetching properties for profile:', propertiesError);
-      } else {
-        setUserProperties(propertiesData as unknown as Property[]);
-      }
-
+  const fetchProfileData = useCallback(async () => {
+    if (!profileId || !supabase) {
       setLoading(false);
-    };
-
-    if (!authLoading) {
-      fetchProfileAndProperties();
+      return;
     }
-  }, [profileId, supabase, authLoading]);
+    setLoading(true);
+
+    const profileData = await userService.getProfile(profileId);
+    
+    if (!profileData) {
+      console.error('Error fetching profile or profile not found');
+      setDisplayUser(null);
+      setLoading(false);
+      return;
+    }
+    
+    setDisplayUser(profileData as UserProfile);
+    fetchRatingData(profileData.user_id);
+
+    // Fetch properties for this user
+    const { data: propertiesData, error: propertiesError } = await supabase
+      .from('properties')
+      .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username, is_seller)`)
+      .eq('realtor_id', profileData.user_id);
+    
+    if (propertiesError) {
+      console.error('Error fetching properties for profile:', propertiesError);
+    } else {
+      setUserProperties(propertiesData as unknown as Property[]);
+    }
+
+    setLoading(false);
+  }, [profileId, supabase]);
+
+  useEffect(() => {
+    if (!authLoading) {
+      fetchProfileData();
+    }
+  }, [profileId, authLoading, fetchProfileData]);
 
   
   const handleDeleteProperty = async (propertyId?: string) => {
@@ -250,7 +252,7 @@ export default function ProfilePageClient() {
     setIsUploading(true);
     try {
         const publicUrl = await userService.uploadAvatar(authUser.id, imageFile);
-        const { profile } = await userService.updateProfile(authUser.id, { avatar_url: publicUrl });
+        await userService.updateProfile(authUser.id, { avatar_url: publicUrl });
         
         setDisplayUser(prev => prev ? { ...prev, avatar_url: publicUrl } : null);
         await refreshUser(); // Refresh user data in context to update avatar in header
@@ -351,34 +353,66 @@ export default function ProfilePageClient() {
 
               <div className="flex-shrink-0 mt-4 sm:mt-0 flex gap-2">
                   {isOwnProfile ? (
-                     <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+                     <Dialog>
                         <DialogTrigger asChild>
-                            <Button variant="outline">
-                                <Edit className="mr-2 h-4 w-4" /> Edit Profile
+                           <Button variant="outline">
+                                <Edit className="mr-2 h-4 w-4" /> Editar Perfil
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                                <DialogTitle>{t('profile.edit.title')}</DialogTitle>
-                                <DialogDescription>{t('profile.edit.description')}</DialogDescription>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="grid w-full max-w-sm items-center gap-1.5">
-                                    <Label htmlFor="picture">Change Picture</Label>
-                                    <Input id="picture" type="file" accept="image/*" onChange={onSelectFile} />
-                                </div>
-                                {imageFile && (
-                                    <div className='text-sm text-muted-foreground'>
-                                        Selected: {imageFile.name}
+                        <DialogContent className="sm:max-w-md">
+                           <DialogHeader>
+                            <DialogTitle>Opciones de Edición</DialogTitle>
+                            <DialogDescription>
+                               Selecciona qué parte de tu perfil deseas editar.
+                            </DialogDescription>
+                           </DialogHeader>
+                           <div className="grid gap-4 py-4">
+                             <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline">
+                                        <Camera className="mr-2" /> Editar Foto de Perfil
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>Cambiar Foto</DialogTitle>
+                                    </DialogHeader>
+                                    <div className="grid gap-4 py-4">
+                                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                                            <Label htmlFor="picture">Nueva foto de perfil</Label>
+                                            <Input id="picture" type="file" accept="image/*" onChange={onSelectFile} />
+                                        </div>
+                                        {imageFile && <div className='text-sm text-muted-foreground'>Seleccionado: {imageFile.name}</div>}
                                     </div>
-                                )}
-                            </div>
-                            <DialogFooter>
-                                <Button onClick={handleAvatarUpload} disabled={isUploading || !imageFile}>
-                                    {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                                    Upload & Save
-                                </Button>
-                            </DialogFooter>
+                                    <DialogFooter>
+                                        <Button onClick={handleAvatarUpload} disabled={isUploading || !imageFile}>
+                                            {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                                            Subir y Guardar
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                             </Dialog>
+                             <Dialog open={isEditInfoModalOpen} onOpenChange={setIsEditInfoModalOpen}>
+                                 <DialogTrigger asChild>
+                                    <Button variant="outline">
+                                         <UserCog className="mr-2" /> Editar Información Personal
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-3xl">
+                                    <DialogHeader>
+                                        <DialogTitle>Completar Información de Vendedor</DialogTitle>
+                                        <DialogDescription>Esta información es necesaria para poder listar propiedades en VENDRA.</DialogDescription>
+                                    </DialogHeader>
+                                     <SellerOnboardingForm 
+                                        user={displayUser} 
+                                        onFormSubmit={() => {
+                                            setIsEditInfoModalOpen(false);
+                                            fetchProfileData(); // Refetch profile data to show updates
+                                        }}
+                                     />
+                                </DialogContent>
+                             </Dialog>
+                           </div>
                         </DialogContent>
                      </Dialog>
                   ) : (

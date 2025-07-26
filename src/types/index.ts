@@ -34,6 +34,15 @@ export type UserProfile = {
   email?: string | null;
   subscription_status?: 'active' | 'inactive';
   is_seller: boolean;
+  // Seller Onboarding Info
+  national_id?: string | null;
+  birth_date?: string | null; // Storing as ISO string (YYYY-MM-DD)
+  nationality?: string | null;
+  phone_number?: string | null;
+  full_address?: string | null;
+  id_front_url?: string | null;
+  id_back_url?: string | null;
+  is_profile_complete?: boolean;
 };
 
 export interface Message {

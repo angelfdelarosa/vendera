@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Trash2, Upload, Star } from "lucide-react";
+import { Loader2, Trash2, Upload, Star, UserCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usePropertyStore } from "@/hooks/usePropertyStore";
 import type { Property } from "@/types";
@@ -32,6 +32,7 @@ import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { SubscriptionModal } from "@/components/layout/SubscriptionModal";
 import { userService } from "@/lib/user.service";
+import { SellerOnboardingForm } from "@/components/users/SellerOnboardingForm";
 
 const MAX_IMAGES = 5;
 
@@ -288,6 +289,27 @@ export default function NewPropertyPage() {
               </div>
           </>
       );
+  }
+
+  if (!user.profile?.is_profile_complete) {
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <Card className="max-w-3xl mx-auto">
+          <CardHeader>
+            <div className="mx-auto bg-primary/10 p-3 rounded-full mb-4 w-fit">
+              <UserCheck className="h-8 w-8 text-primary" />
+            </div>
+            <CardTitle className="text-center font-headline text-2xl">Completa tu Perfil de Vendedor</CardTitle>
+            <CardDescription className="text-center">
+              Necesitamos algunos detalles más antes de que puedas empezar a listar propiedades. Tu información se mantiene segura y solo se utiliza para fines de verificación.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SellerOnboardingForm user={user.profile} onFormSubmit={refreshUser} />
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
