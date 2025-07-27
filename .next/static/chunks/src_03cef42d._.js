@@ -683,29 +683,18 @@ const AuthProvider = ({ children })=>{
     };
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "AuthProvider.useEffect": ()=>{
-            const setupUserSession = {
-                "AuthProvider.useEffect.setupUserSession": async (sessionUser)=>{
-                    setLoading(true);
-                    if (sessionUser) {
-                        const profile = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$user$2e$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["userService"].getProfile(sessionUser.id);
+            const { data: { subscription } } = supabase.auth.onAuthStateChange({
+                "AuthProvider.useEffect": async (_event, session)=>{
+                    if (session?.user) {
+                        const profile = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$user$2e$service$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["userService"].getProfile(session.user.id);
                         setUser({
-                            ...sessionUser,
+                            ...session.user,
                             profile: profile || undefined
                         });
                     } else {
                         setUser(null);
                     }
                     setLoading(false);
-                }
-            }["AuthProvider.useEffect.setupUserSession"];
-            supabase.auth.getSession().then({
-                "AuthProvider.useEffect": ({ data: { session } })=>{
-                    setupUserSession(session?.user ?? null);
-                }
-            }["AuthProvider.useEffect"]);
-            const { data: { subscription } } = supabase.auth.onAuthStateChange({
-                "AuthProvider.useEffect": (_event, session)=>{
-                    setupUserSession(session?.user ?? null);
                 }
             }["AuthProvider.useEffect"]);
             return ({
@@ -757,7 +746,7 @@ const AuthProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/context/AuthContext.tsx",
-        lineNumber: 98,
+        lineNumber: 89,
         columnNumber: 5
     }, this);
 };

@@ -36,24 +36,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   
   useEffect(() => {
-    const setupUserSession = async (sessionUser: User | null) => {
-        setLoading(true);
-        if (sessionUser) {
-            const profile = await userService.getProfile(sessionUser.id);
-            setUser({ ...sessionUser, profile: profile || undefined });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (session?.user) {
+            const profile = await userService.getProfile(session.user.id);
+            setUser({ ...session.user, profile: profile || undefined });
         } else {
             setUser(null);
         }
         setLoading(false);
-    };
-    
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setupUserSession(session?.user ?? null);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setupUserSession(session?.user ?? null);
       }
     );
 
