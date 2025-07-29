@@ -38,7 +38,7 @@ function SearchComponent() {
       if (category === 'all' || category === 'properties') {
         const { data, error } = await supabase
           .from('properties')
-          .select('*, realtor:realtor_id(user_id, full_name, avatar_url, username)')
+          .select('*, realtor:realtor_id(id, full_name, avatar_url, username)')
           .or(`title.ilike.${searchQuery},location.ilike.${searchQuery},address.ilike.${searchQuery},description.ilike.${searchQuery}`);
 
         if (data) {

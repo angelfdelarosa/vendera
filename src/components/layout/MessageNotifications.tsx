@@ -62,7 +62,7 @@ export function MessageNotifications() {
                 onClick={() => handleNotificationClick(convo.id)}
               >
                 <Link
-                  href={`/profile/${convo.otherUser.user_id}`}
+                  href={`/profile/${convo.otherUser.id}`}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Avatar className="hover:ring-2 hover:ring-primary transition-all">
@@ -75,7 +75,7 @@ export function MessageNotifications() {
                 <div className="flex-grow overflow-hidden">
                   <div className="flex justify-between items-center">
                     <Link
-                      href={`/profile/${convo.otherUser.user_id}`}
+                      href={`/profile/${convo.otherUser.id}`}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <p className="font-semibold text-sm hover:underline">

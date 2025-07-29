@@ -20,6 +20,7 @@ import type { UserProfile } from '@/types';
 import { useAuth } from '@/context/AuthContext';
 import Image from 'next/image';
 import { ScrollArea } from '../ui/scroll-area';
+import { compressImage, validateImageFile, formatFileSize } from '@/lib/image-utils';
 
 interface SellerOnboardingFormProps {
   user: UserProfile;
@@ -37,7 +38,7 @@ const formSchema = z.object({
 
 export function SellerOnboardingForm({ user, onFormSubmit }: SellerOnboardingFormProps) {
   const { toast } = useToast();
-  const { refreshUser } = useAuth();
+  const { updateUserProfile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [idFrontFile, setIdFrontFile] = useState<File | null>(null);
   const [idBackFile, setIdBackFile] = useState<File | null>(null);
@@ -56,15 +57,54 @@ export function SellerOnboardingForm({ user, onFormSubmit }: SellerOnboardingFor
     },
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'front' | 'back') => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'front' | 'back') => {
     if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      if (type === 'front') {
-        setIdFrontFile(file);
-        setIdFrontPreview(URL.createObjectURL(file));
-      } else {
-        setIdBackFile(file);
-        setIdBackPreview(URL.createObjectURL(file));
+      const originalFile = e.target.files[0];
+      
+      // Validate the file
+      const validation = validateImageFile(originalFile, 10);
+      if (!validation.isValid) {
+        toast({
+          title: 'Archivo inválido',
+          description: validation.error,
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      try {
+        // Show loading state
+        toast({
+          title: 'Procesando imagen...',
+          description: `Comprimiendo ${originalFile.name} (${formatFileSize(originalFile.size)})`,
+        });
+
+        // Compress the image if it's larger than 2MB
+        let processedFile = originalFile;
+        if (originalFile.size > 2 * 1024 * 1024) {
+          processedFile = await compressImage(originalFile, 1200, 1200, 0.8);
+          console.log(`Image compressed: ${formatFileSize(originalFile.size)} → ${formatFileSize(processedFile.size)}`);
+        }
+
+        if (type === 'front') {
+          setIdFrontFile(processedFile);
+          setIdFrontPreview(URL.createObjectURL(processedFile));
+        } else {
+          setIdBackFile(processedFile);
+          setIdBackPreview(URL.createObjectURL(processedFile));
+        }
+
+        toast({
+          title: 'Imagen cargada',
+          description: `${processedFile.name} (${formatFileSize(processedFile.size)}) lista para subir.`,
+        });
+      } catch (error) {
+        console.error('Error processing image:', error);
+        toast({
+          title: 'Error al procesar imagen',
+          description: 'No se pudo procesar la imagen. Por favor, intenta con otra.',
+          variant: 'destructive'
+        });
       }
     }
   };
@@ -77,14 +117,22 @@ export function SellerOnboardingForm({ user, onFormSubmit }: SellerOnboardingFor
 
     setIsSubmitting(true);
     try {
+        console.log('🚀 Starting form submission...');
         let idFrontUrl = user.id_front_url;
         let idBackUrl = user.id_back_url;
 
+        // Upload identity documents if new files are provided
         if (idFrontFile) {
-            idFrontUrl = await userService.uploadIdentityDocument(user.user_id, idFrontFile);
+            console.log('📤 Uploading front ID document...');
+            toast({ title: 'Subiendo documentos...', description: 'Subiendo documento frontal...' });
+            idFrontUrl = await userService.uploadIdentityDocument(user.id, idFrontFile);
+            console.log('✅ Front ID uploaded successfully:', idFrontUrl);
         }
         if (idBackFile) {
-            idBackUrl = await userService.uploadIdentityDocument(user.user_id, idBackFile);
+            console.log('📤 Uploading back ID document...');
+            toast({ title: 'Subiendo documentos...', description: 'Subiendo documento trasero...' });
+            idBackUrl = await userService.uploadIdentityDocument(user.id, idBackFile);
+            console.log('✅ Back ID uploaded successfully:', idBackUrl);
         }
 
         const profileUpdates: Partial<UserProfile> = {
@@ -95,15 +143,36 @@ export function SellerOnboardingForm({ user, onFormSubmit }: SellerOnboardingFor
             is_profile_complete: true,
         };
 
-        await userService.updateProfile(user.user_id, profileUpdates);
+        console.log('💾 Updating profile with:', profileUpdates);
+        toast({ title: 'Actualizando perfil...', description: 'Guardando información del perfil...' });
+        await userService.updateProfile(user.id, profileUpdates);
+        console.log('✅ Profile updated successfully');
+        
+        console.log('🔄 Updating user data in context...');
+        
+        // Update the user profile in context directly with the data we know was saved
+        updateUserProfile(profileUpdates);
+        console.log('✅ User data updated in context');
         
         toast({ title: 'Perfil actualizado', description: 'Tu información de vendedor ha sido guardada.' });
-        await refreshUser(); // Refresh user in context
-        onFormSubmit(); // Callback to close modal or refresh parent
+        console.log('✅ Form submission completed successfully');
+        
+        // Call onFormSubmit after a short delay to ensure state updates
+        setTimeout(() => {
+          onFormSubmit(); // Callback to close modal or refresh parent
+        }, 100);
     } catch (error: any) {
-        toast({ title: 'Error al actualizar', description: error.message, variant: 'destructive'});
+        console.error('❌ Form submission error:', error);
+        const errorMessage = error?.message || 'Ha ocurrido un error inesperado. Por favor, intenta de nuevo.';
+        toast({ 
+            title: 'Error al actualizar', 
+            description: errorMessage, 
+            variant: 'destructive'
+        });
     } finally {
+        console.log('🏁 Finally block executed - Setting isSubmitting to false');
         setIsSubmitting(false);
+        console.log('🏁 isSubmitting set to false');
     }
   };
 

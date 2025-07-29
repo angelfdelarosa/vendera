@@ -141,27 +141,25 @@ export default function NewPropertyPage() {
     try {
         let imageUrls: string[] = [];
         if (imageFiles.length > 0) {
-            const uploadPromises = imageFiles.map(async (file) => {
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}.${fileExt}`;
-                const filePath = `${user.id}/${fileName}`;
+            console.log('📸 Uploading property images...');
+            const uploadPromises = imageFiles.map(async (file, index) => {
+                const formData = new FormData();
+                formData.append('file', file);
 
-                const { error: uploadError } = await supabase.storage
-                .from('property_images')
-                .upload(filePath, file);
+                // Use the same uploadFile action we use for other files
+                const { uploadFile } = await import('@/app/actions');
+                const result = await uploadFile('property_images', `${user.id}_${Date.now()}_${index}`, formData);
 
-                if (uploadError) {
-                    throw uploadError;
+                if ('error' in result) {
+                    throw new Error(result.error);
                 }
                 
-                const { data: { publicUrl } } = supabase.storage
-                .from('property_images')
-                .getPublicUrl(filePath);
-
-                return publicUrl;
+                console.log('✅ Property image uploaded:', result.publicUrl);
+                return result.publicUrl;
             });
 
             imageUrls = await Promise.all(uploadPromises);
+            console.log('✅ All property images uploaded successfully');
         }
 
         const features = formData.features.split(",").map((f) => f.trim()).filter(Boolean);
@@ -194,27 +192,9 @@ export default function NewPropertyPage() {
             throw error;
         }
 
-        // Set user as seller if they aren't already
-        if (!user.profile?.is_seller) {
-            await userService.updateProfile(user.id, { is_seller: true });
-            await refreshUser(); // This will refresh the user in AuthContext
-        }
-
-        const { data: profile } = await supabase.from('profiles').select('full_name, avatar_url, username, is_seller').eq('user_id', user.id).single();
-
-        if (!profile) {
-             throw new Error("Could not find realtor data after listing property.");
-        }
-
+        // Add the property to the local state (the database insert already happened above)
         const newProperty: Property = {
-            ...(data as unknown as Property),
-            realtor: {
-                 user_id: user.id,
-                 full_name: profile.full_name || 'Anonymous',
-                 avatar_url: profile.avatar_url || 'https://placehold.co/100x100.png',
-                 username: profile.username || '',
-                 is_seller: profile.is_seller || false,
-            }
+            ...(data as unknown as Property)
         }
 
         addProperty(newProperty);
@@ -305,7 +285,10 @@ export default function NewPropertyPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <SellerOnboardingForm user={user.profile} onFormSubmit={refreshUser} />
+            <SellerOnboardingForm user={user.profile} onFormSubmit={() => {
+              console.log('✅ Seller onboarding completed, profile should be updated in context');
+              // No need to refresh user since updateUserProfile was already called
+            }} />
           </CardContent>
         </Card>
       </div>

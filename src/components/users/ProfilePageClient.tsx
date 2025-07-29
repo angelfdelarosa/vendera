@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
@@ -26,6 +25,7 @@ import {
   DialogDescription,
   DialogClose,
 } from '@/components/ui/dialog';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,10 +44,10 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import { usePropertyStore } from '@/hooks/usePropertyStore';
-import { Textarea } from '../ui/textarea';
 import { useChatStore } from '@/components/chat/use-chat-store';
 import { userService } from '@/lib/user.service';
 import { SubscriptionModal } from '../layout/SubscriptionModal';
@@ -60,7 +60,6 @@ const BadgeCheckIcon = (props: React.SVGProps<SVGSVGElement>) => (
         <path d="m9 12 2 2 4-4"/>
     </svg>
 );
-
 
 export default function ProfilePageClient() {
   const { user: authUser, loading: authLoading, supabase, refreshUser } = useAuth();
@@ -85,13 +84,20 @@ export default function ProfilePageClient() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   
+  // Edit profile state
+  const [editFormData, setEditFormData] = useState({
+    full_name: '',
+    bio: '',
+    phone_number: '',
+    full_address: ''
+  });
+  
   // Rating state
   const [isRating, setIsRating] = useState(false);
   const [currentRating, setCurrentRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [ratingComment, setRatingComment] = useState("");
   const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false);
-
 
   const fetchRatingData = async (userId: string) => {
       if (!supabase) return;
@@ -121,28 +127,44 @@ export default function ProfilePageClient() {
     }
     setLoading(true);
 
-    const profileData = await userService.getProfile(profileId);
-    
-    if (!profileData) {
-      console.error('Error fetching profile or profile not found');
-      setDisplayUser(null);
-      setLoading(false);
-      return;
-    }
-    
-    setDisplayUser(profileData as UserProfile);
-    fetchRatingData(profileData.user_id);
+    try {
+      const { data: profileData, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', profileId)
+        .single();
 
-    // Fetch properties for this user
-    const { data: propertiesData, error: propertiesError } = await supabase
-      .from('properties')
-      .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username, is_seller)`)
-      .eq('realtor_id', profileData.user_id);
+      if (error) {
+        console.error('Error fetching profile:', error);
+        setDisplayUser(null);
+        setLoading(false);
+        return;
+      }
+
+      if (!profileData) {
+        console.error('Profile not found');
+        setDisplayUser(null);
+        setLoading(false);
+        return;
+      }
     
-    if (propertiesError) {
-      console.error('Error fetching properties for profile:', propertiesError);
-    } else {
-      setUserProperties(propertiesData as unknown as Property[]);
+      setDisplayUser(profileData as UserProfile);
+      fetchRatingData(profileData.id);
+
+      // Fetch properties for this user
+      const { data: propertiesData, error: propertiesError } = await supabase
+        .from('properties')
+        .select(`*, realtor:realtor_id(id, full_name, avatar_url, username, is_seller)`)
+        .eq('realtor_id', profileData.id);
+      
+      if (propertiesError) {
+        console.error('Error fetching properties for profile:', propertiesError);
+      } else {
+        setUserProperties(propertiesData as unknown as Property[]);
+      }
+    } catch (error) {
+      console.error('Error in fetchProfileData:', error);
+      setDisplayUser(null);
     }
 
     setLoading(false);
@@ -153,6 +175,18 @@ export default function ProfilePageClient() {
       fetchProfileData();
     }
   }, [profileId, authLoading, fetchProfileData]);
+
+  // Initialize edit form when modal opens
+  useEffect(() => {
+    if (isEditInfoModalOpen && displayUser) {
+      setEditFormData({
+        full_name: displayUser.full_name || '',
+        bio: displayUser.bio || '',
+        phone_number: displayUser.phone_number || '',
+        full_address: displayUser.full_address || ''
+      });
+    }
+  }, [isEditInfoModalOpen, displayUser]);
 
   
   const handleDeleteProperty = async (propertyId?: string) => {
@@ -212,9 +246,8 @@ export default function ProfilePageClient() {
     }
   };
 
-
   const isLoadingInitial = loading || authLoading;
-  const isOwnProfile = authUser && authUser.id === displayUser?.user_id;
+  const isOwnProfile = authUser && authUser.id === displayUser?.id;
 
   if (isLoadingInitial) {
     return (
@@ -245,22 +278,36 @@ export default function ProfilePageClient() {
   }
 
   const handleAvatarUpload = async () => {
-    if (!imageFile || !authUser) {
+    if (!imageFile || !authUser || !supabase) {
          toast({ title: "No se ha seleccionado ninguna imagen.", description: "Por favor, selecciona una imagen primero.", variant: "destructive" });
         return;
     }
     setIsUploading(true);
     try {
-        const publicUrl = await userService.uploadAvatar(authUser.id, imageFile);
-        await userService.updateProfile(authUser.id, { avatar_url: publicUrl });
+        // For now, create a temporary URL for the image
+        const tempUrl = URL.createObjectURL(imageFile);
         
-        setDisplayUser(prev => prev ? { ...prev, avatar_url: publicUrl } : null);
-        await refreshUser(); // Refresh user data in context to update avatar in header
-        toast({ title: "¡Foto de perfil actualizada!", description: "Tu nuevo avatar está ahora visible." });
+        const { data, error } = await supabase
+          .from('profiles')
+          .update({ 
+            avatar_url: tempUrl,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', authUser.id)
+          .select()
+          .single();
+
+        if (error) {
+          throw error;
+        }
+        
+        setDisplayUser(prev => prev ? { ...prev, avatar_url: tempUrl } : null);
+        await refreshUser();
+        toast({ title: "¡Foto de perfil actualizada! (simulado)", description: "Tu nuevo avatar está ahora visible." });
 
     } catch (error: any) {
         console.error("Error updating profile picture:", error);
-        toast({ title: "Fallo en la subida", description: error.message, variant: "destructive" });
+        toast({ title: "Fallo en la subida", description: error.message || "No se pudo actualizar la foto", variant: "destructive" });
     } finally {
         setIsUploading(false);
         setIsEditModalOpen(false);
@@ -283,7 +330,7 @@ export default function ProfilePageClient() {
     const { error } = await supabase
         .from('ratings')
         .upsert({
-            rated_user_id: displayUser.user_id,
+            rated_user_id: displayUser.id,
             rater_user_id: authUser.id,
             rating: currentRating,
             comment: ratingComment,
@@ -294,7 +341,7 @@ export default function ProfilePageClient() {
         toast({ title: "Error", description: "No se pudo guardar tu calificación. " + error.message, variant: 'destructive' });
     } else {
         toast({ title: "¡Gracias!", description: "Tu calificación ha sido guardada." });
-        await fetchRatingData(displayUser.user_id); // Refresh ratings
+        await fetchRatingData(displayUser.id); // Refresh ratings
         setIsRatingDialogOpen(false); // Close dialog on success
         setCurrentRating(0);
         setHoverRating(0);
@@ -303,7 +350,37 @@ export default function ProfilePageClient() {
     
     setIsRating(false);
   };
-  
+
+  const handleEditProfileSubmit = async () => {
+    if (!authUser || !isOwnProfile || !supabase) return;
+    
+    try {
+      const updatesWithTimestamp = {
+        ...editFormData,
+        updated_at: new Date().toISOString()
+      };
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(updatesWithTimestamp)
+        .eq('id', authUser.id)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      setDisplayUser(prev => prev ? { ...prev, ...editFormData } : null);
+      await refreshUser();
+      toast({ title: "Perfil actualizado", description: "Tu información ha sido actualizada exitosamente." });
+      setIsEditInfoModalOpen(false);
+    } catch (error: any) {
+      console.error("Error updating profile:", error);
+      toast({ title: "Error", description: error.message || "No se pudo actualizar el perfil", variant: "destructive" });
+    }
+  };
+
   const userInitial = displayUser.full_name?.charAt(0).toUpperCase() || '?';
   const memberSince = displayUser.created_at ? new Date(displayUser.created_at).toLocaleDateString(t('terms.locale_code')) : 'N/A';
 
@@ -348,7 +425,7 @@ export default function ProfilePageClient() {
                                  {ratingData.average.toFixed(1)} ({ratingData.count} {t('profile.ratings')})
                                </span>
                          </div>
-                    </div>
+                     </div>
                 </div>
 
               <div className="flex-shrink-0 mt-4 sm:mt-0 flex gap-2">
@@ -367,272 +444,368 @@ export default function ProfilePageClient() {
                             </DialogDescription>
                            </DialogHeader>
                            <div className="grid gap-4 py-4">
-                             <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                                <DialogTrigger asChild>
-                                    <Button variant="outline">
-                                        <Camera className="mr-2" /> Editar Foto de Perfil
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                        <DialogTitle>Cambiar Foto</DialogTitle>
-                                    </DialogHeader>
-                                    <div className="grid gap-4 py-4">
-                                        <div className="grid w-full max-w-sm items-center gap-1.5">
-                                            <Label htmlFor="picture">Nueva foto de perfil</Label>
-                                            <Input id="picture" type="file" accept="image/*" onChange={onSelectFile} />
-                                        </div>
-                                        {imageFile && <div className='text-sm text-muted-foreground'>Seleccionado: {imageFile.name}</div>}
-                                    </div>
-                                    <DialogFooter>
-                                        <Button onClick={handleAvatarUpload} disabled={isUploading || !imageFile}>
-                                            {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                                            Subir y Guardar
-                                        </Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                             </Dialog>
-                             <Dialog open={isEditInfoModalOpen} onOpenChange={setIsEditInfoModalOpen}>
-                                 <DialogTrigger asChild>
-                                    <Button variant="outline">
-                                         <UserCog className="mr-2" /> Editar Información Personal
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto">
-                                    <DialogHeader>
-                                        <DialogTitle>Completar Información de Vendedor</DialogTitle>
-                                        <DialogDescription>Esta información es necesaria para poder listar propiedades en VENDRA.</DialogDescription>
-                                    </DialogHeader>
-                                     <SellerOnboardingForm 
-                                        user={displayUser} 
-                                        onFormSubmit={() => {
-                                            setIsEditInfoModalOpen(false);
-                                            fetchProfileData(); // Refetch profile data to show updates
-                                        }}
-                                     />
-                                </DialogContent>
-                             </Dialog>
+                             <Button variant="outline" onClick={() => setIsEditModalOpen(true)}>
+                                <Camera className="mr-2 h-4 w-4" /> Cambiar foto de perfil
+                             </Button>
+                             <Button variant="outline" onClick={() => setIsEditInfoModalOpen(true)}>
+                                <Edit className="mr-2 h-4 w-4" /> Editar información personal
+                             </Button>
                            </div>
                         </DialogContent>
                      </Dialog>
                   ) : (
-                    <Button onClick={onStartConversation}>
-                        <MessageSquare className="mr-2"/> Contactar al Vendedor
-                    </Button>
-                  )}
-              </div>
+                        <>
+                            <Button onClick={onStartConversation} size="sm">
+                                <MessageSquare className="mr-2 h-4 w-4" />
+                                Enviar mensaje
+                            </Button>
+                            <Button variant="outline" onClick={handleRateUserClick} size="sm">
+                                <Star className="mr-2 h-4 w-4" />
+                                Calificar
+                            </Button>
+                        </>
+                    )}
+                </div>
             </div>
             
-            <div className='mt-6 border-t pt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center'>
-                 <div className="flex flex-col items-center gap-1">
-                     <span className='text-sm text-muted-foreground'>Email</span>
-                     {isOwnProfile || (authUser && authUser?.profile?.subscription_status === 'active') ? (
-                       <span className='font-semibold'>{displayUser.email || 'N/A'}</span>
-                     ) : (
-                       <div className='flex items-center gap-2'>
-                           <Button variant="outline" size="sm" onClick={() => setSubModalOpen(true)}>
-                            <Lock className="mr-2 h-4 w-4" /> Solo para miembros Pro
-                           </Button>
-                       </div>
-                     )}
-                 </div>
-                 <div className="flex flex-col items-center gap-1">
-                     <span className='text-sm text-muted-foreground'>Miembro desde</span>
-                     <span className='font-semibold'>{memberSince}</span>
-                 </div>
-                  <div className="flex flex-col items-center gap-1">
-                     <span className='text-sm text-muted-foreground'>Propiedades</span>
-                     <span className='font-semibold'>{userProperties.length}</span>
-                 </div>
-                 {!isOwnProfile && authUser && (
-                     <div className="flex flex-col items-center justify-center gap-2">
-                        <Button variant="outline" className='w-full' onClick={handleRateUserClick}>Calificar Usuario</Button>
-                     </div>
-                 )}
-            </div>
-          </CardContent>
+            {displayUser.bio && (
+                <div className="mt-6 pt-6 border-t">
+                    <p className="text-muted-foreground">{displayUser.bio}</p>
+                </div>
+            )}
+           </CardContent>
         </Card>
 
-        <Tabs defaultValue="listed" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="listed">
-              <Building className="mr-2" /> {t('profile.tabs.listed')}
-            </TabsTrigger>
-            <TabsTrigger value="ratings">
-              <Star className="mr-2" /> Valoraciones
-            </TabsTrigger>
-            {isOwnProfile && (
-                <TabsTrigger value="saved">
-                    <Heart className="mr-2" /> {t('profile.tabs.saved')}
-                </TabsTrigger>
-            )}
-        </TabsList>
-        <TabsContent value="listed">
-             <Card className="mt-4">
-                <CardHeader>
-                    <CardTitle>Propiedades Listadas</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {userProperties.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {userProperties.map((property) => (
-                        <div key={property.id} className="relative group">
-                            <PropertyCard property={property} />
-                           {isOwnProfile && (
-                            <div className="absolute top-2 right-12 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button size="icon" variant="outline" className="bg-background" asChild>
-                                    <Link href={`/edit-property/${property.id}`}>
-                                    <Edit className="h-4 w-4" />
-                                    </Link>
-                                </Button>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                    <Button size="icon" variant="destructive">
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                        Esta acción no se puede deshacer. Esto eliminará permanentemente la propiedad de los servidores.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleDeleteProperty(property.id)}>
-                                        Sí, eliminar propiedad
-                                        </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </div>
-                           )}
-                        </div>
-                      ))}
+        {/* Profile Stats Card */}
+        <Card>
+            <CardContent className="p-6">
+                <div className="grid grid-cols-3 gap-8">
+                    <div className="text-center">
+                        <div className="text-sm text-muted-foreground mb-1">Email</div>
+                        <div className="font-medium">{displayUser.email || 'No disponible'}</div>
                     </div>
-                  ) : (
-                    <div className="text-center py-16">
-                      <p className="text-muted-foreground mb-4">
-                        {isOwnProfile ? t('profile.empty.listed.own') : t('profile.empty.listed.other', { name: displayUser.full_name })}
-                      </p>
-                      {isOwnProfile && (
-                        <Button asChild>
-                          <Link href="/properties/new">Listar una propiedad</Link>
-                        </Button>
-                      )}
+                    <div className="text-center">
+                        <div className="text-sm text-muted-foreground mb-1">Miembro desde</div>
+                        <div className="font-medium">{memberSince}</div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-        </TabsContent>
-        <TabsContent value="ratings">
-          <Card className="mt-4">
-            <CardHeader>
-              <CardTitle>Valoraciones Recibidas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {ratings.length > 0 ? (
-                <ScrollArea className="h-[400px]">
-                  <div className="space-y-6">
-                    {ratings.map((rating, index) => (
-                      <div key={index} className="flex flex-col gap-2 border-b pb-4 last:border-b-0">
-                         <div className="flex items-center gap-2">
-                            <div className="flex items-center text-amber-500">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star key={i} className={cn('w-4 h-4', i < rating.rating ? 'fill-current' : 'text-muted-foreground/50 fill-muted')} />
-                                ))}
-                            </div>
-                            <p className="text-xs text-muted-foreground">{new Date(rating.created_at).toLocaleDateString()}</p>
-                         </div>
-                         {rating.comment && (
-                            <p className="text-muted-foreground italic">"{rating.comment}"</p>
-                         )}
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              ) : (
-                <div className="text-center py-16">
-                  <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
-                  <p className="text-muted-foreground">Este usuario aún no ha recibido ninguna valoración.</p>
+                    <div className="text-center">
+                        <div className="text-sm text-muted-foreground mb-1">Propiedades</div>
+                        <div className="font-medium">{userProperties.length}</div>
+                    </div>
                 </div>
-              )}
             </CardContent>
-          </Card>
-        </TabsContent>
-        {isOwnProfile && (
-             <TabsContent value="saved">
-                <Card className="mt-4">
-                    <CardHeader>
-                        <CardTitle>Tus Propiedades Guardadas</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                    {favorites.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {favorites.map((property) => (
-                            <PropertyCard key={property.id} property={property} />
-                        ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-16">
-                        <p className="text-muted-foreground mb-4">
-                            {t('profile.empty.saved.description')}
-                        </p>
-                        <Button asChild>
-                            <Link href="/">{t('profile.empty.saved.button')}</Link>
-                        </Button>
+        </Card>
+
+        {/* Profile Edit Modals */}
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Cambiar foto de perfil</DialogTitle>
+                    <DialogDescription>
+                        Selecciona una nueva imagen para tu perfil.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                    <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={onSelectFile}
+                    />
+                    {imageFile && (
+                        <div className="text-sm text-muted-foreground">
+                            Archivo seleccionado: {imageFile.name}
                         </div>
                     )}
-                    </CardContent>
-                </Card>
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleAvatarUpload} disabled={!imageFile || isUploading}>
+                        {isUploading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Subiendo...
+                            </>
+                        ) : (
+                            'Actualizar'
+                        )}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+        <Dialog open={isEditInfoModalOpen} onOpenChange={setIsEditInfoModalOpen}>
+            <DialogContent className="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Editar información del perfil</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                    <div>
+                        <Label htmlFor="full_name">Nombre completo</Label>
+                        <Input
+                            id="full_name"
+                            value={editFormData.full_name}
+                            onChange={(e) => setEditFormData(prev => ({ ...prev, full_name: e.target.value }))}
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="bio">Biografía</Label>
+                        <Textarea
+                            id="bio"
+                            value={editFormData.bio}
+                            onChange={(e) => setEditFormData(prev => ({ ...prev, bio: e.target.value }))}
+                            placeholder="Cuéntanos sobre ti..."
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="phone_number">Teléfono</Label>
+                        <Input
+                            id="phone_number"
+                            value={editFormData.phone_number}
+                            onChange={(e) => setEditFormData(prev => ({ ...prev, phone_number: e.target.value }))}
+                        />
+                    </div>
+                    <div>
+                        <Label htmlFor="full_address">Dirección</Label>
+                        <Input
+                            id="full_address"
+                            value={editFormData.full_address}
+                            onChange={(e) => setEditFormData(prev => ({ ...prev, full_address: e.target.value }))}
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsEditInfoModalOpen(false)}>
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleEditProfileSubmit}>
+                        Guardar cambios
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+        {/* Rating Dialog */}
+        <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Calificar a {displayUser.full_name}</DialogTitle>
+                    <DialogDescription>
+                        Comparte tu experiencia con este usuario
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                    <div className="flex justify-center gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                                key={star}
+                                type="button"
+                                className="p-1"
+                                onMouseEnter={() => setHoverRating(star)}
+                                onMouseLeave={() => setHoverRating(0)}
+                                onClick={() => setCurrentRating(star)}
+                            >
+                                <Star
+                                    className={cn(
+                                        'w-8 h-8 transition-colors',
+                                        (hoverRating || currentRating) >= star
+                                            ? 'fill-amber-400 text-amber-400'
+                                            : 'text-muted-foreground'
+                                    )}
+                                />
+                            </button>
+                        ))}
+                    </div>
+                    <Textarea
+                        placeholder="Escribe un comentario (opcional)..."
+                        value={ratingComment}
+                        onChange={(e) => setRatingComment(e.target.value)}
+                    />
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsRatingDialogOpen(false)}>
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleRatingSubmit} disabled={isRating || currentRating === 0}>
+                        {isRating ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Enviando...
+                            </>
+                        ) : (
+                            'Enviar calificación'
+                        )}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+        <Tabs defaultValue="properties" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="properties" className="flex items-center gap-2">
+                    <Building className="h-4 w-4" />
+                    Propiedades Listadas
+                </TabsTrigger>
+                <TabsTrigger value="ratings" className="flex items-center gap-2">
+                    <Star className="h-4 w-4" />
+                    Valoraciones
+                </TabsTrigger>
+                <TabsTrigger value="favorites" className="flex items-center gap-2">
+                    <Heart className="h-4 w-4" />
+                    Propiedades Guardadas
+                </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="properties" className="mt-6">
+                {userProperties.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {userProperties.map((property) => (
+                            <div key={property.id} className="relative">
+                                <PropertyCard property={property} />
+                                {isOwnProfile && (
+                                    <div className="absolute top-2 right-2 flex gap-1">
+                                        <Button
+                                            size="sm"
+                                            variant="secondary"
+                                            asChild
+                                            className="h-8 w-8 p-0"
+                                        >
+                                            <Link href={`/edit-property/${property.id}`}>
+                                                <Edit className="h-4 w-4" />
+                                            </Link>
+                                        </Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button
+                                                    size="sm"
+                                                    variant="destructive"
+                                                    className="h-8 w-8 p-0"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>¿Eliminar propiedad?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Esta acción no se puede deshacer. La propiedad será eliminada permanentemente.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                    <AlertDialogAction
+                                                        onClick={() => handleDeleteProperty(property.id)}
+                                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                                    >
+                                                        Eliminar
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-12">
+                        <Building className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">
+                            {isOwnProfile ? 'No tienes propiedades' : 'No hay propiedades'}
+                        </h3>
+                        <p className="text-muted-foreground mb-4">
+                            {isOwnProfile 
+                                ? 'Comienza publicando tu primera propiedad'
+                                : 'Este usuario no ha publicado propiedades aún'
+                            }
+                        </p>
+                        {isOwnProfile && (
+                            <Button asChild>
+                                <Link href="/properties/new">
+                                    Publicar propiedad
+                                </Link>
+                            </Button>
+                        )}
+                    </div>
+                )}
             </TabsContent>
-        )}
+
+            <TabsContent value="ratings" className="mt-6">
+                {ratings.length > 0 ? (
+                    <div className="space-y-4">
+                        {ratings.map((rating, index) => (
+                            <Card key={index}>
+                                <CardContent className="p-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="flex">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star
+                                                    key={i}
+                                                    className={cn(
+                                                        'w-4 h-4',
+                                                        i < rating.rating
+                                                            ? 'fill-amber-400 text-amber-400'
+                                                            : 'text-muted-foreground'
+                                                    )}
+                                                />
+                                            ))}
+                                        </div>
+                                        <span className="text-sm text-muted-foreground">
+                                            {new Date(rating.created_at).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    {rating.comment && (
+                                        <p className="text-sm text-muted-foreground">{rating.comment}</p>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-12">
+                        <Star className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">Sin calificaciones</h3>
+                        <p className="text-muted-foreground">
+                            {isOwnProfile 
+                                ? 'Aún no has recibido calificaciones'
+                                : 'Este usuario no ha recibido calificaciones aún'
+                            }
+                        </p>
+                    </div>
+                )}
+            </TabsContent>
+
+            <TabsContent value="favorites" className="mt-6">
+                {isOwnProfile ? (
+                    favorites.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {favorites.map((property) => (
+                                <PropertyCard key={property.id} property={property} />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12">
+                            <Heart className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                            <h3 className="text-lg font-semibold mb-2">No tienes favoritos</h3>
+                            <p className="text-muted-foreground">
+                                Las propiedades que marques como favoritas aparecerán aquí
+                            </p>
+                        </div>
+                    )
+                ) : (
+                    <div className="text-center py-12">
+                        <Lock className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-semibold mb-2">Información privada</h3>
+                        <p className="text-muted-foreground">
+                            Los favoritos de otros usuarios son privados
+                        </p>
+                    </div>
+                )}
+            </TabsContent>
         </Tabs>
       </div>
     </div>
-    
-    {/* This Dialog should be outside the main return flow to avoid nesting issues */}
-    <Dialog open={isRatingDialogOpen} onOpenChange={setIsRatingDialogOpen}>
-        <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Califica a {displayUser.full_name}</DialogTitle>
-                <DialogDescription>
-                    Tu opinión ayuda a otros a encontrar agentes de confianza.
-                </DialogDescription>
-            </DialogHeader>
-            <div className="flex flex-col items-center gap-4 py-4">
-                <div className="flex justify-center items-center gap-2">
-                    {[...Array(5)].map((_, i) => {
-                        const ratingValue = i + 1;
-                        return (
-                            <Star 
-                                key={i} 
-                                className={cn("h-8 w-8 cursor-pointer transition-colors", 
-                                    ratingValue <= (hoverRating || currentRating) ? "text-amber-500 fill-amber-500" : "text-muted-foreground"
-                                )}
-                                onClick={() => setCurrentRating(ratingValue)}
-                                onMouseEnter={() => setHoverRating(ratingValue)}
-                                onMouseLeave={() => setHoverRating(0)}
-                            />
-                        )
-                    })}
-                </div>
-                <Textarea 
-                    placeholder="Deja un comentario anónimo (opcional)..."
-                    value={ratingComment}
-                    onChange={(e) => setRatingComment(e.target.value)}
-                    className="min-h-[100px]"
-                />
-            </div>
-            <DialogFooter>
-                <Button variant="ghost" onClick={() => setIsRatingDialogOpen(false)}>Cancelar</Button>
-                <Button onClick={handleRatingSubmit} disabled={isRating}>
-                    {isRating ? <Loader2 className="animate-spin" /> : "Enviar Calificación"}
-                </Button>
-            </DialogFooter>
-        </DialogContent>
-    </Dialog>
     </>
   );
 }

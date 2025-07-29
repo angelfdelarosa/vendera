@@ -7,6 +7,7 @@ interface ChatState {
   conversations: Conversation[];
   selectedConversation: Conversation | null;
   loading: boolean;
+  isFetching: boolean;
   setLoading: (loading: boolean) => void;
   selectConversation: (conversationId: string | null) => void;
   setConversations: (conversations: Conversation[]) => void;
@@ -23,14 +24,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
   conversations: [],
   selectedConversation: null,
   loading: true,
+  isFetching: false,
   setLoading: (loading) => set({ loading }),
-  setConversations: (conversations) => set({ 
+  setConversations: (conversations) => {
+    const currentSelected = get().selectedConversation;
+    set({ 
       conversations, 
-      selectedConversation: get().selectedConversation 
-        ? conversations.find(c => c.id === get().selectedConversation?.id) || null 
+      selectedConversation: currentSelected 
+        ? conversations.find(c => c.id === currentSelected.id) || null 
         : null, 
       loading: false 
-  }),
+    });
+  },
   selectConversation: (conversationId) => {
     if (!conversationId) {
       set({ selectedConversation: null });
@@ -42,43 +47,60 @@ export const useChatStore = create<ChatState>((set, get) => ({
     // Note: Read status should be updated in the backend when messages are fetched/viewed.
   },
   updateConversation: (conversationId, updatedData) => {
-    set((state) => ({
-      conversations: state.conversations.map((c) =>
+    set((state) => {
+      const updatedConversations = state.conversations.map((c) =>
         c.id === conversationId ? { ...c, ...updatedData } : c
-      ),
-    }));
+      );
+      const updatedSelectedConversation = state.selectedConversation?.id === conversationId
+        ? { ...state.selectedConversation, ...updatedData }
+        : state.selectedConversation;
+      
+      return {
+        conversations: updatedConversations,
+        selectedConversation: updatedSelectedConversation,
+      };
+    });
   },
   fetchConversations: async (userId, supabase) => {
     if (!userId || !supabase) return;
-    set({ loading: true });
+    
+    // Prevent concurrent fetches
+    if (get().isFetching) return;
+    
+    set({ loading: true, isFetching: true });
 
-    const { data: convos, error: convosError } = await supabase
-      .from('conversations')
-      .select('*, buyer:profiles!buyer_id(*), seller:profiles!seller_id(*)')
-      .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
+    try {
+      const { data: convos, error: convosError } = await supabase
+        .from('conversations')
+        .select('*, buyer:profiles!buyer_id(*), seller:profiles!seller_id(*)')
+        .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
 
-    if (convosError) {
-      console.error("Error fetching conversations:", convosError);
-      set({ conversations: [], loading: false });
-      return;
-    }
+      if (convosError) {
+        console.error("Error fetching conversations:", convosError);
+        set({ conversations: [], loading: false, isFetching: false });
+        return;
+      }
 
-    if (convos) {
-       const transformedConversations = (convos as unknown as ConversationFromDB[]).map(c => {
-        const otherUser = c.buyer_id === userId ? c.seller! : c.buyer!;
-        return {
-            ...c,
-            lastMessage: "No messages yet.", 
-            otherUser,
-        } as Conversation;
-      });
-      set({ conversations: transformedConversations, loading: false });
-    } else {
-      set({ conversations: [], loading: false });
+      if (convos) {
+         const transformedConversations = (convos as unknown as ConversationFromDB[]).map(c => {
+          const otherUser = c.buyer_id === userId ? c.seller! : c.buyer!;
+          return {
+              ...c,
+              lastMessage: "No messages yet.", 
+              otherUser,
+          } as Conversation;
+        });
+        set({ conversations: transformedConversations, loading: false, isFetching: false });
+      } else {
+        set({ conversations: [], loading: false, isFetching: false });
+      }
+    } catch (error) {
+      console.error("Unexpected error fetching conversations:", error);
+      set({ conversations: [], loading: false, isFetching: false });
     }
   },
   handleStartConversation: async (otherUser, authUser, supabase) => {
-    if (!authUser || authUser.id === otherUser.user_id) {
+    if (!authUser || authUser.id === otherUser.id) {
       console.log("Cannot start conversation with yourself.");
       return null;
     }
@@ -94,7 +116,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const { data: existing, error: existingError } = await supabase
       .from('conversations')
       .select('id')
-      .or(`and(buyer_id.eq.${authUser.id},seller_id.eq.${otherUser.user_id}),and(buyer_id.eq.${otherUser.user_id},seller_id.eq.${authUser.id})`)
+      .or(`and(buyer_id.eq.${authUser.id},seller_id.eq.${otherUser.id}),and(buyer_id.eq.${otherUser.id},seller_id.eq.${authUser.id})`)
       .maybeSingle();
 
     if (existingError) {
@@ -112,7 +134,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       .from('conversations')
       .insert({
         buyer_id: authUser.id,
-        seller_id: otherUser.user_id,
+        seller_id: otherUser.id,
       })
       .select(`
         *,
@@ -128,7 +150,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     
     const newConvo: Conversation = {
       ...(newConversationData as ConversationFromDB),
-      otherUser: newConversationData.seller!, 
+      otherUser: newConversationData.seller!, // Since authUser is always the buyer in this function
       lastMessage: "No messages yet.",
     };
 

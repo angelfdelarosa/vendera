@@ -27,13 +27,16 @@ function HomePage() {
       if (propertiesError) {
         console.error("Error fetching properties:", propertiesError);
         setIsLoading(false);
+        setProperties([]);
         return;
       }
       if (!propertiesData) {
         setProperties([]);
+        setIsLoading(false);
         return;
       }
       setProperties(propertiesData as unknown as Property[]);
+      setIsLoading(false);
     };
     
     // Fetch only if properties aren't in the store yet.

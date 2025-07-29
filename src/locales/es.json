@@ -222,6 +222,11 @@
   "languageSwitcher": {
     "label": "Cambiar idioma"
   },
+  "no_properties": "No se encontraron propiedades",
+  "no_favorites": "Aún no hay favoritos",
+  "no_ratings": "Aún no hay valoraciones",
+  "user_not_found": "Usuario no encontrado",
+  "send_message": "Enviar Mensaje",
   "about": {
     "title": "Reimaginando los Bienes Raíces",
     "subtitle": "Somos un equipo apasionado dedicado a crear una experiencia inmobiliaria transparente, eficiente y agradable para todos.",

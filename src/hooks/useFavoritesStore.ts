@@ -25,8 +25,8 @@ export const useFavoritesStore = create<FavoritesState>()(
         }
         set(state => ({ favorites: [...state.favorites, property] }));
         toast({
-          title: "Añadido a Favoritos",
-          description: `"${property.title}" ha sido guardado.`,
+          title: "Added to Favorites",
+          description: `"${property.title}" has been saved.`,
         });
       },
       removeFavorite: (propertyId) => {
@@ -38,8 +38,8 @@ export const useFavoritesStore = create<FavoritesState>()(
           favorites: state.favorites.filter((p) => p.id !== propertyId),
         }));
         toast({
-          title: "Eliminado de Favoritos",
-          description: `"${property.title}" ha sido eliminado.`,
+          title: "Removed from Favorites",
+          description: `"${property.title}" has been removed.`,
         });
       },
       isFavorite: (propertyId) => {

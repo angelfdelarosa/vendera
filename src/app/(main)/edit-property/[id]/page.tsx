@@ -8,7 +8,7 @@ async function getPropertyForEdit(id: string): Promise<Property | null> {
     const supabase = createClient();
     const { data, error } = await supabase
         .from('properties')
-        .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username)`)
+        .select(`*, realtor:realtor_id(id, full_name, avatar_url, username)`)
         .eq('id', id)
         .single();
 

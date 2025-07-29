@@ -222,6 +222,11 @@
   "languageSwitcher": {
     "label": "Change language"
   },
+  "no_properties": "No properties found",
+  "no_favorites": "No favorites yet",
+  "no_ratings": "No ratings yet",
+  "user_not_found": "User not found",
+  "send_message": "Send Message",
   "about": {
     "title": "Reimagining Real Estate",
     "subtitle": "We are a passionate team dedicated to creating a transparent, efficient, and enjoyable real estate experience for everyone.",

@@ -46,22 +46,20 @@ export default function PropertyDetailPage() {
     const findProperty = async () => {
       if (!id || !supabase) return;
       
-      const fromStore = properties.find(p => p.id === id);
-      if (fromStore) {
-        setProperty(fromStore);
-        return;
-      }
+      // Always fetch from database to ensure we have complete data including realtor info
+      console.log('🔍 Fetching property details from database...');
       
       const { data, error } = await supabase
         .from('properties')
-        .select(`*, realtor:realtor_id(user_id, full_name, avatar_url, username)`)
+        .select(`*, realtor:realtor_id(id, full_name, avatar_url, username)`)
         .eq('id', id)
         .single();
       
       if (error || !data) {
-        console.error('Error fetching property:', error);
+        console.error('❌ Error fetching property:', error);
         setProperty(null); // Property not found
       } else {
+        console.log('✅ Property fetched successfully:', data);
         setProperty(data as unknown as Property);
       }
     };
@@ -78,7 +76,10 @@ export default function PropertyDetailPage() {
       setSubModalOpen(true);
       return;
     }
-    if (!property) return;
+    if (!property || !property.realtor) {
+      toast({ title: 'Error', description: 'No se pudo obtener la información del vendedor.', variant: 'destructive' });
+      return;
+    }
     
     const conversationId = await handleStartConversation(property.realtor, user, supabase);
     if (conversationId) {
@@ -163,43 +164,45 @@ export default function PropertyDetailPage() {
             </CardContent>
           </Card>
           
-           <Card>
-              <CardHeader>
-                <CardTitle className="font-headline text-xl">
-                  {t('property.realtorInfo')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Link href={`/profile/${property.realtor.user_id}`}>
-                  <div className="flex items-center gap-4 hover:bg-muted p-2 rounded-lg transition-colors">
-                    <Avatar className="h-16 w-16">
-                      <AvatarImage
-                        src={property.realtor.avatar_url || undefined}
-                        alt={property.realtor.full_name || ''}
-                        data-ai-hint="person face"
-                        className="object-cover"
-                      />
-                      <AvatarFallback>
-                        {property.realtor.full_name?.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-grow">
-                        <p className="font-semibold text-lg hover:underline">
-                          {property.realtor.full_name}
+           {property.realtor && (
+             <Card>
+                <CardHeader>
+                  <CardTitle className="font-headline text-xl">
+                    {t('property.realtorInfo')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Link href={`/profile/${property.realtor.id}`}>
+                    <div className="flex items-center gap-4 hover:bg-muted p-2 rounded-lg transition-colors">
+                      <Avatar className="h-16 w-16">
+                        <AvatarImage
+                          src={property.realtor.avatar_url || undefined}
+                          alt={property.realtor.full_name || ''}
+                          data-ai-hint="person face"
+                          className="object-cover"
+                        />
+                        <AvatarFallback>
+                          {property.realtor.full_name?.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-grow">
+                          <p className="font-semibold text-lg hover:underline">
+                            {property.realtor.full_name}
+                          </p>
+                        <p className="text-sm text-muted-foreground">
+                          {t('property.certifiedRealtor')}
                         </p>
-                      <p className="text-sm text-muted-foreground">
-                        {t('property.certifiedRealtor')}
-                      </p>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-                 <Button asChild className="w-full">
-                    <Link href={`/profile/${property.realtor.user_id}`}>
-                      <User className="mr-2"/> Ver Perfil del Vendedor
-                    </Link>
-                </Button>
-              </CardContent>
-           </Card>
+                  </Link>
+                   <Button asChild className="w-full">
+                      <Link href={`/profile/${property.realtor.id}`}>
+                        <User className="mr-2"/> Ver Perfil del Vendedor
+                      </Link>
+                  </Button>
+                </CardContent>
+             </Card>
+           )}
         </div>
       </div>
       

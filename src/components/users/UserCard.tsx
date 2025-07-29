@@ -42,7 +42,7 @@ export function UserCard({ user }: UserCardProps) {
             </div>
         )}
         <Button asChild className="w-full mt-6">
-          <Link href={`/profile/${user.user_id}`}>
+          <Link href={`/profile/${user.id}`}>
             {t('userCard.viewProfile')} <ArrowRight className="ml-2" />
           </Link>
         </Button>
