@@ -16,6 +16,7 @@ interface AuthContextType {
   signup: (name: string, email: string, pass: string) => Promise<{ error: AuthError | null }>;
   supabase: SupabaseClient;
   refreshUser: () => Promise<void>;
+  updateUserProfile: (profileUpdates: Partial<UserProfile>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,12 +27,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const refreshUser = async () => {
-    const { data: { user: authData } } = await supabase.auth.getUser();
-    if (authData) {
-        const profile = await userService.getProfile(authData.id);
-        setUser({ ...authData, profile: profile || undefined });
-    } else {
+    try {
+      console.log('🔄 RefreshUser: Starting user refresh...');
+      const { data: { user: authData }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error('❌ RefreshUser: Auth error:', authError);
+        throw authError;
+      }
+      
+      if (authData) {
+        console.log('👤 RefreshUser: Auth user found, fetching profile...');
+        
+        try {
+          // Use enhanced retry logic with timeout
+          const profilePromise = userService.getProfile(authData.id, 2); // 2 retries for refresh
+          const timeoutPromise = new Promise<null>((_, reject) => 
+            setTimeout(() => reject(new Error('RefreshUser profile fetch timeout')), 8000)
+          );
+          
+          const profile = await Promise.race([profilePromise, timeoutPromise]);
+          console.log('📋 RefreshUser: Profile fetched:', profile);
+          setUser({ ...authData, profile: profile || undefined });
+          console.log('✅ RefreshUser: User updated in context');
+        } catch (profileError) {
+          console.error('❌ RefreshUser: Profile fetch failed:', profileError);
+          // Set user without profile to allow app to continue
+          setUser({ ...authData, profile: undefined });
+        }
+      } else {
+        console.log('❌ RefreshUser: No auth user found');
         setUser(null);
+      }
+    } catch (error) {
+      console.error('❌ RefreshUser: Error during refresh:', error);
+      throw error;
+    }
+  };
+
+  const updateUserProfile = (profileUpdates: Partial<UserProfile>) => {
+    console.log('🔄 UpdateUserProfile: Updating user profile in context...');
+    if (user && user.profile) {
+      const updatedProfile = { ...user.profile, ...profileUpdates };
+      setUser({ ...user, profile: updatedProfile });
+      console.log('✅ UpdateUserProfile: Profile updated in context');
     }
   };
   
@@ -39,10 +78,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         if (session?.user) {
-            const profile = await userService.getProfile(session.user.id);
+          try {
+            console.log('🔄 AuthContext: Auth state changed, fetching profile...');
+            
+            // Add timeout to prevent hanging - increased to 10 seconds to account for retry logic
+            const profilePromise = userService.getProfile(session.user.id);
+            const timeoutPromise = new Promise<null>((_, reject) => 
+              setTimeout(() => reject(new Error('Auth profile fetch timeout - this may indicate a database connection issue')), 10000)
+            );
+            
+            const profile = await Promise.race([profilePromise, timeoutPromise]);
             setUser({ ...session.user, profile: profile || undefined });
+            console.log('✅ AuthContext: Profile fetched and user updated');
+          } catch (error) {
+            console.error('❌ AuthContext: Error fetching profile on auth change:', error);
+            
+            // Test database connection to provide better error context
+            const connectionOk = await userService.testConnection();
+            if (!connectionOk) {
+              console.error('❌ AuthContext: Database connection test failed - this may be a network or database issue');
+            }
+            
+            // Set user without profile if fetch fails - this allows the app to continue working
+            setUser({ ...session.user, profile: undefined });
+            
+            // Try to fetch profile in background after a delay
+            setTimeout(async () => {
+              try {
+                console.log('🔄 AuthContext: Attempting background profile fetch...');
+                const profile = await userService.getProfile(session.user.id, 2); // Fewer retries for background fetch
+                if (profile) {
+                  setUser(prevUser => prevUser ? { ...prevUser, profile } : null);
+                  console.log('✅ AuthContext: Background profile fetch successful');
+                }
+              } catch (bgError) {
+                console.error('❌ AuthContext: Background profile fetch failed:', bgError);
+              }
+            }, 3000); // Increased delay for background fetch
+          }
         } else {
-            setUser(null);
+          setUser(null);
         }
         setLoading(false);
       }
@@ -82,7 +157,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     logout, 
     signup,
     supabase,
-    refreshUser
+    refreshUser,
+    updateUserProfile
   };
 
   return (
