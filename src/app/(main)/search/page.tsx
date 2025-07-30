@@ -108,7 +108,7 @@ function SearchComponent() {
               <h2 className="text-2xl font-semibold mb-4 text-primary border-b pb-2">Vendedores</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {results.users.map((user) => (
-                  <UserCard key={user.user_id} user={user} />
+                  <UserCard key={user.id} user={user} />
                 ))}
               </div>
             </section>

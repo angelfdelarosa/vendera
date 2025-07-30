@@ -63,10 +63,12 @@ class UserService {
             avatar_url: updates.avatar_url
           }
         });
+
         if (authError) {
           console.error('❌ Auth update error:', authError);
           throw authError;
         }
+
         console.log('✅ Auth user metadata updated');
       }
       

@@ -120,7 +120,7 @@ export default function PropertyDetailPage() {
             <CardContent className="p-0">
               <Carousel className="w-full">
                 <CarouselContent>
-                  {property.images.map((src, index) => (
+                  {property.images?.map((src, index) => (
                     <CarouselItem key={index}>
                       <Image
                         src={src}
@@ -225,7 +225,7 @@ export default function PropertyDetailPage() {
           <div className="bg-secondary/50 p-4 rounded-lg">
               <Ruler className="mx-auto mb-2 h-8 w-8 text-primary" />
               <p className="font-semibold">
-              {property.area.toLocaleString()} m²
+              {property.area?.toLocaleString() || 0} m²
               </p>
           </div>
           <div className="bg-secondary/50 p-4 rounded-lg">
@@ -242,7 +242,7 @@ export default function PropertyDetailPage() {
                       {t('property.description')}
                   </h3>
                   <p className="text-muted-foreground leading-relaxed">
-                      {t(property.description)}
+                      {t(property.description || '')}
                   </p>
               </div>
               <div>
@@ -250,7 +250,7 @@ export default function PropertyDetailPage() {
                       {t('property.features')}
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                      {property.features.map((feature, index) => (
+                      {property.features?.map((feature, index) => (
                       <Badge key={index} variant="outline">
                           {feature}
                       </Badge>

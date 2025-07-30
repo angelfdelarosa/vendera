@@ -1,82 +1,38 @@
 
 import type { Property, UserProfile, Conversation, Message } from "@/types";
 
-export const mockUsers: Record<string, UserProfile> = {
+// Tipo simplificado para usuarios mock (solo para landing page)
+type MockUser = {
+  id: string;
+  full_name: string;
+  username: string;
+  avatar_url: string;
+};
+
+export const mockUsers: Record<string, MockUser> = {
   'jane-doe-realtor': {
     id: "jane-doe-realtor",
     full_name: "Jane Doe",
     username: "jane.doe@test.com",
-    email: "jane.doe@test.com",
     avatar_url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop",
-    bio: null,
-    updated_at: null,
-    created_at: null,
-    subscription_status: null,
-    is_profile_complete: true,
-    national_id: null,
-    birth_date: null,
-    nationality: null,
-    phone_number: null,
-    full_address: null,
-    id_front_url: null,
-    id_back_url: null,
   },
   'john-smith': {
     id: "john-smith",
     full_name: "John Smith",
     username: "john.smith@test.com",
-    email: "john.smith@test.com",
     avatar_url: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=2574&auto=format&fit=crop",
-    bio: null,
-    updated_at: null,
-    created_at: null,
-    subscription_status: null,
-    is_profile_complete: true,
-    national_id: null,
-    birth_date: null,
-    nationality: null,
-    phone_number: null,
-    full_address: null,
-    id_front_url: null,
-    id_back_url: null,
   },
   'emily-white': {
     id: "emily-white",
     full_name: "Emily White",
     username: "emily.white@test.com",
-    email: "emily.white@test.com",
     avatar_url: "https://images.unsplash.com/photo-1690749170664-fe894475db98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhJTIwR2lybHxlbnwwfHx8fDE3NTMxMjI1NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    bio: null,
-    updated_at: null,
-    created_at: null,
-    subscription_status: null,
-    is_profile_complete: true,
-    national_id: null,
-    birth_date: null,
-    nationality: null,
-    phone_number: null,
-    full_address: null,
-    id_front_url: null,
-    id_back_url: null,
   },
    'michael-brown': {
     id: "michael-brown",
     full_name: "Michael Brown",
     username: "michael.brown@test.com",
-    email: "michael.brown@test.com",
     avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2574&auto=format&fit=crop",
-    bio: null,
-    updated_at: null,
-    created_at: null,
-    subscription_status: null,
-    is_profile_complete: true,
-    national_id: null,
-    birth_date: null,
-    nationality: null,
-    phone_number: null,
-    full_address: null,
-    id_front_url: null,
-    id_back_url: null,
   }
 };
 
@@ -99,6 +55,12 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor_id: 'jane-doe-realtor',
+    realtor: {
+      id: 'jane-doe-realtor',
+      full_name: mockUsers['jane-doe-realtor'].full_name,
+      avatar_url: mockUsers['jane-doe-realtor'].avatar_url,
+      username: mockUsers['jane-doe-realtor'].username
+    },
     created_at: null
   },
   {
@@ -118,6 +80,12 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor_id: 'john-smith',
+    realtor: {
+      id: 'john-smith',
+      full_name: mockUsers['john-smith'].full_name,
+      avatar_url: mockUsers['john-smith'].avatar_url,
+      username: mockUsers['john-smith'].username
+    },
     created_at: null
   },
   {
@@ -138,6 +106,12 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor_id: 'emily-white',
+    realtor: {
+      id: 'emily-white',
+      full_name: mockUsers['emily-white'].full_name,
+      avatar_url: mockUsers['emily-white'].avatar_url,
+      username: mockUsers['emily-white'].username
+    },
     created_at: null
   },
   {
@@ -157,6 +131,12 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor_id: 'michael-brown',
+    realtor: {
+      id: 'michael-brown',
+      full_name: mockUsers['michael-brown'].full_name,
+      avatar_url: mockUsers['michael-brown'].avatar_url,
+      username: mockUsers['michael-brown'].username
+    },
     created_at: null
   },
   {
@@ -177,6 +157,12 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor_id: 'jane-doe-realtor',
+    realtor: {
+      id: 'jane-doe-realtor',
+      full_name: mockUsers['jane-doe-realtor'].full_name,
+      avatar_url: mockUsers['jane-doe-realtor'].avatar_url,
+      username: mockUsers['jane-doe-realtor'].username
+    },
     created_at: null
   },
   {
@@ -196,6 +182,12 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor_id: 'michael-brown',
+    realtor: {
+      id: 'michael-brown',
+      full_name: mockUsers['michael-brown'].full_name,
+      avatar_url: mockUsers['michael-brown'].avatar_url,
+      username: mockUsers['michael-brown'].username
+    },
     created_at: null
   },
   {
@@ -216,6 +208,12 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor_id: 'john-smith',
+    realtor: {
+      id: 'john-smith',
+      full_name: mockUsers['john-smith'].full_name,
+      avatar_url: mockUsers['john-smith'].avatar_url,
+      username: mockUsers['john-smith'].username
+    },
     created_at: null
   },
   {
@@ -235,51 +233,16 @@ export const properties: Property[] = [
       "https://placehold.co/600x400.png"
     ],
     realtor_id: 'emily-white',
+    realtor: {
+      id: 'emily-white',
+      full_name: mockUsers['emily-white'].full_name,
+      avatar_url: mockUsers['emily-white'].avatar_url,
+      username: mockUsers['emily-white'].username
+    },
     created_at: null
   }
 ];
 
-// Populate user properties
-Object.values(mockUsers).forEach(user => {
-  // user.properties = properties.filter(p => p.realtor_id === user.id);
-});
-
-
-export const mockConversations: Conversation[] = [
-  {
-    id: 'convo-1',
-    created_at: '2024-01-15T10:00:00Z',
-    buyer_id: 'current-user-id',
-    seller_id: 'jane-doe-realtor',
-    last_message_sender_id: null,
-    last_message_read: false,
-    buyer: undefined,
-    seller: mockUsers['jane-doe-realtor'],
-    otherUser: mockUsers['jane-doe-realtor'],
-    lastMessage: "No messages yet.",
-  },
-  {
-    id: 'convo-2',
-    created_at: '2024-01-14T09:00:00Z',
-    buyer_id: 'current-user-id',
-    seller_id: 'john-smith',
-    last_message_sender_id: 'john-smith',
-    last_message_read: false,
-    buyer: undefined,
-    seller: mockUsers['john-smith'],
-    otherUser: mockUsers['john-smith'],
-    lastMessage: "Sí, el edificio admite mascotas.",
-  },
-  {
-    id: 'convo-3',
-    created_at: '2024-01-16T14:00:00Z',
-    buyer_id: 'current-user-id',
-    seller_id: 'emily-white',
-    last_message_sender_id: null,
-    last_message_read: false,
-    buyer: undefined,
-    seller: mockUsers['emily-white'],
-    otherUser: mockUsers['emily-white'],
-    lastMessage: "No messages yet.",
-  },
-];
+// Las conversaciones mock no son necesarias para el landing page
+// Los usuarios reales usarán la funcionalidad real de chat con la base de datos
+export const mockConversations: Conversation[] = [];

@@ -1,4 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 /**
  * Creates a Supabase client for server-side operations, using the service_role key.
@@ -16,5 +18,38 @@ export const createAdminClient = () => {
   }
 
   // This client is for server-side use only, with admin privileges.
-  return createClient(supabaseUrl, supabaseServiceRoleKey);
+  return createSupabaseClient(supabaseUrl, supabaseServiceRoleKey);
+};
+
+/**
+ * Creates a Supabase client for server-side operations with user context.
+ * This client respects Row Level Security and uses the user's session.
+ *
+ * @returns A Supabase client instance with user context.
+ */
+export const createClient = async () => {
+  const cookieStore = await cookies();
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+      },
+    }
+  );
 };

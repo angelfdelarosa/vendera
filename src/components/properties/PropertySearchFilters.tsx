@@ -81,8 +81,8 @@ export function PropertySearchFilters({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t('search.allLocations')}</SelectItem>
-                {locations.map((loc) => (
-                  <SelectItem key={loc} value={loc}>
+                {locations.filter(loc => loc !== null).map((loc) => (
+                  <SelectItem key={loc} value={loc!}>
                     {loc}
                   </SelectItem>
                 ))}

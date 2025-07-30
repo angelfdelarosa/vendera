@@ -5,7 +5,7 @@ import type { Property } from '@/types';
 import { notFound } from 'next/navigation';
 
 async function getPropertyForEdit(id: string): Promise<Property | null> {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
         .from('properties')
         .select(`*, realtor:realtor_id(id, full_name, avatar_url, username)`)
@@ -20,9 +20,13 @@ async function getPropertyForEdit(id: string): Promise<Property | null> {
     return data as unknown as Property;
 }
 
+interface PageProps {
+    params: Promise<{ id: string }>;
+}
 
-export default async function EditPropertyPage({ params }: { params: { id: string } }) {
-    const property = await getPropertyForEdit(params.id);
+export default async function EditPropertyPage({ params }: PageProps) {
+    const { id } = await params;
+    const property = await getPropertyForEdit(id);
 
     if (!property) {
         notFound();

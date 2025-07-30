@@ -9,9 +9,15 @@ import { ArrowRight, Star } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
 
+// Tipo que permite tanto UserProfile completo como datos básicos para mock
+type UserCardUser = UserProfile | {
+  id: string;
+  full_name: string;
+  avatar_url: string;
+};
 
 interface UserCardProps {
-  user: UserProfile;
+  user: UserCardUser;
 }
 
 export function UserCard({ user }: UserCardProps) {

@@ -39,6 +39,8 @@ export interface Property {
   images: string[] | null;
   is_active?: boolean;
   created_at: string | null;
+  // Optional realtor information (populated when joined)
+  realtor?: Pick<UserProfile, 'id' | 'full_name' | 'avatar_url' | 'username'> | null;
 }
 
 // Combined type for a property including the realtor's profile info

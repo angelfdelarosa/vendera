@@ -90,8 +90,8 @@ export default function NewPropertyPage() {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleCurrencyChange = (value: Property['currency']) => {
-    setFormData(prev => ({...prev, currency: value}));
+  const handleCurrencyChange = (value: string) => {
+    setFormData(prev => ({...prev, currency: value as 'USD' | 'DOP'}));
   }
   
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -332,7 +332,7 @@ export default function NewPropertyPage() {
                     />
                     <Select
                         value={formData.currency}
-                        onValueChange={(value: Property['currency']) => handleCurrencyChange(value)}
+                        onValueChange={handleCurrencyChange}
                     >
                         <SelectTrigger className="w-[100px]">
                             <SelectValue />
@@ -366,7 +366,7 @@ export default function NewPropertyPage() {
               <Label htmlFor="property-type">{t('search.propertyType')}</Label>
               <Select
                 onValueChange={(value) => handleSelectChange('propertyType', value)}
-                value={formData.propertyType}
+                value={formData.propertyType || undefined}
               >
                 <SelectTrigger id="property-type">
                   <SelectValue placeholder={t('newProperty.form.type_placeholder')} />

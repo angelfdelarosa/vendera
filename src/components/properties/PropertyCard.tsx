@@ -31,7 +31,7 @@ const PropertyCardContent = ({ property }: { property: Property }) => {
                     <p className="font-bold text-lg">{priceDisplay}</p>
                 </div>
                 <Image
-                src={property.images[0]}
+                src={property.images?.[0] || '/placeholder-property.jpg'}
                 alt={t(property.title)}
                 width={400}
                 height={250}
@@ -61,7 +61,7 @@ const PropertyCardContent = ({ property }: { property: Property }) => {
                     </div>
                     <div className="flex items-center gap-1">
                         <Ruler className="w-4 h-4" />
-                        <span>{property.area.toLocaleString()} {t('property.sqft')}</span>
+                        <span>{property.area?.toLocaleString() || 0} {t('property.sqft')}</span>
                     </div>
                 </div>
             </CardFooter>

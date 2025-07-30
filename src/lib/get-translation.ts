@@ -15,8 +15,8 @@ function getNestedTranslation(obj: any, key: string): string | undefined {
   return key.split('.').reduce((o, i) => (o ? o[i] : undefined), obj)
 }
 
-export const getTranslations = () => {
-  const cookieStore = cookies()
+export const getTranslations = async () => {
+  const cookieStore = await cookies()
   const locale = (cookieStore.get('locale')?.value || 'es') as Locale
   const dictionary = translations[locale]
 

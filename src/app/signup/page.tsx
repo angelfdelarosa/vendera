@@ -180,7 +180,7 @@ export default function SignupPage() {
       </div>
        <div className="hidden bg-muted lg:block">
         <Image
-          src="https://qmbzgazhkhiymbwngzox.supabase.co/storage/v1/object/public/logo//login_image.png"
+          src="https://qlbuwoyugbwpzzwdflsq.supabase.co/storage/v1/object/public/logo//bailey-anselme-Bkp3gLygyeA-unsplash.jpg"
           alt="Image"
           width="1920"
           height="1080"

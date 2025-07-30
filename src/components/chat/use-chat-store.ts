@@ -14,7 +14,7 @@ interface ChatState {
   updateConversation: (conversationId: string, updatedData: Partial<Conversation>) => void;
   fetchConversations: (userId: string, supabase: SupabaseClient) => Promise<void>;
   handleStartConversation: (
-    otherUser: UserProfile,
+    otherUser: Pick<UserProfile, 'id' | 'full_name' | 'avatar_url' | 'username'>,
     authUser: User & { profile?: UserProfile },
     supabase: SupabaseClient
   ) => Promise<string | null>;

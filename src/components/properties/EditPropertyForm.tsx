@@ -49,18 +49,18 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
   const [formData, setFormData] = useState({
     title: property.title,
     price: property.price,
-    currency: property.currency || 'USD',
+    currency: (property.currency || 'USD') as 'USD' | 'DOP',
     location: property.location,
     address: property.address,
     propertyType: property.type,
     numBedrooms: property.bedrooms,
     numBathrooms: property.bathrooms,
     area: property.area,
-    features: property.features.join(', '),
+    features: property.features?.join(', ') || '',
     description: property.description,
   });
   
-  const [currentImageUrls, setCurrentImageUrls] = useState<string[]>(property.images);
+  const [currentImageUrls, setCurrentImageUrls] = useState<string[]>(property.images || []);
   const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -109,8 +109,8 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
-   const handleCurrencyChange = (value: Property['currency']) => {
-    setFormData(prev => ({...prev, currency: value}));
+   const handleCurrencyChange = (value: string) => {
+    setFormData(prev => ({...prev, currency: value as 'USD' | 'DOP'}));
   }
   
    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -271,7 +271,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
                     />
                     <Select
                         value={formData.currency}
-                        onValueChange={(value: Property['currency']) => handleCurrencyChange(value)}
+                        onValueChange={handleCurrencyChange}
                     >
                         <SelectTrigger className="w-[100px]">
                             <SelectValue />
@@ -287,7 +287,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
               <Label htmlFor="location">{t('newProperty.form.location')}</Label>
               <Input
                 id="location"
-                value={formData.location}
+                value={formData.location || ''}
                 onChange={handleInputChange}
               />
             </div>
@@ -295,7 +295,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
               <Label htmlFor="address">{t('newProperty.form.address')}</Label>
               <Input
                 id="address"
-                value={formData.address}
+                value={formData.address || ''}
                 onChange={handleInputChange}
               />
             </div>
@@ -303,7 +303,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
               <Label htmlFor="property-type">{t('search.propertyType')}</Label>
               <Select
                 onValueChange={(value) => handleSelectChange('propertyType', value)}
-                value={formData.propertyType}
+                value={formData.propertyType || undefined}
               >
                 <SelectTrigger id="property-type">
                   <SelectValue placeholder={t('newProperty.form.type_placeholder')} />
@@ -323,7 +323,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
                 <Input
                   id="numBedrooms"
                   type="number"
-                  value={formData.numBedrooms}
+                  value={formData.numBedrooms || ''}
                   onChange={handleNumberInputChange}
                 />
               </div>
@@ -332,7 +332,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
                 <Input
                   id="numBathrooms"
                   type="number"
-                  value={formData.numBathrooms}
+                  value={formData.numBathrooms || ''}
                   onChange={handleNumberInputChange}
                 />
               </div>
@@ -342,7 +342,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
               <Input
                 id="area"
                 type="number"
-                value={formData.area}
+                value={formData.area || ''}
                 onChange={handleNumberInputChange}
               />
             </div>
@@ -360,7 +360,7 @@ export function EditPropertyForm({ property }: EditPropertyFormProps) {
               <Textarea
                 id="description"
                 className="min-h-[120px]"
-                value={formData.description}
+                value={formData.description || ''}
                 onChange={handleInputChange}
               />
             </div>
