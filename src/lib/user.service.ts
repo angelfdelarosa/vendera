@@ -255,12 +255,27 @@ class UserService {
   // Test database connection
   async testConnection(): Promise<boolean> {
     try {
-      const { data, error } = await supabase
+      console.log('🔍 Testing database connection...');
+      
+      // Use a simple query with timeout
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Connection test timeout')), 3000)
+      );
+      
+      const queryPromise = supabase
         .from('profiles')
         .select('id')
         .limit(1);
       
-      return !error;
+      const { error } = await Promise.race([queryPromise, timeoutPromise]);
+      
+      if (error) {
+        console.error('❌ Database connection test failed:', error);
+        return false;
+      }
+      
+      console.log('✅ Database connection test successful');
+      return true;
     } catch (error) {
       console.error('❌ Database connection test failed:', error);
       return false;

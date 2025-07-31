@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -24,22 +24,27 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Clock, AlertTriangle } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Logo } from '@/components/layout/Logo';
 import Image from 'next/image';
+import { useEffect, useState, Suspense } from 'react';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
   password: z.string().min(1, { message: 'Password is required.' }),
 });
 
-export default function LoginPage() {
+// Componente interno que usa useSearchParams
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation();
+  const [logoutReason, setLogoutReason] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -52,6 +57,23 @@ export default function LoginPage() {
   const {
     formState: { isSubmitting },
   } = form;
+
+  // Check for logout reason in URL params
+  useEffect(() => {
+    const reason = searchParams.get('reason');
+    if (reason) {
+      setLogoutReason(reason);
+      
+      // Show toast notification for auto-logout
+      if (reason === 'inactivity') {
+        toast({
+          title: 'Sesión Expirada',
+          description: 'Tu sesión ha expirado por inactividad. Por favor, inicia sesión nuevamente.',
+          variant: 'destructive',
+        });
+      }
+    }
+  }, [searchParams, toast]);
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     const { error } = await login(values.email, values.password);
@@ -81,6 +103,16 @@ export default function LoginPage() {
                     <Logo layout="vertical" />
                 </Link>
             </div>
+            {/* Show logout reason alert */}
+            {logoutReason === 'inactivity' && (
+              <Alert className="mb-4 border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive">
+                <Clock className="h-4 w-4" />
+                <AlertDescription>
+                  Tu sesión anterior expiró por inactividad (15 minutos sin actividad).
+                </AlertDescription>
+              </Alert>
+            )}
+            
             <Card className="border-none shadow-none">
                 <CardHeader>
                     <CardTitle className="text-3xl font-bold font-headline">{t('login.title')}</CardTitle>
@@ -151,5 +183,49 @@ export default function LoginPage() {
         />
       </div>
     </div>
+  );
+}
+
+// Componente principal con Suspense
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
+        <div className="flex items-center justify-center py-12">
+          <div className="mx-auto grid w-[350px] gap-6">
+            <div className="flex justify-center">
+              <Link href="/landing">
+                <Logo layout="vertical" />
+              </Link>
+            </div>
+            <Card className="border-none shadow-none">
+              <CardHeader>
+                <CardTitle className="text-3xl font-bold font-headline">Iniciar Sesión</CardTitle>
+                <CardDescription>
+                  Cargando...
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-center py-8">
+                  <Loader2 className="animate-spin h-8 w-8" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        <div className="hidden bg-muted lg:block">
+          <Image
+            src="https://qlbuwoyugbwpzzwdflsq.supabase.co/storage/v1/object/public/logo//login_image.png"
+            alt="Image"
+            width="1920"
+            height="1080"
+            className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+            data-ai-hint="modern kitchen"
+          />
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

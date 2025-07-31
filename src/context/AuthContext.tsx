@@ -75,55 +75,77 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   
   useEffect(() => {
+    let isMounted = true;
+    
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        if (!isMounted) return;
+        
         if (session?.user) {
           try {
             console.log('🔄 AuthContext: Auth state changed, fetching profile...');
             
-            // Add timeout to prevent hanging - increased to 10 seconds to account for retry logic
-            const profilePromise = userService.getProfile(session.user.id);
+            // First, set user without profile to allow app to work immediately
+            setUser({ ...session.user, profile: undefined });
+            setLoading(false);
+            
+            // Then try to fetch profile with shorter timeout for better UX
+            const profilePromise = userService.getProfile(session.user.id, 2); // Reduced retries
             const timeoutPromise = new Promise<null>((_, reject) => 
-              setTimeout(() => reject(new Error('Auth profile fetch timeout - this may indicate a database connection issue')), 10000)
+              setTimeout(() => reject(new Error('Auth profile fetch timeout - continuing without profile')), 5000) // Reduced timeout
             );
             
-            const profile = await Promise.race([profilePromise, timeoutPromise]);
-            setUser({ ...session.user, profile: profile || undefined });
-            console.log('✅ AuthContext: Profile fetched and user updated');
-          } catch (error) {
-            console.error('❌ AuthContext: Error fetching profile on auth change:', error);
-            
-            // Test database connection to provide better error context
-            const connectionOk = await userService.testConnection();
-            if (!connectionOk) {
-              console.error('❌ AuthContext: Database connection test failed - this may be a network or database issue');
-            }
-            
-            // Set user without profile if fetch fails - this allows the app to continue working
-            setUser({ ...session.user, profile: undefined });
-            
-            // Try to fetch profile in background after a delay
-            setTimeout(async () => {
-              try {
-                console.log('🔄 AuthContext: Attempting background profile fetch...');
-                const profile = await userService.getProfile(session.user.id, 2); // Fewer retries for background fetch
-                if (profile) {
-                  setUser(prevUser => prevUser ? { ...prevUser, profile } : null);
-                  console.log('✅ AuthContext: Background profile fetch successful');
-                }
-              } catch (bgError) {
-                console.error('❌ AuthContext: Background profile fetch failed:', bgError);
+            try {
+              const profile = await Promise.race([profilePromise, timeoutPromise]);
+              if (isMounted && profile) {
+                setUser({ ...session.user, profile });
+                console.log('✅ AuthContext: Profile fetched and user updated');
               }
-            }, 3000); // Increased delay for background fetch
+            } catch (profileError) {
+              console.warn('⚠️ AuthContext: Profile fetch failed, continuing without profile:', profileError);
+              
+              // Test connection in background for debugging
+              userService.testConnection().then(connectionOk => {
+                if (!connectionOk) {
+                  console.error('❌ AuthContext: Database connection test failed');
+                } else {
+                  console.log('✅ AuthContext: Database connection is OK, profile fetch issue may be temporary');
+                }
+              });
+              
+              // Try to fetch profile in background after a delay
+              setTimeout(async () => {
+                if (!isMounted) return;
+                try {
+                  console.log('🔄 AuthContext: Attempting background profile fetch...');
+                  const profile = await userService.getProfile(session.user.id, 1); // Single retry for background
+                  if (isMounted && profile) {
+                    setUser(prevUser => prevUser ? { ...prevUser, profile } : null);
+                    console.log('✅ AuthContext: Background profile fetch successful');
+                  }
+                } catch (bgError) {
+                  console.warn('⚠️ AuthContext: Background profile fetch failed:', bgError);
+                }
+              }, 5000);
+            }
+          } catch (error) {
+            console.error('❌ AuthContext: Unexpected error during auth state change:', error);
+            if (isMounted) {
+              setUser({ ...session.user, profile: undefined });
+              setLoading(false);
+            }
           }
         } else {
-          setUser(null);
+          if (isMounted) {
+            setUser(null);
+            setLoading(false);
+          }
         }
-        setLoading(false);
       }
     );
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, [supabase]);

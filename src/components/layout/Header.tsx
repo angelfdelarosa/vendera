@@ -12,6 +12,8 @@ import { GlobalSearch } from "../search/GlobalSearch";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useChatStore } from "@/components/chat/use-chat-store";
+import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function Header() {
   const { t } = useTranslation();
@@ -20,6 +22,7 @@ export function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -63,6 +66,8 @@ export function Header() {
         <Link href={logoHref}>
             <Logo layout="horizontal" />
         </Link>
+        
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium ml-10">
           <Link
             href="/"
@@ -87,14 +92,75 @@ export function Header() {
             </>
           )}
         </nav>
-        <div className="flex flex-1 items-center justify-center space-x-4 px-8">
+        
+        {/* Desktop Search */}
+        <div className="hidden md:flex flex-1 items-center justify-center space-x-4 px-8">
            { user && <GlobalSearch /> }
         </div>
-        <div className="flex items-center justify-end space-x-2">
+        
+        {/* Desktop Right Side */}
+        <div className="hidden md:flex items-center justify-end space-x-2">
           {user && <MessageNotifications />}
           <UserNav />
         </div>
+
+        {/* Mobile Right Side */}
+        <div className="flex md:hidden items-center justify-end space-x-2 ml-auto">
+          {user && <MessageNotifications />}
+          <UserNav />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2"
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+        </div>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="container px-4 py-4 space-y-4">
+            {/* Mobile Search */}
+            {user && (
+              <div className="pb-4 border-b">
+                <GlobalSearch />
+              </div>
+            )}
+            
+            {/* Mobile Navigation Links */}
+            <nav className="space-y-3">
+              <Link
+                href="/"
+                className="block py-2 text-sm font-medium transition-colors hover:text-accent text-foreground/60"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {t('header.properties')}
+              </Link>
+              {user && (
+                <>
+                  <Link
+                    href="/favorites"
+                    className="block py-2 text-sm font-medium transition-colors hover:text-accent text-foreground/60"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t('header.favorites')}
+                  </Link>
+                  <Link
+                    href="/properties/new"
+                    className="block py-2 text-sm font-medium transition-colors hover:text-accent text-foreground/60"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t('header.addProperty')}
+                  </Link>
+                </>
+              )}
+            </nav>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

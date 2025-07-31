@@ -50,18 +50,18 @@ const PropertyCardContent = ({ property }: { property: Property }) => {
                 </div>
             </CardContent>
             <CardFooter className="p-4 pt-0 mt-auto">
-                <div className="flex justify-between w-full text-sm text-muted-foreground border-t pt-4">
+                <div className="flex flex-wrap justify-between w-full text-xs sm:text-sm text-muted-foreground border-t pt-4 gap-2">
                     <div className="flex items-center gap-1">
-                        <BedDouble className="w-4 h-4" />
-                        <span>{property.bedrooms} {t('property.beds')}</span>
+                        <BedDouble className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="whitespace-nowrap">{property.bedrooms} {t('property.beds')}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <Bath className="w-4 h-4" />
-                        <span>{property.bathrooms} {t('property.baths')}</span>
+                        <Bath className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="whitespace-nowrap">{property.bathrooms} {t('property.baths')}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <Ruler className="w-4 h-4" />
-                        <span>{property.area?.toLocaleString() || 0} {t('property.sqft')}</span>
+                        <Ruler className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="whitespace-nowrap">{property.area?.toLocaleString() || 0} {t('property.sqft')}</span>
                     </div>
                 </div>
             </CardFooter>

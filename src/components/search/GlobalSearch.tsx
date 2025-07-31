@@ -20,12 +20,12 @@ export function GlobalSearch() {
   };
 
   return (
-    <div className="relative flex w-full max-w-lg items-center">
+    <div className="relative flex w-full max-w-sm md:max-w-lg items-center">
       <div className="relative w-full">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
         <Input
           placeholder={t('search.placeholder.properties')}
-          className="pl-10"
+          className="pl-8 md:pl-10 h-8 md:h-10 text-sm"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleSearch}

@@ -67,16 +67,16 @@ export function PropertySearchFilters({
 
   return (
     <Card className="max-w-5xl mx-auto shadow-lg">
-      <CardContent className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+      <CardContent className="p-4 sm:p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
           
-          <div className="lg:col-span-1">
-             <label htmlFor="location-select" className="text-sm font-medium text-muted-foreground flex items-center gap-1 mb-1">
-                <MapPin className="h-4 w-4" />
+          <div className="sm:col-span-1 lg:col-span-1">
+             <label htmlFor="location-select" className="text-xs sm:text-sm font-medium text-muted-foreground flex items-center gap-1 mb-1">
+                <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
                 {t('search.location')}
             </label>
             <Select value={location} onValueChange={setLocation}>
-              <SelectTrigger id="location-select" className="w-full">
+              <SelectTrigger id="location-select" className="w-full h-9 sm:h-10">
                 <SelectValue placeholder={t('search.location')} />
               </SelectTrigger>
               <SelectContent>
@@ -90,13 +90,13 @@ export function PropertySearchFilters({
             </Select>
           </div>
 
-          <div className="lg:col-span-1">
-            <label htmlFor="type-select" className="text-sm font-medium text-muted-foreground flex items-center gap-1 mb-1">
-                <Building className="h-4 w-4" />
+          <div className="sm:col-span-1 lg:col-span-1">
+            <label htmlFor="type-select" className="text-xs sm:text-sm font-medium text-muted-foreground flex items-center gap-1 mb-1">
+                <Building className="h-3 w-3 sm:h-4 sm:w-4" />
                 {t('search.propertyType')}
             </label>
             <Select value={type} onValueChange={setType}>
-              <SelectTrigger id="type-select" className="w-full">
+              <SelectTrigger id="type-select" className="w-full h-9 sm:h-10">
                 <SelectValue placeholder={t('search.propertyType')} />
               </SelectTrigger>
               <SelectContent>
@@ -110,11 +110,12 @@ export function PropertySearchFilters({
             </Select>
           </div>
 
-          <div className="lg:col-span-2 grid grid-cols-2 gap-2">
+          <div className="sm:col-span-2 lg:col-span-2 grid grid-cols-2 gap-2">
             <div>
-                 <label htmlFor="min-price" className="text-sm font-medium text-muted-foreground flex items-center gap-1 mb-1">
-                    <DollarSign className="h-4 w-4" />
-                    Precio Mín.
+                 <label htmlFor="min-price" className="text-xs sm:text-sm font-medium text-muted-foreground flex items-center gap-1 mb-1">
+                    <DollarSign className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">Precio Mín.</span>
+                    <span className="sm:hidden">Mín.</span>
                 </label>
                 <Input
                     id="min-price"
@@ -122,12 +123,14 @@ export function PropertySearchFilters({
                     placeholder="0"
                     value={minPrice}
                     onChange={(e) => setMinPrice(e.target.value)}
+                    className="h-9 sm:h-10"
                 />
             </div>
              <div>
-                 <label htmlFor="max-price" className="text-sm font-medium text-muted-foreground flex items-center gap-1 mb-1">
-                    <DollarSign className="h-4 w-4" />
-                    Precio Máx.
+                 <label htmlFor="max-price" className="text-xs sm:text-sm font-medium text-muted-foreground flex items-center gap-1 mb-1">
+                    <DollarSign className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">Precio Máx.</span>
+                    <span className="sm:hidden">Máx.</span>
                 </label>
                 <Input
                     id="max-price"
@@ -135,17 +138,19 @@ export function PropertySearchFilters({
                     placeholder="Cualquiera"
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(e.target.value)}
+                    className="h-9 sm:h-10"
                 />
             </div>
           </div>
           
-          <div className="lg:col-span-1 flex gap-2">
-            <Button onClick={handleSearch} className="w-full" size="lg">
-                <Search className="mr-2 h-4 w-4" />
-                {t('search.button')}
+          <div className="sm:col-span-2 lg:col-span-1 flex gap-2">
+            <Button onClick={handleSearch} className="flex-1 h-9 sm:h-10" size="sm">
+                <Search className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">{t('search.button')}</span>
+                <span className="sm:hidden">Buscar</span>
             </Button>
-             <Button onClick={handleClear} variant="ghost" size="icon" aria-label="Limpiar filtros">
-                <X className="h-4 w-4" />
+             <Button onClick={handleClear} variant="ghost" size="sm" className="h-9 sm:h-10 px-2 sm:px-3" aria-label="Limpiar filtros">
+                <X className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
         </div>

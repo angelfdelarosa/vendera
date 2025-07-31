@@ -70,12 +70,12 @@ function HomePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <section className="text-center bg-card shadow-lg rounded-xl p-8 md:p-12 mb-12">
-        <h1 className="font-headline text-4xl md:text-6xl font-bold text-primary mb-4">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <section className="text-center bg-card shadow-lg rounded-xl p-6 sm:p-8 md:p-12 mb-8 sm:mb-12">
+        <h1 className="font-headline text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4 leading-tight">
           {t('home.title')}
         </h1>
-        <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+        <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto">
           {t('home.subtitle')}
         </p>
         <PropertySearchFilters
@@ -85,18 +85,18 @@ function HomePage() {
       </section>
 
       <section>
-        <h2 className="font-headline text-3xl font-semibold mb-8 text-primary">
+        <h2 className="font-headline text-2xl sm:text-3xl font-semibold mb-6 sm:mb-8 text-primary">
           {t('home.featuredListings')}
         </h2>
         {filteredProperties.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
             {filteredProperties.map((property) => (
               <PropertyCard key={property.id} property={property} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 bg-card rounded-lg">
-             <p className="text-muted-foreground text-lg">{t('home.noProperties')}</p>
+          <div className="text-center py-12 sm:py-16 bg-card rounded-lg">
+             <p className="text-muted-foreground text-base sm:text-lg">{t('home.noProperties')}</p>
           </div>
         )}
       </section>
