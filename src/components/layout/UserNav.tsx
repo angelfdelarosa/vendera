@@ -39,17 +39,19 @@ export function UserNav() {
 
   if (!user) {
     return (
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" asChild>
+      <div className="flex items-center gap-1 md:gap-2">
+        <Button variant="ghost" size="sm" asChild className="text-xs md:text-sm px-2 md:px-4">
           <Link href="/login">
-            <LogIn className="mr-2 h-4 w-4" />
-            {t('login.title')}
+            <LogIn className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">{t('login.title')}</span>
+            <span className="sm:hidden">Entrar</span>
           </Link>
         </Button>
-        <Button asChild>
+        <Button size="sm" asChild className="text-xs md:text-sm px-2 md:px-4">
           <Link href="/signup">
-            <UserPlus className="mr-2 h-4 w-4" />
-            {t('signup.title')}
+            <UserPlus className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">{t('signup.title')}</span>
+            <span className="sm:hidden">Registro</span>
           </Link>
         </Button>
       </div>
