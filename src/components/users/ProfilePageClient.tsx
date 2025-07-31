@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
+import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 import { useRouter, useParams } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -84,6 +86,18 @@ export default function ProfilePageClient() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   
+  // Image crop states
+  const [imageSrc, setImageSrc] = useState<string>('');
+  const [crop, setCrop] = useState<Crop>({
+    unit: '%',
+    width: 90,
+    height: 90,
+    x: 5,
+    y: 5
+  });
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+  const imgRef = useRef<HTMLImageElement>(null);
+  
   // Edit profile state
   const [editFormData, setEditFormData] = useState({
     full_name: '',
@@ -98,6 +112,53 @@ export default function ProfilePageClient() {
   const [hoverRating, setHoverRating] = useState(0);
   const [ratingComment, setRatingComment] = useState("");
   const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false);
+
+  // Callbacks for image cropping
+  const getCroppedImg = useCallback((image: HTMLImageElement, crop: PixelCrop): Promise<Blob> => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      throw new Error('No 2d context');
+    }
+
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+
+    canvas.width = crop.width;
+    canvas.height = crop.height;
+
+    ctx.drawImage(
+      image,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
+      0,
+      0,
+      crop.width,
+      crop.height
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(blob);
+        }
+      }, 'image/jpeg', 0.95);
+    });
+  }, []);
+
+  const onImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+    const { width, height } = e.currentTarget;
+    setCrop({
+      unit: '%',
+      width: 90,
+      height: 90,
+      x: 5,
+      y: 5
+    });
+  }, []);
 
   const fetchRatingData = async (userId: string) => {
       if (!supabase) return;
@@ -273,19 +334,27 @@ export default function ProfilePageClient() {
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
-      setImageFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setImageFile(file);
+      
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        setImageSrc(reader.result?.toString() || '');
+      });
+      reader.readAsDataURL(file);
     }
   }
 
   const handleAvatarUpload = async () => {
-    if (!imageFile || !authUser || !supabase) {
-         toast({ title: "No se ha seleccionado ninguna imagen.", description: "Por favor, selecciona una imagen primero.", variant: "destructive" });
+    if (!imageFile || !authUser || !supabase || !completedCrop || !imgRef.current) {
+         toast({ title: "No se ha seleccionado ninguna imagen.", description: "Por favor, selecciona una imagen y ajusta el recorte.", variant: "destructive" });
         return;
     }
     setIsUploading(true);
     try {
-        // For now, create a temporary URL for the image
-        const tempUrl = URL.createObjectURL(imageFile);
+        // Get the cropped image as blob
+        const croppedImageBlob = await getCroppedImg(imgRef.current, completedCrop);
+        const tempUrl = URL.createObjectURL(croppedImageBlob);
         
         const { data, error } = await supabase
           .from('profiles')
@@ -312,6 +381,8 @@ export default function ProfilePageClient() {
         setIsUploading(false);
         setIsEditModalOpen(false);
         setImageFile(null);
+        setImageSrc('');
+        setCompletedCrop(undefined);
     }
   };
 
@@ -396,27 +467,27 @@ export default function ProfilePageClient() {
            <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row sm:justify-between items-center sm:items-start -mt-20">
                 <div className='flex flex-col sm:flex-row items-center gap-4'>
-                    <Avatar className="h-32 w-32 border-4 border-background bg-background">
-                      <AvatarImage
-                        src={displayUser.avatar_url || undefined}
-                        alt="User avatar"
-                        data-ai-hint="person face"
-                        className="object-cover"
-                      />
-                      <AvatarFallback>{userInitial}</AvatarFallback>
-                    </Avatar>
+                    <div className="relative">
+                        <Avatar className="h-32 w-32 border-4 border-background bg-background">
+                          <AvatarImage
+                            src={displayUser.avatar_url || undefined}
+                            alt="User avatar"
+                            data-ai-hint="person face"
+                            className="object-cover"
+                          />
+                          <AvatarFallback>{userInitial}</AvatarFallback>
+                        </Avatar>
+                        {displayUser.is_seller && (
+                            <Badge className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 text-white border-2 border-white shadow-lg font-semibold">
+                                <BadgeCheckIcon className="h-4 w-4 text-white" />
+                                <span className="text-xs font-bold">Vendedor</span>
+                            </Badge>
+                        )}
+                    </div>
                      <div className="pt-4 text-center sm:text-left">
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-3xl font-headline font-bold text-primary">
-                              {displayUser.full_name}
-                            </h1>
-                            {displayUser.is_seller && (
-                                <Badge variant="secondary" className="gap-1 pl-2">
-                                    <BadgeCheckIcon className="h-4 w-4 text-green-500" />
-                                    Vendedor
-                                </Badge>
-                            )}
-                        </div>
+                        <h1 className="text-2xl sm:text-3xl font-headline font-bold text-primary">
+                          {displayUser.full_name}
+                        </h1>
                          <div className="flex items-center justify-center sm:justify-start text-amber-500 mt-2">
                              {[...Array(5)].map((_, i) => (
                              <Star key={i} className={cn('w-5 h-5', i < Math.round(ratingData.average) ? 'fill-current' : 'text-muted-foreground fill-muted')} />
@@ -479,18 +550,18 @@ export default function ProfilePageClient() {
         {/* Profile Stats Card */}
         <Card>
             <CardContent className="p-6">
-                <div className="grid grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
                     <div className="text-center">
                         <div className="text-sm text-muted-foreground mb-1">Email</div>
-                        <div className="font-medium">{displayUser.email || 'No disponible'}</div>
+                        <div className="font-medium text-sm sm:text-base break-all">{displayUser.email || 'No disponible'}</div>
                     </div>
                     <div className="text-center">
                         <div className="text-sm text-muted-foreground mb-1">Miembro desde</div>
-                        <div className="font-medium">{memberSince}</div>
+                        <div className="font-medium text-sm sm:text-base">{memberSince}</div>
                     </div>
                     <div className="text-center">
                         <div className="text-sm text-muted-foreground mb-1">Propiedades</div>
-                        <div className="font-medium">{userProperties.length}</div>
+                        <div className="font-medium text-sm sm:text-base">{userProperties.length}</div>
                     </div>
                 </div>
             </CardContent>
@@ -498,11 +569,11 @@ export default function ProfilePageClient() {
 
         {/* Profile Edit Modals */}
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-            <DialogContent>
+            <DialogContent className="max-w-2xl">
                 <DialogHeader>
                     <DialogTitle>Cambiar foto de perfil</DialogTitle>
                     <DialogDescription>
-                        Selecciona una nueva imagen para tu perfil.
+                        Selecciona una nueva imagen y ajusta el recorte para tu perfil.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
@@ -516,12 +587,48 @@ export default function ProfilePageClient() {
                             Archivo seleccionado: {imageFile.name}
                         </div>
                     )}
+                    
+                    {imageSrc && (
+                        <div className="space-y-4">
+                            <div className="text-sm font-medium">
+                                Ajusta el recorte de tu imagen:
+                            </div>
+                            <div className="flex justify-center">
+                                <ReactCrop
+                                    crop={crop}
+                                    onChange={(_, percentCrop) => setCrop(percentCrop)}
+                                    onComplete={(c) => setCompletedCrop(c)}
+                                    aspect={1}
+                                    circularCrop
+                                >
+                                    <img
+                                        ref={imgRef}
+                                        alt="Crop me"
+                                        src={imageSrc}
+                                        style={{ maxHeight: '400px', maxWidth: '100%' }}
+                                        onLoad={onImageLoad}
+                                    />
+                                </ReactCrop>
+                            </div>
+                            <div className="text-xs text-muted-foreground text-center">
+                                Arrastra las esquinas del recuadro para ajustar el área que quieres mostrar en tu avatar
+                            </div>
+                        </div>
+                    )}
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                    <Button variant="outline" onClick={() => {
+                        setIsEditModalOpen(false);
+                        setImageFile(null);
+                        setImageSrc('');
+                        setCompletedCrop(undefined);
+                    }}>
                         Cancelar
                     </Button>
-                    <Button onClick={handleAvatarUpload} disabled={!imageFile || isUploading}>
+                    <Button 
+                        onClick={handleAvatarUpload} 
+                        disabled={!imageFile || !completedCrop || isUploading}
+                    >
                         {isUploading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
