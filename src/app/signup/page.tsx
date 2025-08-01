@@ -186,6 +186,10 @@ export default function SignupPage() {
           height="1080"
           className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
           data-ai-hint="modern kitchen"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+          }}
         />
       </div>
     </div>

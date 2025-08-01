@@ -58,8 +58,8 @@ export function UserNav() {
     );
   }
 
-  const displayName = user.user_metadata?.full_name || user.email;
-  const avatarUrl = user.user_metadata?.avatar_url;
+  const displayName = user.profile?.full_name || user.user_metadata?.full_name || user.email;
+  const avatarUrl = user.profile?.avatar_url || user.user_metadata?.avatar_url;
   const userInitial = displayName ? displayName.charAt(0).toUpperCase() : 'U';
 
   return (
@@ -67,7 +67,15 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={avatarUrl || 'https://placehold.co/100x100.png'} alt={t('userNav.avatarAlt')} className="object-cover" />
+            <AvatarImage 
+              src={avatarUrl || undefined} 
+              alt={t('userNav.avatarAlt')} 
+              className="object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
+            />
             <AvatarFallback>{userInitial}</AvatarFallback>
           </Avatar>
         </Button>

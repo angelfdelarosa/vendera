@@ -92,7 +92,7 @@ export default function MessagesPage() {
                     <Link href={`/profile/${convo.otherUser.id}`} onClick={(e) => e.stopPropagation()}>
                         <p className="font-semibold text-sm truncate hover:underline">{convo.otherUser.full_name}</p>
                     </Link>
-                     <p className="text-xs text-muted-foreground flex-shrink-0">{getTimestamp(convo.created_at)}</p>
+                     <p className="text-xs text-muted-foreground flex-shrink-0">{getTimestamp(convo.updated_at)}</p>
                    </div>
                    <p className="text-sm text-muted-foreground truncate">{ convo.lastMessage }</p>
                 </div>

@@ -30,7 +30,16 @@ export function UserCard({ user }: UserCardProps) {
     <Card className="flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <CardHeader className="items-center text-center p-6">
         <Avatar className="h-24 w-24 mb-4 border-4 border-background">
-          <AvatarImage src={user.avatar_url || undefined} alt={user.full_name || ''} data-ai-hint="person face" className="object-cover" />
+          <AvatarImage 
+            src={user.avatar_url || undefined} 
+            alt={user.full_name || ''} 
+            data-ai-hint="person face" 
+            className="object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
+          />
           <AvatarFallback>{userInitial}</AvatarFallback>
         </Avatar>
         <h3 className="font-headline text-xl font-bold text-primary">{user.full_name}</h3>

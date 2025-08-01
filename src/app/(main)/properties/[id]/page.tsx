@@ -129,6 +129,10 @@ export default function PropertyDetailPage() {
                         height={500}
                         className="w-full h-[500px] object-cover"
                         data-ai-hint="house interior"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/placeholder-property.svg';
+                        }}
                       />
                     </CarouselItem>
                   ))}
@@ -180,6 +184,10 @@ export default function PropertyDetailPage() {
                           alt={property.realtor.full_name || ''}
                           data-ai-hint="person face"
                           className="object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
                         />
                         <AvatarFallback>
                           {property.realtor.full_name?.charAt(0)}

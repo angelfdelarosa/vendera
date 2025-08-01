@@ -31,12 +31,16 @@ const PropertyCardContent = ({ property }: { property: Property }) => {
                     <p className="font-bold text-lg">{priceDisplay}</p>
                 </div>
                 <Image
-                src={property.images?.[0] || '/placeholder-property.jpg'}
+                src={property.images?.[0] || '/placeholder-property.svg'}
                 alt={t(property.title)}
                 width={400}
                 height={250}
                 className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                 data-ai-hint="house exterior"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/placeholder-property.svg';
+                }}
                 />
             </CardHeader>
             <CardContent className="p-4 flex-grow">

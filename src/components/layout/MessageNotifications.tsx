@@ -66,7 +66,13 @@ export function MessageNotifications() {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Avatar className="hover:ring-2 hover:ring-primary transition-all">
-                    <AvatarImage src={convo.otherUser.avatar_url || undefined} />
+                    <AvatarImage 
+                      src={convo.otherUser.avatar_url || undefined}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
                     <AvatarFallback>
                       {convo.otherUser.full_name?.charAt(0)}
                     </AvatarFallback>

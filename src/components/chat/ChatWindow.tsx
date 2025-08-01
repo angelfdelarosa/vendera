@@ -11,6 +11,7 @@ import { Send, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { useChatStore } from './use-chat-store';
 
@@ -20,10 +21,11 @@ interface ChatWindowProps {
 
 export function ChatWindow({ conversationId }: ChatWindowProps) {
   const { user: authUser, supabase } = useAuth();
-  const { selectedConversation } = useChatStore();
+  const { selectedConversation, updateConversation } = useChatStore();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const { t } = useTranslation();
+  const { toast } = useToast();
   
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -77,6 +79,12 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
         (payload) => {
             const newMessage = payload.new as Message;
             setMessages(currentMessages => [...currentMessages, newMessage]);
+            
+            // Update the last message in the conversation store
+            updateConversation(conversationId, {
+              lastMessage: newMessage.content,
+              updated_at: newMessage.created_at
+            });
         })
         .subscribe();
       
@@ -108,17 +116,30 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
         console.error("Error sending message:", error);
         toast({ title: "Error", description: "Could not send message.", variant: "destructive" });
         setNewMessage(textToSend); // Restore message on error
+    } else {
+        // Update the last message in the conversation store
+        updateConversation(selectedConversation.id, {
+          lastMessage: textToSend,
+          updated_at: new Date().toISOString()
+        });
     }
     
     setIsSending(false);
   };
   
   const getAvatar = (senderId: string) => {
-    return senderId === authUser?.id ? authUser?.user_metadata.avatar_url : recipient?.avatar_url;
+    if (senderId === authUser?.id) {
+      return authUser?.profile?.avatar_url || authUser?.user_metadata?.avatar_url;
+    }
+    return recipient?.avatar_url;
   };
 
   const getInitial = (senderId: string) => {
-    const name = senderId === authUser?.id ? authUser?.user_metadata.full_name : recipient?.full_name;
+    if (senderId === authUser?.id) {
+      const name = authUser?.profile?.full_name || authUser?.user_metadata?.full_name;
+      return name ? name.charAt(0).toUpperCase() : 'U';
+    }
+    const name = recipient?.full_name;
     return name ? name.charAt(0).toUpperCase() : 'U';
   }
 
@@ -152,7 +173,13 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
             >
               {message.sender_id !== authUser?.id && (
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={getAvatar(message.sender_id) || undefined} />
+                  <AvatarImage 
+                    src={getAvatar(message.sender_id) || undefined}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
                   <AvatarFallback>{getInitial(message.sender_id)}</AvatarFallback>
                 </Avatar>
               )}
@@ -169,7 +196,13 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
               </div>
               {message.sender_id === authUser?.id && (
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={getAvatar(message.sender_id) || undefined} />
+                  <AvatarImage 
+                    src={getAvatar(message.sender_id) || undefined}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
                   <AvatarFallback>{getInitial(message.sender_id)}</AvatarFallback>
                 </Avatar>
               )}
@@ -181,7 +214,13 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
                     <Loader2 className="h-5 w-5 animate-spin text-primary-foreground" />
                  </div>
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={getAvatar(authUser?.id || '') || undefined} />
+                  <AvatarImage 
+                    src={getAvatar(authUser?.id || '') || undefined}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
                   <AvatarFallback>{getInitial(authUser?.id || '')}</AvatarFallback>
                 </Avatar>
              </div>

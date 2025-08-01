@@ -51,12 +51,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const updatedConversations = state.conversations.map((c) =>
         c.id === conversationId ? { ...c, ...updatedData } : c
       );
+      
+      // Sort conversations by updated_at (most recent first)
+      const sortedConversations = updatedConversations.sort((a, b) => 
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      );
+      
       const updatedSelectedConversation = state.selectedConversation?.id === conversationId
         ? { ...state.selectedConversation, ...updatedData }
         : state.selectedConversation;
       
       return {
-        conversations: updatedConversations,
+        conversations: sortedConversations,
         selectedConversation: updatedSelectedConversation,
       };
     });
@@ -82,15 +88,36 @@ export const useChatStore = create<ChatState>((set, get) => ({
       }
 
       if (convos) {
-         const transformedConversations = (convos as unknown as ConversationFromDB[]).map(c => {
-          const otherUser = c.buyer_id === userId ? c.seller! : c.buyer!;
-          return {
+        // Fetch last message for each conversation
+        const transformedConversations = await Promise.all(
+          (convos as unknown as ConversationFromDB[]).map(async (c) => {
+            const otherUser = c.buyer_id === userId ? c.seller! : c.buyer!;
+            
+            // Get the last message for this conversation
+            const { data: lastMessageData } = await supabase
+              .from('messages')
+              .select('content, created_at, sender_id')
+              .eq('conversation_id', c.id)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .single();
+            
+            const lastMessage = lastMessageData?.content || "No messages yet.";
+            
+            return {
               ...c,
-              lastMessage: "No messages yet.", 
+              lastMessage,
               otherUser,
-          } as Conversation;
-        });
-        set({ conversations: transformedConversations, loading: false, isFetching: false });
+            } as Conversation;
+          })
+        );
+        
+        // Sort conversations by updated_at (most recent first)
+        const sortedConversations = transformedConversations.sort((a, b) => 
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        );
+        
+        set({ conversations: sortedConversations, loading: false, isFetching: false });
       } else {
         set({ conversations: [], loading: false, isFetching: false });
       }

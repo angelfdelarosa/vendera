@@ -22,6 +22,10 @@ export function Logo({ layout = 'horizontal' }: LogoProps) {
         width={isVertical ? 128 : 48}
         height={isVertical ? 128 : 48}
         className="object-contain"
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          target.style.display = 'none';
+        }}
       />
       <span
         className={cn(

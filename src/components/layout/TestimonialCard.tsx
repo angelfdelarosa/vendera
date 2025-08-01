@@ -32,7 +32,15 @@ export function TestimonialCard({ testimonial }: TestimonialCardProps) {
       </CardContent>
       <div className="bg-card p-6 pt-0 flex items-center gap-4 mt-auto">
         <Avatar className="h-12 w-12">
-          <AvatarImage src={testimonial.avatar} alt={testimonial.name} className="object-cover" />
+          <AvatarImage 
+            src={testimonial.avatar} 
+            alt={testimonial.name} 
+            className="object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
+          />
           <AvatarFallback>{fallbackInitial}</AvatarFallback>
         </Avatar>
         <div>

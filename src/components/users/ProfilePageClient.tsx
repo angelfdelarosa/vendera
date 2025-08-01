@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
 import { useRouter, useParams } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -86,18 +84,6 @@ export default function ProfilePageClient() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   
-  // Image crop states
-  const [imageSrc, setImageSrc] = useState<string>('');
-  const [crop, setCrop] = useState<Crop>({
-    unit: '%',
-    width: 90,
-    height: 90,
-    x: 5,
-    y: 5
-  });
-  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-  const imgRef = useRef<HTMLImageElement>(null);
-  
   // Edit profile state
   const [editFormData, setEditFormData] = useState({
     full_name: '',
@@ -112,53 +98,6 @@ export default function ProfilePageClient() {
   const [hoverRating, setHoverRating] = useState(0);
   const [ratingComment, setRatingComment] = useState("");
   const [isRatingDialogOpen, setIsRatingDialogOpen] = useState(false);
-
-  // Callbacks for image cropping
-  const getCroppedImg = useCallback((image: HTMLImageElement, crop: PixelCrop): Promise<Blob> => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx) {
-      throw new Error('No 2d context');
-    }
-
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
-
-    canvas.width = crop.width;
-    canvas.height = crop.height;
-
-    ctx.drawImage(
-      image,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
-      0,
-      0,
-      crop.width,
-      crop.height
-    );
-
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        if (blob) {
-          resolve(blob);
-        }
-      }, 'image/jpeg', 0.95);
-    });
-  }, []);
-
-  const onImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
-    const { width, height } = e.currentTarget;
-    setCrop({
-      unit: '%',
-      width: 90,
-      height: 90,
-      x: 5,
-      y: 5
-    });
-  }, []);
 
   const fetchRatingData = async (userId: string) => {
       if (!supabase) return;
@@ -334,45 +273,30 @@ export default function ProfilePageClient() {
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      setImageFile(file);
-      
-      const reader = new FileReader();
-      reader.addEventListener('load', () => {
-        setImageSrc(reader.result?.toString() || '');
-      });
-      reader.readAsDataURL(file);
+      setImageFile(e.target.files[0]);
     }
   }
 
   const handleAvatarUpload = async () => {
-    if (!imageFile || !authUser || !supabase || !completedCrop || !imgRef.current) {
-         toast({ title: "No se ha seleccionado ninguna imagen.", description: "Por favor, selecciona una imagen y ajusta el recorte.", variant: "destructive" });
+    if (!imageFile || !authUser || !supabase) {
+         toast({ title: "No se ha seleccionado ninguna imagen.", description: "Por favor, selecciona una imagen primero.", variant: "destructive" });
         return;
     }
     setIsUploading(true);
     try {
-        // Get the cropped image as blob
-        const croppedImageBlob = await getCroppedImg(imgRef.current, completedCrop);
-        const tempUrl = URL.createObjectURL(croppedImageBlob);
+        // Upload the file to Supabase Storage using the userService
+        const avatarUrl = await userService.uploadAvatar(authUser.id, imageFile);
         
-        const { data, error } = await supabase
-          .from('profiles')
-          .update({ 
-            avatar_url: tempUrl,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', authUser.id)
-          .select()
-          .single();
-
-        if (error) {
-          throw error;
+        // Update the profile with the new avatar URL
+        const { profile } = await userService.updateProfile(authUser.id, { 
+          avatar_url: avatarUrl 
+        });
+        
+        if (profile) {
+          setDisplayUser(prev => prev ? { ...prev, avatar_url: avatarUrl } : null);
+          await refreshUser();
+          toast({ title: "¡Foto de perfil actualizada!", description: "Tu nuevo avatar ha sido guardado exitosamente." });
         }
-        
-        setDisplayUser(prev => prev ? { ...prev, avatar_url: tempUrl } : null);
-        await refreshUser();
-        toast({ title: "¡Foto de perfil actualizada! (simulado)", description: "Tu nuevo avatar está ahora visible." });
 
     } catch (error: any) {
         console.error("Error updating profile picture:", error);
@@ -381,8 +305,6 @@ export default function ProfilePageClient() {
         setIsUploading(false);
         setIsEditModalOpen(false);
         setImageFile(null);
-        setImageSrc('');
-        setCompletedCrop(undefined);
     }
   };
 
@@ -474,11 +396,15 @@ export default function ProfilePageClient() {
                             alt="User avatar"
                             data-ai-hint="person face"
                             className="object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                            }}
                           />
                           <AvatarFallback>{userInitial}</AvatarFallback>
                         </Avatar>
                         {displayUser.is_seller && (
-                            <Badge className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 text-white border-2 border-white shadow-lg font-semibold">
+                            <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2 gap-1 px-3 py-1 bg-green-600 hover:bg-green-700 text-white border-2 border-white shadow-lg font-semibold">
                                 <BadgeCheckIcon className="h-4 w-4 text-white" />
                                 <span className="text-xs font-bold">Vendedor</span>
                             </Badge>
@@ -569,11 +495,11 @@ export default function ProfilePageClient() {
 
         {/* Profile Edit Modals */}
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Cambiar foto de perfil</DialogTitle>
                     <DialogDescription>
-                        Selecciona una nueva imagen y ajusta el recorte para tu perfil.
+                        Selecciona una nueva imagen para tu perfil.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
@@ -587,48 +513,12 @@ export default function ProfilePageClient() {
                             Archivo seleccionado: {imageFile.name}
                         </div>
                     )}
-                    
-                    {imageSrc && (
-                        <div className="space-y-4">
-                            <div className="text-sm font-medium">
-                                Ajusta el recorte de tu imagen:
-                            </div>
-                            <div className="flex justify-center">
-                                <ReactCrop
-                                    crop={crop}
-                                    onChange={(_, percentCrop) => setCrop(percentCrop)}
-                                    onComplete={(c) => setCompletedCrop(c)}
-                                    aspect={1}
-                                    circularCrop
-                                >
-                                    <img
-                                        ref={imgRef}
-                                        alt="Crop me"
-                                        src={imageSrc}
-                                        style={{ maxHeight: '400px', maxWidth: '100%' }}
-                                        onLoad={onImageLoad}
-                                    />
-                                </ReactCrop>
-                            </div>
-                            <div className="text-xs text-muted-foreground text-center">
-                                Arrastra las esquinas del recuadro para ajustar el área que quieres mostrar en tu avatar
-                            </div>
-                        </div>
-                    )}
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => {
-                        setIsEditModalOpen(false);
-                        setImageFile(null);
-                        setImageSrc('');
-                        setCompletedCrop(undefined);
-                    }}>
+                    <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
                         Cancelar
                     </Button>
-                    <Button 
-                        onClick={handleAvatarUpload} 
-                        disabled={!imageFile || !completedCrop || isUploading}
-                    >
+                    <Button onClick={handleAvatarUpload} disabled={!imageFile || isUploading}>
                         {isUploading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
