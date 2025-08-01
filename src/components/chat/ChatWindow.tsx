@@ -82,8 +82,7 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
             
             // Update the last message in the conversation store
             updateConversation(conversationId, {
-              lastMessage: newMessage.content,
-              updated_at: newMessage.created_at
+              lastMessage: newMessage.content
             });
         })
         .subscribe();
@@ -119,8 +118,7 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
     } else {
         // Update the last message in the conversation store
         updateConversation(selectedConversation.id, {
-          lastMessage: textToSend,
-          updated_at: new Date().toISOString()
+          lastMessage: textToSend
         });
     }
     

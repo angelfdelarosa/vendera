@@ -52,9 +52,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
         c.id === conversationId ? { ...c, ...updatedData } : c
       );
       
-      // Sort conversations by updated_at (most recent first)
+      // Sort conversations by created_at (most recent first)
       const sortedConversations = updatedConversations.sort((a, b) => 
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
       
       const updatedSelectedConversation = state.selectedConversation?.id === conversationId
@@ -112,9 +112,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
           })
         );
         
-        // Sort conversations by updated_at (most recent first)
+        // Sort conversations by created_at (most recent first)
         const sortedConversations = transformedConversations.sort((a, b) => 
-          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
         
         set({ conversations: sortedConversations, loading: false, isFetching: false });
