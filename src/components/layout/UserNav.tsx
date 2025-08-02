@@ -4,6 +4,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useState, useEffect } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +23,18 @@ export function UserNav() {
   const { user, logout, loading } = useAuth();
   const router = useRouter();
   const { t } = useTranslation();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -90,33 +103,37 @@ export function UserNav() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <Link href={`/profile/${user.id}`}>
-            <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              <span>{t('userNav.profile')}</span>
-            </DropdownMenuItem>
-          </Link>
-          <Link href="/messages">
-            <DropdownMenuItem>
-              <MessageSquare className="mr-2 h-4 w-4" />
-              <span>{t('messages.title')}</span>
-            </DropdownMenuItem>
-          </Link>
-          <Link href="/favorites">
-            <DropdownMenuItem>
-              <Heart className="mr-2 h-4 w-4" />
-              <span>{t('header.favorites')}</span>
-            </DropdownMenuItem>
-          </Link>
-          <Link href="/properties/new">
-            <DropdownMenuItem>
-              <Building className="mr-2 h-4 w-4" />
-              <span>{t('header.addProperty')}</span>
-            </DropdownMenuItem>
-          </Link>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
+        {!isMobile && (
+          <>
+            <DropdownMenuGroup>
+              <Link href={`/profile/${user.id}`}>
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>{t('userNav.profile')}</span>
+                </DropdownMenuItem>
+              </Link>
+              <Link href="/messages">
+                <DropdownMenuItem>
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  <span>{t('messages.title')}</span>
+                </DropdownMenuItem>
+              </Link>
+              <Link href="/favorites">
+                <DropdownMenuItem>
+                  <Heart className="mr-2 h-4 w-4" />
+                  <span>{t('header.favorites')}</span>
+                </DropdownMenuItem>
+              </Link>
+              <Link href="/properties/new">
+                <DropdownMenuItem>
+                  <Building className="mr-2 h-4 w-4" />
+                  <span>{t('header.addProperty')}</span>
+                </DropdownMenuItem>
+              </Link>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>{t('userNav.logout')}</span>
