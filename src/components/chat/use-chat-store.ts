@@ -52,9 +52,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
         c.id === conversationId ? { ...c, ...updatedData } : c
       );
       
-      // Sort conversations by created_at (most recent first)
+      // Sort conversations by lastMessageAt (most recent first)
       const sortedConversations = updatedConversations.sort((a, b) => 
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
       );
       
       const updatedSelectedConversation = state.selectedConversation?.id === conversationId
@@ -103,18 +103,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
               .single();
             
             const lastMessage = lastMessageData?.content || "No messages yet.";
+            const lastMessageAt = lastMessageData?.created_at || c.created_at;
             
             return {
               ...c,
               lastMessage,
+              lastMessageAt,
               otherUser,
             } as Conversation;
           })
         );
         
-        // Sort conversations by created_at (most recent first)
+        // Sort conversations by lastMessageAt (most recent first)
         const sortedConversations = transformedConversations.sort((a, b) => 
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
         );
         
         set({ conversations: sortedConversations, loading: false, isFetching: false });
@@ -179,6 +181,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       ...(newConversationData as ConversationFromDB),
       otherUser: newConversationData.seller!, // Since authUser is always the buyer in this function
       lastMessage: "No messages yet.",
+      lastMessageAt: newConversationData.created_at,
     };
 
     set(state => ({

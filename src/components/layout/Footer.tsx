@@ -9,7 +9,7 @@ export function Footer() {
     const { t } = useTranslation();
 
     return (
-        <footer className="bg-card border-t mt-8 sm:mt-12">
+        <footer className="hidden lg:block bg-card border-t mt-8 sm:mt-12">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
                     <div className="sm:col-span-2 md:col-span-1 space-y-4">

@@ -62,8 +62,8 @@ export function Header() {
       "sticky top-0 z-50 w-full transition-all duration-300", 
       showTransparentNav ? "bg-transparent" : "border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
       )}>
-      <div className="container flex h-16 items-center justify-between">
-        <Link href={logoHref} className="flex-shrink-0">
+      <div className="container flex h-16 items-center">
+        <Link href={logoHref}>
             <Logo layout="horizontal" />
         </Link>
         
@@ -105,7 +105,7 @@ export function Header() {
         </div>
 
         {/* Mobile Right Side */}
-        <div className="flex md:hidden items-center space-x-2 flex-shrink-0">
+        <div className="flex md:hidden items-center justify-end space-x-2 ml-auto">
           {user && <MessageNotifications />}
           <UserNav />
           <Button

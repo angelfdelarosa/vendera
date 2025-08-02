@@ -19,6 +19,27 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: 'VENDRA',
   description: 'Find your next dream home with VENDRA.',
+  manifest: '/manifest.json',
+  themeColor: '#000000',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'VENDRA',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    siteName: 'VENDRA',
+    title: 'VENDRA - Real Estate App',
+    description: 'Find your next dream home with VENDRA',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'VENDRA - Real Estate App',
+    description: 'Find your next dream home with VENDRA',
+  },
 };
 
 export const viewport = {

@@ -83,4 +83,5 @@ export interface ConversationFromDB {
 export interface Conversation extends ConversationFromDB {
   otherUser: UserProfile;
   lastMessage: string;
+  lastMessageAt: string; // Timestamp of the last message, used for sorting
 }

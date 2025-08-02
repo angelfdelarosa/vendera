@@ -1,5 +1,7 @@
 
 import type {NextConfig} from 'next';
+// @ts-ignore
+import withPWA from 'next-pwa';
 
 const nextConfig: NextConfig = {
   staticPageGenerationTimeout: 1000,
@@ -7,6 +9,18 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '10mb', // Increase body size limit for file uploads
     },
+  },
+  webpack: (config, { isServer }) => {
+    // Fix for mapbox-gl
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    return config;
   },
   images: {
     // Habilitamos la optimización de imágenes para un mejor rendimiento.
@@ -41,4 +55,21 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withPWA({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development',
+  runtimeCaching: [
+    {
+      urlPattern: /^https?.*/,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'offlineCache',
+        expiration: {
+          maxEntries: 200,
+        },
+      },
+    },
+  ],
+})(nextConfig);

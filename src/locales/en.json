@@ -3,7 +3,10 @@
   "header": {
     "properties": "Properties",
     "favorites": "Favorites",
-    "addProperty": "Add Property"
+    "addProperty": "Add Property",
+    "home": "Home",
+    "messages": "Messages",
+    "profile": "Profile"
   },
   "home": {
     "title": "Sell fast. Buy happy.",

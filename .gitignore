@@ -87,3 +87,9 @@ jspm_packages/
 
 # TernJS port file
 .tern-port
+
+# PWA files
+public/sw.js
+public/sw.js.map
+public/workbox-*.js
+public/workbox-*.js.map
