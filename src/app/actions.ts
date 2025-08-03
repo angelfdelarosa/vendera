@@ -6,13 +6,13 @@ import { createAdminClient } from '@/lib/supabase/server';
  * Securely uploads a file to a specified Supabase Storage bucket.
  * This function runs on the server and uses the service_role key to bypass RLS.
  *
- * @param bucketName The name of the storage bucket ('avatars', 'identity_documents', or 'property_images').
- * @param userId The ID of the user, used to create a folder path.
+ * @param bucketName The name of the storage bucket.
+ * @param userId The ID of the user/project, used to create a folder path.
  * @param formData The FormData object containing the file to upload.
  * @returns An object with either the publicUrl or an error message.
  */
 export async function uploadFile(
-  bucketName: 'avatars' | 'identity_documents' | 'property_images',
+  bucketName: 'avatars' | 'identity_documents' | 'property_images' | 'project_images' | 'developer_logos' | 'documents',
   userId: string,
   formData: FormData
 ): Promise<{ publicUrl: string } | { error: string }> {
@@ -27,12 +27,22 @@ export async function uploadFile(
       return { error: 'File size must be less than 10MB.' };
     }
 
-    // Validate file type for identity documents and property images
-    if (bucketName === 'identity_documents' || bucketName === 'property_images') {
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-      if (!allowedTypes.includes(file.type)) {
-        const fileTypeDescription = bucketName === 'identity_documents' ? 'identity documents' : 'property images';
-        return { error: `Only JPEG, PNG, and WebP images are allowed for ${fileTypeDescription}.` };
+    // Validate file type based on bucket
+    const imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const documentTypes = ['application/pdf', ...imageTypes];
+    const logoTypes = [...imageTypes, 'image/svg+xml'];
+
+    if (bucketName === 'identity_documents' || bucketName === 'property_images' || bucketName === 'project_images') {
+      if (!imageTypes.includes(file.type)) {
+        return { error: 'Only JPEG, PNG, and WebP images are allowed for images.' };
+      }
+    } else if (bucketName === 'developer_logos') {
+      if (!logoTypes.includes(file.type)) {
+        return { error: 'Only JPEG, PNG, WebP, and SVG images are allowed for logos.' };
+      }
+    } else if (bucketName === 'documents') {
+      if (!documentTypes.includes(file.type)) {
+        return { error: 'Only PDF and image files are allowed for documents.' };
       }
     }
 

@@ -29,6 +29,11 @@ import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Logo } from '@/components/layout/Logo';
 import Image from 'next/image';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Badge } from '@/components/ui/badge';
+import { Building2, Users, UserCheck } from 'lucide-react';
+import type { UserRole } from '@/types';
 
 const signupSchema = z
   .object({
@@ -38,6 +43,8 @@ const signupSchema = z
       .string()
       .min(6, { message: 'Password must be at least 6 characters.' }),
     confirmPassword: z.string(),
+    role: z.enum(['buyer', 'agent', 'developer'], { message: 'Please select an account type.' }),
+    phone: z.string().optional().default(''),
   })
   .refine(data => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -57,6 +64,8 @@ export default function SignupPage() {
       email: '',
       password: '',
       confirmPassword: '',
+      role: 'buyer',
+      phone: '',
     },
   });
 
@@ -65,7 +74,7 @@ export default function SignupPage() {
   } = form;
 
   const onSubmit = async (values: z.infer<typeof signupSchema>) => {
-    const { error } = await signup(values.fullName, values.email, values.password);
+    const { error } = await signup(values.fullName, values.email, values.password, values.role, values.phone);
 
     if (error) {
       toast({
@@ -78,9 +87,13 @@ export default function SignupPage() {
         title: t('signup.toast.success.title'),
         description: t('signup.toast.success.description'),
       });
-      // The onAuthStateChange listener in AuthContext will handle user state
-      // and redirect to the home page after successful signup and login.
-      router.push('/'); 
+      
+      // Redirect based on role
+      if (values.role === 'developer') {
+        router.push('/developer/register');
+      } else {
+        router.push('/');
+      }
     }
   };
 
@@ -103,6 +116,70 @@ export default function SignupPage() {
                 <CardContent>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+                        {/* Account Type Selection */}
+                        <FormField
+                            control={form.control}
+                            name="role"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Tipo de Cuenta</FormLabel>
+                                <FormControl>
+                                <RadioGroup
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    className="grid grid-cols-1 gap-3"
+                                >
+                                    <div className="flex items-center space-x-3 border rounded-lg p-3 hover:bg-gray-50">
+                                    <RadioGroupItem value="buyer" id="buyer" />
+                                    <div className="flex items-center space-x-2 flex-1">
+                                        <Users className="h-4 w-4 text-blue-600" />
+                                        <div>
+                                        <label htmlFor="buyer" className="text-sm font-medium cursor-pointer">
+                                            Comprador
+                                        </label>
+                                        <p className="text-xs text-gray-500">
+                                            Busco propiedades para comprar
+                                        </p>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center space-x-3 border rounded-lg p-3 hover:bg-gray-50">
+                                    <RadioGroupItem value="agent" id="agent" />
+                                    <div className="flex items-center space-x-2 flex-1">
+                                        <UserCheck className="h-4 w-4 text-green-600" />
+                                        <div>
+                                        <label htmlFor="agent" className="text-sm font-medium cursor-pointer">
+                                            Agente Inmobiliario
+                                        </label>
+                                        <p className="text-xs text-gray-500">
+                                            Vendo propiedades existentes
+                                        </p>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center space-x-3 border rounded-lg p-3 hover:bg-gray-50">
+                                    <RadioGroupItem value="developer" id="developer" />
+                                    <div className="flex items-center space-x-2 flex-1">
+                                        <Building2 className="h-4 w-4 text-orange-600" />
+                                        <div>
+                                        <label htmlFor="developer" className="text-sm font-medium cursor-pointer">
+                                            Empresa Constructora
+                                        </label>
+                                        <p className="text-xs text-gray-500">
+                                            Desarrollo proyectos inmobiliarios
+                                        </p>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+
                         <FormField
                             control={form.control}
                             name="fullName"
@@ -116,6 +193,7 @@ export default function SignupPage() {
                             </FormItem>
                             )}
                         />
+                        
                         <FormField
                             control={form.control}
                             name="email"
@@ -126,6 +204,24 @@ export default function SignupPage() {
                                 <Input
                                     placeholder="m@example.com"
                                     type="email"
+                                    {...field}
+                                />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="phone"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Teléfono (Opcional)</FormLabel>
+                                <FormControl>
+                                <Input
+                                    placeholder="+1 809 555 0123"
+                                    type="tel"
                                     {...field}
                                 />
                                 </FormControl>

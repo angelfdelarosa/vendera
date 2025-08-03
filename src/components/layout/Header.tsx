@@ -12,13 +12,15 @@ import { GlobalSearch } from "../search/GlobalSearch";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useChatStore } from "@/components/chat/use-chat-store";
-import { Menu, X } from "lucide-react";
+import { useRole } from "@/hooks/useRole";
+import { Menu, X, Building2, Users, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function Header() {
   const { t } = useTranslation();
   const { user, supabase } = useAuth();
   const { fetchConversations } = useChatStore();
+  const { userRole, isDeveloper, isAgent, isBuyer } = useRole();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -69,19 +71,64 @@ export function Header() {
         
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium ml-10">
-          <Link
-            href="/"
-            className="transition-colors hover:text-accent text-foreground/60"
-          >
-            {t('header.properties')}
-          </Link>
-          {user && (
+          {/* Common navigation for all users */}
+          {!isDeveloper() && (
             <>
               <Link
-                href="/favorites"
+                href="/"
                 className="transition-colors hover:text-accent text-foreground/60"
               >
-                {t('header.favorites')}
+                {t('header.properties')}
+              </Link>
+              <Link
+                href="/projects"
+                className="transition-colors hover:text-accent text-foreground/60"
+              >
+                Proyectos
+              </Link>
+            </>
+          )}
+          
+          {/* Developer-specific navigation */}
+          {isDeveloper() && (
+            <>
+              <Link
+                href="/developer/dashboard"
+                className="transition-colors hover:text-accent text-foreground/60"
+              >
+                <Building2 className="h-4 w-4 inline mr-1" />
+                Dashboard
+              </Link>
+              <Link
+                href="/developer/projects"
+                className="transition-colors hover:text-accent text-foreground/60"
+              >
+                Mis Proyectos
+              </Link>
+              <Link
+                href="/developer/projects/new"
+                className="transition-colors hover:text-accent text-foreground/60"
+              >
+                Crear Proyecto
+              </Link>
+              <Link
+                href="/developer/test"
+                className="transition-colors hover:text-accent text-foreground/60 text-xs"
+              >
+                🧪 Pruebas
+              </Link>
+            </>
+          )}
+          
+          {/* Agent-specific navigation */}
+          {isAgent() && user && (
+            <>
+              <Link
+                href="/agent/dashboard"
+                className="transition-colors hover:text-accent text-foreground/60"
+              >
+                <UserCheck className="h-4 w-4 inline mr-1" />
+                Dashboard
               </Link>
               <Link
                 href="/properties/new"
@@ -90,6 +137,16 @@ export function Header() {
                 {t('header.addProperty')}
               </Link>
             </>
+          )}
+          
+          {/* Buyer-specific navigation */}
+          {isBuyer() && user && (
+            <Link
+              href="/favorites"
+              className="transition-colors hover:text-accent text-foreground/60"
+            >
+              {t('header.favorites')}
+            </Link>
           )}
         </nav>
         
@@ -132,21 +189,64 @@ export function Header() {
             
             {/* Mobile Navigation Links */}
             <nav className="space-y-3">
-              <Link
-                href="/"
-                className="block py-2 text-sm font-medium transition-colors hover:text-accent text-foreground/60"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {t('header.properties')}
-              </Link>
-              {user && (
+              {/* Common navigation for all users */}
+              {!isDeveloper() && (
                 <>
                   <Link
-                    href="/favorites"
+                    href="/"
                     className="block py-2 text-sm font-medium transition-colors hover:text-accent text-foreground/60"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    {t('header.favorites')}
+                    {t('header.properties')}
+                  </Link>
+                  <Link
+                    href="/projects"
+                    className="block py-2 text-sm font-medium transition-colors hover:text-accent text-foreground/60"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Proyectos
+                  </Link>
+                </>
+              )}
+              
+              {/* Developer-specific navigation */}
+              {isDeveloper() && (
+                <>
+                  <Link
+                    href="/developer/dashboard"
+                    className="block py-2 text-sm font-medium transition-colors hover:text-accent text-foreground/60"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Building2 className="h-4 w-4 inline mr-2" />
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/developer/projects"
+                    className="block py-2 text-sm font-medium transition-colors hover:text-accent text-foreground/60"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Mis Proyectos
+                  </Link>
+                  <Link
+                    href="/developer/projects/new"
+                    className="block py-2 text-sm font-medium transition-colors hover:text-accent text-foreground/60"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Crear Proyecto
+                  </Link>
+                </>
+              )}
+              
+              {/* Agent-specific navigation */}
+              {isAgent() && user && (
+                <>
+                  <Link
+                    href="/agent/dashboard"
+                    className="block py-2 text-sm font-medium transition-colors hover:text-accent text-foreground/60"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <UserCheck className="h-4 w-4 inline mr-2" />
+                    Dashboard
                   </Link>
                   <Link
                     href="/properties/new"
@@ -156,6 +256,17 @@ export function Header() {
                     {t('header.addProperty')}
                   </Link>
                 </>
+              )}
+              
+              {/* Buyer-specific navigation */}
+              {isBuyer() && user && (
+                <Link
+                  href="/favorites"
+                  className="block py-2 text-sm font-medium transition-colors hover:text-accent text-foreground/60"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t('header.favorites')}
+                </Link>
               )}
             </nav>
           </div>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Heart, Plus, MessageCircle, User } from 'lucide-react';
+import { Home, Heart, Plus, MessageCircle, User, Building2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -31,17 +31,17 @@ export function BottomNav() {
       type: 'link' as const,
     },
     {
+      href: '/projects',
+      icon: Building2,
+      label: 'Proyectos',
+      isActive: pathname.startsWith('/projects'),
+      type: 'link' as const,
+    },
+    {
       href: '/favorites',
       icon: Heart,
       label: t('header.favorites'),
       isActive: pathname === '/favorites',
-      type: 'link' as const,
-    },
-    {
-      href: '/properties/new',
-      icon: Plus,
-      label: t('header.addProperty'),
-      isActive: pathname === '/properties/new',
       type: 'link' as const,
     },
     {

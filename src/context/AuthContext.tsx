@@ -2,18 +2,18 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import type { User, AuthError, SupabaseClient } from '@supabase/supabase-js';
+import type { User as SupabaseUser, AuthError, SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
-import type { UserProfile } from '@/types';
+import type { UserProfile, UserRole } from '@/types';
 import { userService } from '@/lib/user.service';
 
 
 interface AuthContextType {
-  user: (User & { profile?: UserProfile }) | null;
+  user: (SupabaseUser & { profile?: UserProfile }) | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<{ error: AuthError | null }>;
   logout: () => Promise<void>;
-  signup: (name: string, email: string, pass: string) => Promise<{ error: AuthError | null }>;
+  signup: (name: string, email: string, pass: string, role: UserRole, phone?: string) => Promise<{ error: AuthError | null }>;
   supabase: SupabaseClient;
   refreshUser: () => Promise<void>;
   updateUserProfile: (profileUpdates: Partial<UserProfile>) => void;
@@ -23,7 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const supabase = createClient();
-  const [user, setUser] = useState<(User & { profile?: UserProfile }) | null>(null);
+  const [user, setUser] = useState<(SupabaseUser & { profile?: UserProfile }) | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refreshUser = async () => {
@@ -163,9 +163,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut();
   };
 
-  const signup = async (name: string, email: string, pass: string) => {
+  const signup = async (name: string, email: string, pass: string, role: UserRole, phone?: string) => {
     try {
-      await userService.signUp(email, pass, { full_name: name });
+      await userService.signUp(email, pass, { 
+        full_name: name, 
+        role,
+        phone_number: phone 
+      });
       return { error: null };
     } catch (error: any) {
       return { error: error as AuthError };

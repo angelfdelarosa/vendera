@@ -2,7 +2,7 @@
 'use client';
 
 import { createClient } from '@/lib/supabase/client';
-import type { UserProfile } from '@/types';
+import type { UserProfile, UserRole } from '@/types';
 
 // Supabase client setup from our existing client module
 const supabase = createClient();
@@ -11,7 +11,7 @@ const supabase = createClient();
 class UserService {
 
   // Create a new user with extended profile
-  async signUp(email: string, password: string, metadata: Partial<Pick<UserProfile, 'full_name' | 'username'>> = {}) {
+  async signUp(email: string, password: string, metadata: Partial<Pick<UserProfile, 'full_name' | 'username' | 'role' | 'phone_number'>> = {}) {
     try {
       if (!email || !password) {
         throw new Error('Email and password are required');
@@ -20,6 +20,8 @@ class UserService {
       const userMetadata = {
         full_name: metadata.full_name || email.split('@')[0],
         username: metadata.username || email.split('@')[0],
+        role: metadata.role || 'buyer',
+        phone_number: metadata.phone_number || null,
       };
 
       // Sign up with Supabase Auth. The database trigger will handle profile creation.
@@ -203,6 +205,8 @@ class UserService {
           avatar_url: authUser.user_metadata?.avatar_url || null,
           email: authUser.email || '',
           username: authUser.user_metadata?.username || authUser.email?.split('@')[0] || 'user',
+          role: authUser.user_metadata?.role || 'buyer',
+          phone_number: authUser.user_metadata?.phone_number || null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         };

@@ -18,6 +18,52 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/landing', request.url));
   }
 
+  // If user is logged in, check role-based redirections
+  if (session?.user) {
+    try {
+      // Get user profile to check role
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+
+      const userRole = profile?.role || 'buyer';
+
+      // Role-based route protection
+      if (pathname.startsWith('/developer/') && userRole !== 'developer') {
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+
+      if (pathname.startsWith('/agent/') && userRole !== 'agent') {
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+
+      // Redirect developers to register if they don't have a developer profile
+      if (userRole === 'developer' && pathname === '/') {
+        const { data: developerProfile } = await supabase
+          .from('developer_profiles')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (!developerProfile) {
+          return NextResponse.redirect(new URL('/developer/register', request.url));
+        } else {
+          return NextResponse.redirect(new URL('/developer/dashboard', request.url));
+        }
+      }
+
+      // Redirect agents to their dashboard
+      if (userRole === 'agent' && pathname === '/') {
+        return NextResponse.redirect(new URL('/agent/dashboard', request.url));
+      }
+    } catch (error) {
+      console.error('Middleware error:', error);
+      // Continue with normal flow if there's an error
+    }
+  }
+
   return response;
 }
 
