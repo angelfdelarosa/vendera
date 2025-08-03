@@ -79,6 +79,7 @@ const mockProject: DevelopmentProject = {
   brochure_url: 'https://example.com/brochure.pdf',
   is_featured: true,
   is_active: true,
+  view_count: 1247,
   created_at: '2024-01-15T00:00:00Z',
   updated_at: '2024-01-15T00:00:00Z',
   developer: {
@@ -588,7 +589,16 @@ export default function ProjectDetailPage() {
                     className="w-full justify-start text-xs md:text-sm h-9 md:h-10"
                     onClick={() => {
                       console.log('📄 Downloading brochure:', project.brochure_url);
-                      window.open(project.brochure_url, '_blank');
+                      if (project.brochure_url) {
+                        window.open(project.brochure_url, '_blank');
+                      } else {
+                        console.error('📄 Brochure URL is null or undefined');
+                        toast({
+                          title: 'Error',
+                          description: 'No se pudo descargar el brochure. Inténtalo de nuevo.',
+                          variant: 'destructive',
+                        });
+                      }
                     }}
                   >
                     <Download className="mr-2 h-3 w-3 md:h-4 md:w-4" />
@@ -604,7 +614,16 @@ export default function ProjectDetailPage() {
                         className="w-full justify-start text-xs md:text-sm h-9 md:h-10"
                         onClick={() => {
                           console.log('📐 Downloading floor plan:', planUrl);
-                          window.open(planUrl, '_blank');
+                          if (planUrl) {
+                            window.open(planUrl, '_blank');
+                          } else {
+                            console.error('📐 Floor plan URL is null or undefined at index:', index);
+                            toast({
+                              title: 'Error',
+                              description: 'No se pudo descargar el plano. Inténtalo de nuevo.',
+                              variant: 'destructive',
+                            });
+                          }
                         }}
                       >
                         <FileText className="mr-2 h-3 w-3 md:h-4 md:w-4" />

@@ -27,6 +27,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { RoleGuard } from '@/components/auth/RoleGuard';
 import { developerService } from '@/lib/developer.service';
+import type { DevelopmentProject } from '@/types';
 
 const projectSchema = z.object({
   name: z.string().min(2, 'El nombre del proyecto es requerido'),
@@ -150,6 +151,7 @@ function NewProjectPageContent() {
         brochure_url: null, // Will be updated after upload
         is_featured: data.is_featured,
         is_active: true,
+        view_count: 0, // Initialize view count to 0 for new projects
       };
 
       console.log('📋 Form data received:', data);
