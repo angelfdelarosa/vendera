@@ -3,13 +3,15 @@
 import { createClient } from '@/lib/supabase/client';
 import type { DeveloperProfile, DevelopmentProject, ProjectInterest } from '@/types';
 
-const supabase = createClient();
-
 class DeveloperService {
+  // Lazy initialization of Supabase client
+  private get supabase() {
+    return createClient();
+  }
   // Create developer profile
   async createDeveloperProfile(userId: string, profileData: Omit<DeveloperProfile, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<DeveloperProfile> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from('developer_profiles')
         .insert({
           user_id: userId,
@@ -29,7 +31,7 @@ class DeveloperService {
   // Get developer profile by user ID
   async getDeveloperProfile(userId: string): Promise<DeveloperProfile | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from('developer_profiles')
         .select('*')
         .eq('user_id', userId)
@@ -46,7 +48,7 @@ class DeveloperService {
   // Update developer profile
   async updateDeveloperProfile(developerId: string, updates: Partial<DeveloperProfile>): Promise<DeveloperProfile> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from('developer_profiles')
         .update({
           ...updates,
@@ -67,7 +69,7 @@ class DeveloperService {
   // Create development project
   async createProject(developerId: string, projectData: Omit<DevelopmentProject, 'id' | 'developer_id' | 'created_at' | 'updated_at'>): Promise<DevelopmentProject> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from('development_projects')
         .insert({
           developer_id: developerId,
@@ -87,7 +89,7 @@ class DeveloperService {
   // Get projects by developer
   async getProjectsByDeveloper(developerId: string): Promise<DevelopmentProject[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from('development_projects')
         .select('*')
         .eq('developer_id', developerId)
@@ -107,7 +109,7 @@ class DeveloperService {
       console.log('🔍 Querying all projects from database...');
       
       // First, let's check ALL projects without filters
-      const { data: allProjects, error: allError } = await supabase
+      const { data: allProjects, error: allError } = await this.supabase
         .from('development_projects')
         .select(`
           *,
@@ -119,7 +121,7 @@ class DeveloperService {
       console.log('📊 Total projects count:', allProjects?.length || 0);
       
       // Now get only active projects
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from('development_projects')
         .select(`
           *,
@@ -155,7 +157,7 @@ class DeveloperService {
     try {
       console.log('🔍 Fetching project by ID:', projectId);
       
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from('development_projects')
         .select(`
           *,
@@ -187,7 +189,7 @@ class DeveloperService {
   // Update project
   async updateProject(projectId: string, updates: Partial<DevelopmentProject>): Promise<DevelopmentProject> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from('development_projects')
         .update({
           ...updates,
@@ -238,7 +240,7 @@ class DeveloperService {
       }
 
       // Delete project from database
-      const { error } = await supabase
+      const { error } = await this.supabase
         .from('development_projects')
         .delete()
         .eq('id', projectId);
@@ -258,7 +260,7 @@ class DeveloperService {
   // Create project interest
   async createProjectInterest(interestData: Omit<ProjectInterest, 'id' | 'created_at' | 'updated_at'>): Promise<ProjectInterest> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from('project_interests')
         .insert(interestData)
         .select()
@@ -275,7 +277,7 @@ class DeveloperService {
   // Get interests for a project
   async getProjectInterests(projectId: string): Promise<ProjectInterest[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from('project_interests')
         .select(`
           *,
@@ -296,7 +298,7 @@ class DeveloperService {
   async getInterestsByDeveloper(developerId: string): Promise<ProjectInterest[]> {
     try {
       // First get all project IDs for this developer
-      const { data: projects, error: projectsError } = await supabase
+      const { data: projects, error: projectsError } = await this.supabase
         .from('development_projects')
         .select('id')
         .eq('developer_id', developerId);
@@ -307,10 +309,10 @@ class DeveloperService {
         return [];
       }
 
-      const projectIds = projects.map(p => p.id);
+      const projectIds = projects.map((p: { id: string }) => p.id);
 
       // Then get interests for those projects
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from('project_interests')
         .select(`
           *,
@@ -331,7 +333,7 @@ class DeveloperService {
   // Update interest status
   async updateInterestStatus(interestId: string, status: ProjectInterest['status']): Promise<ProjectInterest> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from('project_interests')
         .update({
           status,

@@ -2,7 +2,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import type { User as SupabaseUser, AuthError, SupabaseClient } from '@supabase/supabase-js';
+import type { User as SupabaseUser, AuthError, SupabaseClient, AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import type { UserProfile, UserRole } from '@/types';
 import { userService } from '@/lib/user.service';
@@ -29,6 +29,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refreshUser = async () => {
     try {
       console.log('🔄 RefreshUser: Starting user refresh...');
+      
+      // Verificar si estamos en un entorno de cliente
+      if (typeof window === 'undefined') {
+        console.log('⚠️ RefreshUser: Running in server context, skipping refresh');
+        return;
+      }
+      
+      // Verificar la sesión actual
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('❌ RefreshUser: Session error:', sessionError);
+        throw sessionError;
+      }
+      
+      if (!session) {
+        console.log('⚠️ RefreshUser: No active session found');
+        setUser(null);
+        return;
+      }
+      
+      console.log('✅ RefreshUser: Active session found, getting user data');
+      
+      // Obtener datos del usuario autenticado
       const { data: { user: authData }, error: authError } = await supabase.auth.getUser();
       
       if (authError) {
@@ -39,29 +63,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (authData) {
         console.log('👤 RefreshUser: Auth user found, fetching profile...');
         
+        // Establecer el usuario inmediatamente sin perfil para evitar problemas de UI
+        setUser({ ...authData, profile: undefined });
+        
         try {
           // Use enhanced retry logic with timeout
-          const profilePromise = userService.getProfile(authData.id, 2); // 2 retries for refresh
+          const profilePromise = userService.getProfile(authData.id, 3); // Aumentado a 3 reintentos
           const timeoutPromise = new Promise<null>((_, reject) => 
-            setTimeout(() => reject(new Error('RefreshUser profile fetch timeout')), 8000)
+            setTimeout(() => reject(new Error('RefreshUser profile fetch timeout')), 10000) // Aumentado a 10 segundos
           );
           
           const profile = await Promise.race([profilePromise, timeoutPromise]);
-          console.log('📋 RefreshUser: Profile fetched:', profile);
-          setUser({ ...authData, profile: profile || undefined });
-          console.log('✅ RefreshUser: User updated in context');
+          
+          if (profile) {
+            console.log('📋 RefreshUser: Profile fetched successfully:', profile);
+            setUser({ ...authData, profile });
+            console.log('✅ RefreshUser: User updated in context with profile');
+          } else {
+            console.warn('⚠️ RefreshUser: No profile returned, user will continue without profile');
+            // El usuario ya fue establecido sin perfil anteriormente
+          }
         } catch (profileError) {
           console.error('❌ RefreshUser: Profile fetch failed:', profileError);
-          // Set user without profile to allow app to continue
-          setUser({ ...authData, profile: undefined });
+          // El usuario ya fue establecido sin perfil anteriormente
+          
+          // Intentar crear el perfil como último recurso
+          try {
+            console.log('🔄 RefreshUser: Attempting to create profile as last resort...');
+            const profile = await userService.getProfile(authData.id, 1);
+            if (profile) {
+              console.log('✅ RefreshUser: Profile created successfully');
+              setUser({ ...authData, profile });
+            }
+          } catch (createError) {
+            console.error('❌ RefreshUser: Failed to create profile:', createError);
+          }
         }
       } else {
-        console.log('❌ RefreshUser: No auth user found');
+        console.log('❌ RefreshUser: No auth user found despite active session');
         setUser(null);
       }
     } catch (error) {
       console.error('❌ RefreshUser: Error during refresh:', error);
-      throw error;
+      // No lanzamos el error para evitar bloquear la UI
+      setUser(null);
     }
   };
 
@@ -134,7 +179,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     // Suscribirse a cambios de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (_event: AuthChangeEvent, session: Session | null) => {
         if (!isMounted) return;
         
         if (session?.user) {

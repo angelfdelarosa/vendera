@@ -4,11 +4,12 @@
 import { createClient } from '@/lib/supabase/client';
 import type { UserProfile, UserRole } from '@/types';
 
-// Supabase client setup from our existing client module
-const supabase = createClient();
-
 // User Creation and Profile Management Service
 class UserService {
+  // Lazy initialization of Supabase client
+  private get supabase() {
+    return createClient();
+  }
 
   // Create a new user with extended profile
   async signUp(email: string, password: string, metadata: Partial<Pick<UserProfile, 'full_name' | 'username' | 'role' | 'phone_number'>> = {}) {
@@ -25,7 +26,7 @@ class UserService {
       };
 
       // Sign up with Supabase Auth. The database trigger will handle profile creation.
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await this.supabase.auth.signUp({
         email,
         password,
         options: {
@@ -59,7 +60,7 @@ class UserService {
       // Update auth user metadata for fields that are mirrored there
       if(updates.full_name || updates.avatar_url) {
         console.log('🔐 Updating auth user metadata...');
-        const { data: { user } , error: authError } = await supabase.auth.updateUser({
+        const { data: { user } , error: authError } = await this.supabase.auth.updateUser({
           data: {
             full_name: updates.full_name,
             avatar_url: updates.avatar_url
@@ -83,7 +84,7 @@ class UserService {
       console.log('💾 Updating profiles table with:', updatesWithTimestamp);
 
       // Update profiles table with all provided updates
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await this.supabase
         .from('profiles')
         .update(updatesWithTimestamp)
         .eq('id', userId)
@@ -141,6 +142,24 @@ class UserService {
         return null;
       }
 
+      // Verificar primero si el usuario está autenticado
+      try {
+        const { data: { session }, error: sessionError } = await this.supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('❌ GetProfile: Session check error:', sessionError);
+        } else {
+          console.log('🔐 GetProfile: Session check result:', session ? 'Authenticated' : 'Not authenticated');
+          
+          // Si estamos buscando el perfil del usuario actual pero no hay sesión, es un problema
+          if (!session && session?.user?.id === userId) {
+            console.error('❌ GetProfile: Trying to get current user profile but no active session');
+          }
+        }
+      } catch (sessionCheckError) {
+        console.error('❌ GetProfile: Error checking session:', sessionCheckError);
+      }
+
       let lastError: any = null;
       
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -148,7 +167,7 @@ class UserService {
           console.log(`📡 GetProfile: Querying profiles table (attempt ${attempt}/${maxRetries})...`);
           
           // Query the profiles table
-          const { data, error } = await supabase
+          const { data, error } = await this.supabase
             .from('profiles')
             .select('*')
             .eq('id', userId)
@@ -192,13 +211,28 @@ class UserService {
       // As a last resort, try to create the profile manually if the trigger failed
       try {
         console.log('🔧 GetProfile: Attempting to create profile manually as fallback...');
-        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
         
-        if (authError || !authUser || authUser.id !== userId) {
-          console.error('❌ GetProfile: Cannot create profile - auth user not found or mismatch');
+        // Verificar si el usuario está autenticado antes de intentar crear el perfil
+        const { data: { user: authUser }, error: authError } = await this.supabase.auth.getUser();
+        
+        if (authError) {
+          console.error('❌ GetProfile: Auth error when getting user:', authError);
           return null;
         }
         
+        if (!authUser) {
+          console.error('❌ GetProfile: No authenticated user found');
+          return null;
+        }
+        
+        if (authUser.id !== userId) {
+          console.error(`❌ GetProfile: Auth user ID (${authUser.id}) doesn't match requested profile ID (${userId})`);
+          return null;
+        }
+        
+        console.log('👤 GetProfile: Auth user found, creating profile as fallback...');
+        
+        // Intentar obtener metadatos del usuario para crear un perfil más completo
         const fallbackProfile = {
           id: userId,
           full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
@@ -211,7 +245,10 @@ class UserService {
           updated_at: new Date().toISOString()
         };
         
-        const { data: createdProfile, error: createError } = await supabase
+        console.log('📝 GetProfile: Attempting to insert fallback profile:', fallbackProfile);
+        
+        // Intentar insertar el perfil
+        const { data: createdProfile, error: createError } = await this.supabase
           .from('profiles')
           .insert(fallbackProfile)
           .select()
@@ -219,6 +256,27 @@ class UserService {
           
         if (createError) {
           console.error('❌ GetProfile: Failed to create fallback profile:', createError);
+          
+          // Si el error es de duplicado, intentar obtener el perfil existente
+          if (createError.code === '23505') { // Código de error de duplicado en PostgreSQL
+            console.log('🔄 GetProfile: Profile already exists, trying to fetch it again...');
+            const { data: existingProfile, error: fetchError } = await this.supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', userId)
+              .single();
+              
+            if (fetchError) {
+              console.error('❌ GetProfile: Error fetching existing profile:', fetchError);
+              return null;
+            }
+            
+            if (existingProfile) {
+              console.log('✅ GetProfile: Existing profile found:', existingProfile);
+              return existingProfile;
+            }
+          }
+          
           return null;
         }
         
@@ -230,7 +288,8 @@ class UserService {
       }
     } catch (error) {
       console.error('❌ GetProfile: Unhandled fetch profile error:', error);
-      throw error; 
+      // En lugar de lanzar el error, devolvemos null para evitar bloquear la UI
+      return null;
     }
   }
 
@@ -266,7 +325,7 @@ class UserService {
         setTimeout(() => reject(new Error('Connection test timeout')), 3000)
       );
       
-      const queryPromise = supabase
+      const queryPromise = this.supabase
         .from('profiles')
         .select('id')
         .limit(1);
@@ -289,7 +348,7 @@ class UserService {
   // Grant Pro subscription
   async grantProSubscription(userId: string) {
     try {
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await this.supabase
         .from('profiles')
         .update({ 
           subscription_status: 'active',
