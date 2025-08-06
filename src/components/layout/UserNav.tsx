@@ -107,14 +107,18 @@ export function UserNav() {
           <>
             <DropdownMenuGroup>
               {user && user.id ? (
-                <Link href={`/profile/${user.id}`}>
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    <span>{t('userNav.profile')}</span>
-                  </DropdownMenuItem>
-                </Link>
+                <DropdownMenuItem onClick={() => {
+                  console.log('Navegando al perfil del usuario:', user.id);
+                  router.push(`/profile/${user.id}`);
+                }}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>{t('userNav.profile')}</span>
+                </DropdownMenuItem>
               ) : (
-                <DropdownMenuItem onClick={() => router.push('/login')}>
+                <DropdownMenuItem onClick={() => {
+                  console.log('Usuario no autenticado, redirigiendo a login');
+                  router.push('/login');
+                }}>
                   <User className="mr-2 h-4 w-4" />
                   <span>{t('userNav.profile')}</span>
                 </DropdownMenuItem>

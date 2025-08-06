@@ -121,13 +121,29 @@ export default function ProfilePageClient() {
   };
   
   const fetchProfileData = useCallback(async () => {
+    console.log('Fetching profile data for ID:', profileId);
+    console.log('Auth user:', authUser?.id);
+    console.log('Supabase client available:', !!supabase);
+    
     if (!profileId || !supabase) {
+      console.log('Missing profileId or supabase client, aborting fetch');
       setLoading(false);
       return;
     }
+    
     setLoading(true);
 
     try {
+      // Primero verificamos si el usuario está autenticado
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Error verificando sesión:', sessionError);
+      }
+      
+      console.log('Session check result:', session ? 'Authenticated' : 'Not authenticated');
+      
+      // Intentamos obtener el perfil
       const { data: profileData, error } = await supabase
         .from('profiles')
         .select('*')
@@ -147,7 +163,8 @@ export default function ProfilePageClient() {
         setLoading(false);
         return;
       }
-    
+      
+      console.log('Profile data fetched successfully:', profileData.id);
       setDisplayUser(profileData as UserProfile);
       fetchRatingData(profileData.id);
 
@@ -168,13 +185,20 @@ export default function ProfilePageClient() {
     }
 
     setLoading(false);
-  }, [profileId, supabase]);
+  }, [profileId, supabase, authUser?.id]);
 
   useEffect(() => {
+    console.log('ProfilePageClient useEffect triggered');
+    console.log('Auth loading:', authLoading);
+    console.log('Auth user:', authUser?.id);
+    console.log('Profile ID from params:', profileId);
+    
+    // Solo cargar datos cuando la autenticación haya terminado de cargar
     if (!authLoading) {
+      console.log('Auth loading complete, fetching profile data');
       fetchProfileData();
     }
-  }, [profileId, authLoading, fetchProfileData]);
+  }, [profileId, authLoading, fetchProfileData, authUser?.id]);
 
   // Initialize edit form when modal opens
   useEffect(() => {
