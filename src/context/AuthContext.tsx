@@ -77,13 +77,69 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let isMounted = true;
     
+    // Verificar el estado de autenticación al cargar el componente
+    const checkInitialAuth = async () => {
+      try {
+        console.log('🔍 AuthContext: Verificando estado de autenticación inicial...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('❌ AuthContext: Error al obtener la sesión inicial:', error);
+          if (isMounted) {
+            setUser(null);
+            setLoading(false);
+          }
+          return;
+        }
+        
+        if (session?.user) {
+          console.log('✅ AuthContext: Sesión inicial encontrada, usuario autenticado:', session.user.id);
+          // Establecer usuario inmediatamente para evitar redirecciones incorrectas
+          if (isMounted) {
+            setUser({ ...session.user, profile: undefined });
+            
+            // Luego cargar el perfil
+            try {
+              const profile = await userService.getProfile(session.user.id, 2);
+              if (isMounted && profile) {
+                console.log('✅ AuthContext: Perfil inicial cargado correctamente');
+                setUser({ ...session.user, profile });
+              }
+            } catch (profileError) {
+              console.warn('⚠️ AuthContext: Error al cargar perfil inicial:', profileError);
+            } finally {
+              if (isMounted) {
+                setLoading(false);
+              }
+            }
+          }
+        } else {
+          console.log('ℹ️ AuthContext: No hay sesión inicial, usuario no autenticado');
+          if (isMounted) {
+            setUser(null);
+            setLoading(false);
+          }
+        }
+      } catch (error) {
+        console.error('❌ AuthContext: Error inesperado al verificar autenticación inicial:', error);
+        if (isMounted) {
+          setUser(null);
+          setLoading(false);
+        }
+      }
+    };
+    
+    // Ejecutar verificación inicial
+    checkInitialAuth();
+    
+    // Suscribirse a cambios de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         if (!isMounted) return;
         
         if (session?.user) {
           try {
-            console.log('🔄 AuthContext: Auth state changed, fetching profile...');
+            console.log('🔄 AuthContext: Cambio en estado de autenticación, usuario autenticado:', session.user.id);
             
             // First, set user without profile to allow app to work immediately
             setUser({ ...session.user, profile: undefined });
@@ -136,6 +192,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             }
           }
         } else {
+          console.log('ℹ️ AuthContext: Cambio en estado de autenticación, usuario no autenticado');
           if (isMounted) {
             setUser(null);
             setLoading(false);

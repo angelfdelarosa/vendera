@@ -15,9 +15,13 @@ export function BottomNav() {
 
   const handleProfileClick = () => {
     if (loading) return;
-    if (user) {
+    
+    // Verificar si el usuario está autenticado y tiene un ID
+    if (user && user.id) {
+      console.log('Navegando al perfil del usuario:', user.id);
       router.push(`/profile/${user.id}`);
     } else {
+      console.log('Usuario no autenticado, redirigiendo a login');
       router.push('/login');
     }
   };
@@ -60,6 +64,11 @@ export function BottomNav() {
       onClick: handleProfileClick,
     },
   ];
+
+  // Si el usuario no está autenticado o está cargando, no mostramos el BottomNav
+  if (!user || loading) {
+    return null;
+  }
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border lg:hidden">

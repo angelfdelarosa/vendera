@@ -106,12 +106,19 @@ export function UserNav() {
         {!isMobile && (
           <>
             <DropdownMenuGroup>
-              <Link href={`/profile/${user.id}`}>
-                <DropdownMenuItem>
+              {user && user.id ? (
+                <Link href={`/profile/${user.id}`}>
+                  <DropdownMenuItem>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>{t('userNav.profile')}</span>
+                  </DropdownMenuItem>
+                </Link>
+              ) : (
+                <DropdownMenuItem onClick={() => router.push('/login')}>
                   <User className="mr-2 h-4 w-4" />
                   <span>{t('userNav.profile')}</span>
                 </DropdownMenuItem>
-              </Link>
+              )}
               <Link href="/messages">
                 <DropdownMenuItem>
                   <MessageSquare className="mr-2 h-4 w-4" />
