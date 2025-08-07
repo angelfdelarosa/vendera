@@ -25,11 +25,14 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
     // Don't redirect if user is authenticated
     if (user) return;
 
-    // Don't redirect if already on landing page or login/signup pages
-    if (pathname === '/landing' || pathname === '/login' || pathname === '/signup') return;
+    // Define public pages that don't require authentication
+    const publicPages = ['/landing', '/login', '/signup', '/'];
+    const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/profile/');
+
+    // Don't redirect if on a public page
+    if (isPublicPage) return;
 
     // Check if we're dealing with a session error (user was trying to access protected content)
-    // Profile pages should be viewable by everyone, so they're not fully protected
     const isFullyProtectedRoute = pathname.startsWith('/developer/') || 
                                  pathname.startsWith('/agent/') ||
                                  pathname.startsWith('/messages') ||
@@ -38,12 +41,6 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
     if (isFullyProtectedRoute) {
       // Show session error instead of immediate redirect for protected routes
       setShowSessionError(true);
-      return;
-    }
-
-    // For profile routes, allow viewing but show limited functionality
-    if (pathname.startsWith('/profile/')) {
-      // Don't redirect, let the profile component handle the authentication state
       return;
     }
 
@@ -110,15 +107,16 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
     );
   }
 
-  // Show loading while checking authentication or redirecting
-  // Don't show loading for profile pages, landing, login, signup, or home page
-  const isPublicPage = pathname === '/landing' || 
-                      pathname === '/login' || 
-                      pathname === '/signup' || 
-                      pathname === '/' ||
-                      pathname.startsWith('/profile/');
-  
-  if (loading || (!user && !isPublicPage)) {
+  // Show loading only when actually loading auth state, not for public pages
+  if (loading) {
+    // Don't show loading screen for public pages - let them render immediately
+    const publicPages = ['/landing', '/login', '/signup', '/'];
+    const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/profile/');
+    
+    if (isPublicPage) {
+      return <>{children}</>;
+    }
+    
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
