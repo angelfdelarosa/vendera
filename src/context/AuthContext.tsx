@@ -127,13 +127,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const checkInitialAuth = async () => {
       try {
         console.log('🔍 AuthContext: Verificando estado de autenticación inicial...');
-        console.log('🔍 AuthContext: Current URL:', typeof window !== 'undefined' ? window.location.href : 'N/A');
-        console.log('🔍 AuthContext: LocalStorage auth token:', typeof window !== 'undefined' ? localStorage.getItem('sb-' + process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1] + '-auth-token') : 'N/A');
         
         const { data: { session }, error } = await supabase.auth.getSession();
-        
-        console.log('🔍 AuthContext: Session data:', session);
-        console.log('🔍 AuthContext: Session error:', error);
         
         if (error) {
           console.error('❌ AuthContext: Error al obtener la sesión inicial:', error);

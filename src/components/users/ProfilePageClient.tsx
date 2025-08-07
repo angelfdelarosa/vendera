@@ -189,18 +189,14 @@ export default function ProfilePageClient() {
   }, [profileId, supabase, authUser?.id]);
 
   useEffect(() => {
-    console.log('=== ProfilePageClient useEffect triggered ===');
-    console.log('Auth loading:', authLoading);
-    console.log('Auth user full object:', authUser);
-    console.log('Auth user ID:', authUser?.id);
-    console.log('Auth user profile:', authUser?.profile);
-    console.log('Profile ID from params:', profileId);
-    console.log('Supabase client available:', !!supabase);
-    console.log('Current pathname:', window.location.pathname);
-    console.log('Session storage check:', typeof window !== 'undefined' ? localStorage.getItem('sb-' + process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1] + '-auth-token') : 'N/A');
+    console.log('=== ProfilePageClient useEffect ===');
+    console.log('Auth loading:', authLoading, '| Auth user ID:', authUser?.id, '| Profile ID:', profileId);
     
-    // Run detailed auth debugging
-    debugAuthState();
+    // Run detailed auth debugging only if there are issues
+    if (!authLoading && !authUser && profileId) {
+      console.log('🔍 No auth user found, running debug...');
+      debugAuthState();
+    }
     
     // Solo cargar datos cuando la autenticación haya terminado de cargar
     if (!authLoading) {

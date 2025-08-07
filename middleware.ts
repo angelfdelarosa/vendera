@@ -3,26 +3,45 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/middleware';
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  
+  // Skip middleware for static files and API routes
+  if (
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/api/') ||
+    pathname.includes('.') || // Skip files with extensions (manifest.json, favicon.ico, etc.)
+    pathname.startsWith('/profile/') // Profile pages are public
+  ) {
+    return NextResponse.next();
+  }
+
   const { supabase, response } = createClient(request);
+
+  console.log('=== MIDDLEWARE ===');
+  console.log('Pathname:', pathname);
 
   // Refresh session if expired - required for Server Components
   // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-session-with-middleware
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  let session = null;
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) {
+      // Handle refresh token errors gracefully
+      if (error.message?.includes('refresh_token_not_found') || 
+          error.message?.includes('Invalid Refresh Token')) {
+        console.log('⚠️ MIDDLEWARE: Invalid refresh token, treating as unauthenticated');
+      } else {
+        console.error('❌ MIDDLEWARE: Session error:', error);
+      }
+    } else {
+      session = data.session;
+    }
+  } catch (error) {
+    console.error('❌ MIDDLEWARE: Unexpected session error:', error);
+  }
 
-  const { pathname } = request.nextUrl;
-  
-  console.log('=== MIDDLEWARE ===');
-  console.log('Pathname:', pathname);
   console.log('Session exists:', !!session);
   console.log('User ID:', session?.user?.id);
-
-  // Skip middleware for profile pages - they should be publicly accessible
-  if (pathname.startsWith('/profile/')) {
-    console.log('✅ MIDDLEWARE: Skipping middleware for profile page');
-    return response;
-  }
 
   // If user is not logged in and trying to access the root, redirect to /landing
   if (!session && pathname === '/') {

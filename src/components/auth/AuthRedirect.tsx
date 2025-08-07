@@ -19,36 +19,21 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
   const [isClearing, setIsClearing] = useState(false);
 
   useEffect(() => {
-    console.log('=== AuthRedirect useEffect ===');
-    console.log('Loading:', loading);
-    console.log('User:', user);
-    console.log('User ID:', user?.id);
-    console.log('Pathname:', pathname);
-    console.log('Current URL:', typeof window !== 'undefined' ? window.location.href : 'N/A');
+    console.log('=== AuthRedirect ===', { loading, userExists: !!user, pathname });
     
     // Don't redirect if still loading
-    if (loading) {
-      console.log('⏳ AuthRedirect: Still loading, not redirecting');
-      return;
-    }
+    if (loading) return;
 
     // Don't redirect if user is authenticated
-    if (user) {
-      console.log('✅ AuthRedirect: User authenticated, no redirect needed');
-      return;
-    }
+    if (user) return;
 
     // Define public pages that don't require authentication
     const publicPages = ['/landing', '/login', '/signup', '/'];
     const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/profile/');
-    
-    console.log('📄 AuthRedirect: Public pages:', publicPages);
-    console.log('📄 AuthRedirect: Is public page?', isPublicPage);
-    console.log('📄 AuthRedirect: Starts with /profile/?', pathname.startsWith('/profile/'));
 
     // Don't redirect if on a public page
     if (isPublicPage) {
-      console.log('✅ AuthRedirect: On public page, no redirect needed');
+      console.log('✅ AuthRedirect: Public page, no redirect needed');
       return;
     }
 
@@ -58,11 +43,8 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
                                  pathname.startsWith('/messages') ||
                                  pathname.startsWith('/favorites');
 
-    console.log('🔒 AuthRedirect: Is fully protected route?', isFullyProtectedRoute);
-
     if (isFullyProtectedRoute) {
-      // Show session error instead of immediate redirect for protected routes
-      console.log('🚫 AuthRedirect: Showing session error for protected route');
+      console.log('🚫 AuthRedirect: Protected route, showing session error');
       setShowSessionError(true);
       return;
     }
