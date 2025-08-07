@@ -12,9 +12,21 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getSession();
 
   const { pathname } = request.nextUrl;
+  
+  console.log('=== MIDDLEWARE ===');
+  console.log('Pathname:', pathname);
+  console.log('Session exists:', !!session);
+  console.log('User ID:', session?.user?.id);
+
+  // Skip middleware for profile pages - they should be publicly accessible
+  if (pathname.startsWith('/profile/')) {
+    console.log('✅ MIDDLEWARE: Skipping middleware for profile page');
+    return response;
+  }
 
   // If user is not logged in and trying to access the root, redirect to /landing
   if (!session && pathname === '/') {
+    console.log('🔄 MIDDLEWARE: Redirecting to landing page');
     return NextResponse.redirect(new URL('/landing', request.url));
   }
 

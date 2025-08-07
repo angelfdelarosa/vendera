@@ -371,8 +371,22 @@ class UserService {
   async getPublicProfile(userId: string): Promise<UserProfile | null> {
     try {
       console.log('🔍 GetPublicProfile: Fetching public profile for user:', userId);
+      console.log('🔍 GetPublicProfile: Current session check...');
+      
+      // Check current session for debugging
+      try {
+        const { data: { session }, error: sessionError } = await this.supabase.auth.getSession();
+        console.log('🔍 GetPublicProfile: Session status:', session ? 'Active' : 'None');
+        console.log('🔍 GetPublicProfile: Session error:', sessionError);
+        if (session) {
+          console.log('🔍 GetPublicProfile: Session user ID:', session.user?.id);
+        }
+      } catch (sessionCheckError) {
+        console.error('❌ GetPublicProfile: Session check failed:', sessionCheckError);
+      }
       
       // Try to get the profile using a public query
+      console.log('🔍 GetPublicProfile: Executing database query...');
       const { data, error } = await this.supabase
         .from('profiles')
         .select(`
@@ -392,12 +406,17 @@ class UserService {
         .eq('id', userId)
         .single();
 
+      console.log('🔍 GetPublicProfile: Query result - Data:', data);
+      console.log('🔍 GetPublicProfile: Query result - Error:', error);
+
       if (error) {
         console.error('❌ GetPublicProfile: Error fetching public profile:', error);
+        console.error('❌ GetPublicProfile: Error code:', error.code);
+        console.error('❌ GetPublicProfile: Error message:', error.message);
         return null;
       }
 
-      console.log('✅ GetPublicProfile: Public profile fetched successfully');
+      console.log('✅ GetPublicProfile: Public profile fetched successfully:', data?.full_name);
       return data as UserProfile;
     } catch (error) {
       console.error('❌ GetPublicProfile: Unexpected error:', error);

@@ -19,18 +19,38 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
   const [isClearing, setIsClearing] = useState(false);
 
   useEffect(() => {
+    console.log('=== AuthRedirect useEffect ===');
+    console.log('Loading:', loading);
+    console.log('User:', user);
+    console.log('User ID:', user?.id);
+    console.log('Pathname:', pathname);
+    console.log('Current URL:', typeof window !== 'undefined' ? window.location.href : 'N/A');
+    
     // Don't redirect if still loading
-    if (loading) return;
+    if (loading) {
+      console.log('⏳ AuthRedirect: Still loading, not redirecting');
+      return;
+    }
 
     // Don't redirect if user is authenticated
-    if (user) return;
+    if (user) {
+      console.log('✅ AuthRedirect: User authenticated, no redirect needed');
+      return;
+    }
 
     // Define public pages that don't require authentication
     const publicPages = ['/landing', '/login', '/signup', '/'];
     const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/profile/');
+    
+    console.log('📄 AuthRedirect: Public pages:', publicPages);
+    console.log('📄 AuthRedirect: Is public page?', isPublicPage);
+    console.log('📄 AuthRedirect: Starts with /profile/?', pathname.startsWith('/profile/'));
 
     // Don't redirect if on a public page
-    if (isPublicPage) return;
+    if (isPublicPage) {
+      console.log('✅ AuthRedirect: On public page, no redirect needed');
+      return;
+    }
 
     // Check if we're dealing with a session error (user was trying to access protected content)
     const isFullyProtectedRoute = pathname.startsWith('/developer/') || 
@@ -38,13 +58,17 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
                                  pathname.startsWith('/messages') ||
                                  pathname.startsWith('/favorites');
 
+    console.log('🔒 AuthRedirect: Is fully protected route?', isFullyProtectedRoute);
+
     if (isFullyProtectedRoute) {
       // Show session error instead of immediate redirect for protected routes
+      console.log('🚫 AuthRedirect: Showing session error for protected route');
       setShowSessionError(true);
       return;
     }
 
     // Redirect unauthenticated users to landing page for other routes
+    console.log('🔄 AuthRedirect: Redirecting to landing page');
     router.push('/landing');
   }, [user, loading, router, pathname]);
 
