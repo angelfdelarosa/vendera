@@ -111,7 +111,14 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
   }
 
   // Show loading while checking authentication or redirecting
-  if (loading || (!user && pathname !== '/landing' && pathname !== '/login' && pathname !== '/signup')) {
+  // Don't show loading for profile pages, landing, login, signup, or home page
+  const isPublicPage = pathname === '/landing' || 
+                      pathname === '/login' || 
+                      pathname === '/signup' || 
+                      pathname === '/' ||
+                      pathname.startsWith('/profile/');
+  
+  if (loading || (!user && !isPublicPage)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
