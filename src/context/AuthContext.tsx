@@ -17,6 +17,7 @@ interface AuthContextType {
   supabase: SupabaseClient;
   refreshUser: () => Promise<void>;
   updateUserProfile: (profileUpdates: Partial<UserProfile>) => void;
+  clearSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -130,6 +131,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         if (error) {
           console.error('❌ AuthContext: Error al obtener la sesión inicial:', error);
+          
+          // Si el error es de refresh token inválido, limpiar la sesión
+          if (error.message?.includes('refresh_token_not_found') || 
+              error.message?.includes('Invalid Refresh Token') ||
+              error.message?.includes('refresh token not found')) {
+            console.log('🧹 AuthContext: Token de refresh inválido, limpiando sesión...');
+            try {
+              await supabase.auth.signOut();
+            } catch (signOutError) {
+              console.warn('⚠️ AuthContext: Error al cerrar sesión:', signOutError);
+            }
+          }
+          
           if (isMounted) {
             setUser(null);
             setLoading(false);
@@ -265,6 +279,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut();
   };
 
+  const clearSession = async () => {
+    console.log('🧹 AuthContext: Limpiando sesión manualmente...');
+    try {
+      // Limpiar el almacenamiento local
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('vendra-auth-token');
+        localStorage.removeItem('sb-' + process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1] + '-auth-token');
+      }
+      
+      // Cerrar sesión en Supabase
+      await supabase.auth.signOut();
+      
+      // Limpiar el estado del usuario
+      setUser(null);
+      setLoading(false);
+      
+      console.log('✅ AuthContext: Sesión limpiada correctamente');
+    } catch (error) {
+      console.error('❌ AuthContext: Error al limpiar sesión:', error);
+    }
+  };
+
   const signup = async (name: string, email: string, pass: string, role: UserRole, phone?: string) => {
     try {
       await userService.signUp(email, pass, { 
@@ -286,7 +322,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signup,
     supabase,
     refreshUser,
-    updateUserProfile
+    updateUserProfile,
+    clearSession
   };
 
   return (

@@ -134,27 +134,26 @@ export default function ProfilePageClient() {
     setLoading(true);
 
     try {
-      // Primero verificamos si el usuario está autenticado
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      console.log('Attempting to fetch profile using userService...');
       
-      if (sessionError) {
-        console.error('Error verificando sesión:', sessionError);
+      // Intentamos obtener el perfil usando el servicio de usuario
+      // Primero intentamos con getProfile (para usuarios autenticados)
+      // Si falla, intentamos con getPublicProfile (para perfiles públicos)
+      let profileData = null;
+      
+      if (authUser) {
+        // Usuario autenticado: intentar obtener perfil completo
+        try {
+          profileData = await userService.getProfile(profileId);
+        } catch (error) {
+          console.warn('Failed to get authenticated profile, trying public profile:', error);
+        }
       }
       
-      console.log('Session check result:', session ? 'Authenticated' : 'Not authenticated');
-      
-      // Intentamos obtener el perfil
-      const { data: profileData, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', profileId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching profile:', error);
-        setDisplayUser(null);
-        setLoading(false);
-        return;
+      // Si no se pudo obtener el perfil autenticado o no hay usuario autenticado,
+      // intentar obtener el perfil público
+      if (!profileData) {
+        profileData = await userService.getPublicProfile(profileId);
       }
 
       if (!profileData) {
@@ -283,14 +282,27 @@ export default function ProfilePageClient() {
 
   if (!displayUser) {
      return (
-        <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
-           <div className="text-center">
-             <h2 className="text-2xl font-bold text-primary mb-2">Usuario no encontrado</h2>
-             <p className="text-muted-foreground">El perfil que buscas no existe.</p>
-             <Button asChild className="mt-4">
-                <Link href="/">Ir al Inicio</Link>
-             </Button>
-           </div>
+        <div className="flex justify-center items-center min-h-[calc(100vh-8rem)] p-4">
+           <Card className="w-full max-w-md">
+             <CardHeader className="text-center">
+               <AlertCircle className="h-12 w-12 text-amber-500 mx-auto mb-2" />
+               <CardTitle>Perfil no disponible</CardTitle>
+               <CardDescription>
+                 No se pudo cargar el perfil. Esto puede deberse a problemas de conexión 
+                 o el perfil no existe.
+               </CardDescription>
+             </CardHeader>
+             <CardContent className="space-y-3">
+               <Button asChild className="w-full">
+                 <Link href="/">Ir al Inicio</Link>
+               </Button>
+               {!authUser && (
+                 <Button asChild className="w-full" variant="outline">
+                   <Link href="/login">Iniciar Sesión</Link>
+                 </Button>
+               )}
+             </CardContent>
+           </Card>
         </div>
     );
   }

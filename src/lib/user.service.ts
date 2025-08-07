@@ -366,6 +366,44 @@ class UserService {
       throw error;
     }
   }
+
+  // Get public profile (for viewing other users' profiles)
+  async getPublicProfile(userId: string): Promise<UserProfile | null> {
+    try {
+      console.log('🔍 GetPublicProfile: Fetching public profile for user:', userId);
+      
+      // Try to get the profile using a public query
+      const { data, error } = await this.supabase
+        .from('profiles')
+        .select(`
+          id,
+          full_name,
+          username,
+          bio,
+          avatar_url,
+          role,
+          phone_number,
+          full_address,
+          is_verified,
+          subscription_status,
+          created_at,
+          updated_at
+        `)
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('❌ GetPublicProfile: Error fetching public profile:', error);
+        return null;
+      }
+
+      console.log('✅ GetPublicProfile: Public profile fetched successfully');
+      return data as UserProfile;
+    } catch (error) {
+      console.error('❌ GetPublicProfile: Unexpected error:', error);
+      return null;
+    }
+  }
 }
 
 // Export a single instance of the service
