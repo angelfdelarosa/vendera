@@ -41,7 +41,7 @@ const loginSchema = z.object({
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation();
   const [logoutReason, setLogoutReason] = useState<string | null>(null);
@@ -57,6 +57,13 @@ function LoginForm() {
   const {
     formState: { isSubmitting },
   } = form;
+
+  // Redirect if user is already logged in or after successful login
+  useEffect(() => {
+    if (user) {
+      router.push('/');
+    }
+  }, [user, router]);
 
   // Check for logout reason in URL params
   useEffect(() => {
@@ -89,8 +96,7 @@ function LoginForm() {
         title: t('login.toast.success.title'),
         description: t('login.toast.success.description'),
       });
-      router.push('/');
-      router.refresh(); // Refresh server components
+      // The redirect is now handled by the useEffect hook watching the user state.
     }
   };
 

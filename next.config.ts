@@ -9,9 +9,15 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '10mb', // Increase body size limit for file uploads
     },
+    turbo: {
+      resolveAlias: {
+        // Fix for mapbox-gl in Turbopack
+        'mapbox-gl': 'mapbox-gl/dist/mapbox-gl.js',
+      },
+    },
   },
   webpack: (config, { isServer }) => {
-    // Fix for mapbox-gl
+    // Fix for mapbox-gl (only when not using Turbopack)
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
