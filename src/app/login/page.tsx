@@ -75,24 +75,35 @@ function LoginForm() {
     }
   }, [searchParams, toast]);
 
-  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    const { error } = await login(values.email, values.password);
+    const onSubmit = async (values: z.infer<typeof loginSchema>) => {
+      const { error } = await login(values.email, values.password);
 
-    if (error) {
-      toast({
-        title: t('login.toast.error.title'),
-        description: error.message,
-        variant: 'destructive',
-      });
-    } else {
-      toast({
-        title: t('login.toast.success.title'),
-        description: t('login.toast.success.description'),
-      });
-      router.push('/');
-      router.refresh(); // Refresh server components
-    }
-  };
+      if (error) {
+        toast({
+          title: t('login.toast.error.title'),
+          description: error.message,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: t('login.toast.success.title'),
+          description: t('login.toast.success.description'),
+        });
+        // Redirect to profile page after login
+        setTimeout(async () => {
+          const { data: { session } } = await import('@/lib/supabase/client').then(({ createClient }) => {
+            const supabase = createClient();
+            return supabase.auth.getSession();
+          });
+          if (session?.user?.id) {
+            router.push(`/profile/${session.user.id}`);
+          } else {
+            router.push('/');
+          }
+          router.refresh(); // Refresh server components
+        }, 1000);
+      }
+    };
 
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">

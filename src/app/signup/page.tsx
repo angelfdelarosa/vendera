@@ -92,7 +92,18 @@ export default function SignupPage() {
       if (values.role === 'developer') {
         router.push('/developer/register');
       } else {
-        router.push('/');
+        // Redirect to profile page after signup
+        setTimeout(async () => {
+          const { data: { session } } = await import('@/lib/supabase/client').then(({ createClient }) => {
+            const supabase = createClient();
+            return supabase.auth.getSession();
+          });
+          if (session?.user?.id) {
+            router.push(`/profile/${session.user.id}`);
+          } else {
+            router.push('/');
+          }
+        }, 2000);
       }
     }
   };
