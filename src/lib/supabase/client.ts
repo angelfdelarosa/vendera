@@ -35,7 +35,19 @@ export function createClient() {
           detectSessionInUrl: true,
           storageKey: 'vendra-auth-token',
           flowType: 'pkce',
-          debug: process.env.NODE_ENV === 'development'
+          debug: process.env.NODE_ENV === 'development',
+          // Add error handling for session issues
+          onAuthStateChange: (event, session) => {
+            console.log('🔄 Auth state change:', event, session?.user?.id || 'no user');
+            
+            if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+              console.log(`🔄 Auth event: ${event}`);
+            }
+            
+            if (event === 'SIGNED_IN' && session) {
+              console.log('✅ User signed in:', session.user.id);
+            }
+          }
         },
         global: {
           headers: {

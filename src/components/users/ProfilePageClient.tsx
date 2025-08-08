@@ -343,6 +343,24 @@ export default function ProfilePageClient() {
                    🧹 Clear SW Cache & Reload
                  </Button>
                  <Button 
+                   onClick={async () => {
+                     console.log('🧹 Clearing auth session and reloading...');
+                     if (authUser) {
+                       // Clear session but don't sign out completely
+                       if (typeof window !== 'undefined') {
+                         localStorage.removeItem('vendra-auth-token');
+                         localStorage.removeItem('sb-qlbuwoyugbwpzzwdflsq-auth-token');
+                       }
+                     }
+                     window.location.reload();
+                   }} 
+                   variant="outline" 
+                   size="sm" 
+                   className="w-full text-xs"
+                 >
+                   🔄 Clear Auth & Reload
+                 </Button>
+                 <Button 
                    onClick={() => window.location.reload()} 
                    variant="outline" 
                    size="sm" 

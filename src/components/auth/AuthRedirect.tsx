@@ -87,10 +87,12 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
       return;
     }
 
-    // Only redirect if we've given enough time for auth to load
-    if (hasCheckedAuth) {
+    // Only redirect if we've given enough time for auth to load and it's not a profile page
+    if (hasCheckedAuth && !isProfilePage) {
       console.log('🔄 AuthRedirect: Redirecting to landing page');
       router.push('/landing');
+    } else if (isProfilePage) {
+      console.log('✅ AuthRedirect: Profile page - allowing access even without auth');
     }
   }, [user, loading, router, pathname, hasCheckedAuth]);
 

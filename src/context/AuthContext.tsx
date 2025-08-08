@@ -133,13 +133,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (error) {
           console.error('❌ AuthContext: Error al obtener la sesión inicial:', error);
           
-          // Si el error es de refresh token inválido, limpiar la sesión
+          // Si el error es de sesión inválida o token de refresh inválido, limpiar la sesión
           if (error.message?.includes('refresh_token_not_found') || 
               error.message?.includes('Invalid Refresh Token') ||
-              error.message?.includes('refresh token not found')) {
-            console.log('🧹 AuthContext: Token de refresh inválido, limpiando sesión...');
+              error.message?.includes('refresh token not found') ||
+              error.message?.includes('AuthSessionMissingError') ||
+              error.name === 'AuthSessionMissingError') {
+            console.log('🧹 AuthContext: Sesión inválida, limpiando datos de autenticación...');
             try {
               await supabase.auth.signOut();
+              // Clear local storage as well
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('vendra-auth-token');
+                localStorage.removeItem('sb-qlbuwoyugbwpzzwdflsq-auth-token');
+              }
             } catch (signOutError) {
               console.warn('⚠️ AuthContext: Error al cerrar sesión:', signOutError);
             }
