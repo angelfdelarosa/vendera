@@ -108,7 +108,9 @@ export function UserNav() {
             <DropdownMenuGroup>
               {user && user.id ? (
                 <DropdownMenuItem onClick={() => {
-                  console.log('Navegando al perfil del usuario:', user.id);
+                  console.log('🔍 Navegando al perfil del usuario:', user.id);
+                  console.log('🔍 URL de destino:', `/profile/${user.id}`);
+                  console.log('🔍 Estado del usuario completo:', user);
                   router.push(`/profile/${user.id}`);
                 }}>
                   <User className="mr-2 h-4 w-4" />
