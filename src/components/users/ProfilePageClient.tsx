@@ -56,6 +56,7 @@ import { Badge } from '../ui/badge';
 import { SellerOnboardingForm } from './SellerOnboardingForm';
 import { debugAuthState, clearAllAuthData } from '@/lib/debug-auth';
 import { clearServiceWorkerCache, forcePageReload } from '@/lib/sw-utils';
+import { debugUserState, ensureUserProfile, clearAuthCache } from '@/lib/database-debug';
 
 const BadgeCheckIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -345,13 +346,7 @@ export default function ProfilePageClient() {
                  <Button 
                    onClick={async () => {
                      console.log('🧹 Clearing auth session and reloading...');
-                     if (authUser) {
-                       // Clear session but don't sign out completely
-                       if (typeof window !== 'undefined') {
-                         localStorage.removeItem('vendra-auth-token');
-                         localStorage.removeItem('sb-qlbuwoyugbwpzzwdflsq-auth-token');
-                       }
-                     }
+                     await clearAuthCache();
                      window.location.reload();
                    }} 
                    variant="outline" 
@@ -359,6 +354,30 @@ export default function ProfilePageClient() {
                    className="w-full text-xs"
                  >
                    🔄 Clear Auth & Reload
+                 </Button>
+                 <Button 
+                   onClick={async () => {
+                     const result = await debugUserState();
+                     console.log('🔍 Debug result:', result);
+                     alert('Debug result logged to console');
+                   }} 
+                   variant="outline" 
+                   size="sm" 
+                   className="w-full text-xs"
+                 >
+                   🔍 Debug User State
+                 </Button>
+                 <Button 
+                   onClick={async () => {
+                     const result = await ensureUserProfile();
+                     console.log('🔧 Ensure profile result:', result);
+                     alert('Profile check completed - see console');
+                   }} 
+                   variant="outline" 
+                   size="sm" 
+                   className="w-full text-xs"
+                 >
+                   🔧 Fix Profile
                  </Button>
                  <Button 
                    onClick={() => window.location.reload()} 
