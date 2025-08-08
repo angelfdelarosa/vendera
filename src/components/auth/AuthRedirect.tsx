@@ -17,23 +17,61 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
   const pathname = usePathname();
   const [showSessionError, setShowSessionError] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
   useEffect(() => {
-    console.log('=== AuthRedirect ===', { loading, userExists: !!user, pathname });
+    console.log('=== AuthRedirect ===', { 
+      loading, 
+      userExists: !!user, 
+      userId: user?.id, 
+      pathname,
+      hasCheckedAuth,
+      timestamp: new Date().toISOString()
+    });
     
     // Don't redirect if still loading
-    if (loading) return;
+    if (loading) {
+      console.log('⏳ AuthRedirect: Still loading, waiting...');
+      return;
+    }
+
+    // Mark that we've checked auth at least once
+    if (!hasCheckedAuth) {
+      console.log('🔍 AuthRedirect: First auth check completed');
+      setHasCheckedAuth(true);
+      
+      // Give a small delay for hydration issues
+      if (!user) {
+        console.log('⏳ AuthRedirect: No user found, waiting a bit for hydration...');
+        setTimeout(() => {
+          setHasCheckedAuth(true);
+        }, 100);
+        return;
+      }
+    }
 
     // Don't redirect if user is authenticated
-    if (user) return;
+    if (user) {
+      console.log('✅ AuthRedirect: User authenticated, allowing access');
+      return;
+    }
 
     // Define public pages that don't require authentication
     const publicPages = ['/landing', '/login', '/signup', '/'];
-    const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/profile/');
+    const isPublicPage = publicPages.includes(pathname);
+    
+    // Profile pages are public for viewing but we need to handle them carefully
+    const isProfilePage = pathname.startsWith('/profile/');
 
-    // Don't redirect if on a public page
+    // Don't redirect if on a public page (but not profile pages)
     if (isPublicPage) {
       console.log('✅ AuthRedirect: Public page, no redirect needed');
+      return;
+    }
+
+    // For profile pages, always allow access (they handle their own auth logic)
+    if (isProfilePage) {
+      console.log('✅ AuthRedirect: Profile page - bypassing redirect logic');
       return;
     }
 
@@ -49,10 +87,12 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
       return;
     }
 
-    // Redirect unauthenticated users to landing page for other routes
-    console.log('🔄 AuthRedirect: Redirecting to landing page');
-    router.push('/landing');
-  }, [user, loading, router, pathname]);
+    // Only redirect if we've given enough time for auth to load
+    if (hasCheckedAuth) {
+      console.log('🔄 AuthRedirect: Redirecting to landing page');
+      router.push('/landing');
+    }
+  }, [user, loading, router, pathname, hasCheckedAuth]);
 
   const handleClearSession = async () => {
     setIsClearing(true);
