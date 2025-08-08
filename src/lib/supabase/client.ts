@@ -2,6 +2,7 @@
 'use client';
 
 import { createBrowserClient } from '@supabase/ssr';
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 // Singleton pattern para el cliente Supabase
 let supabaseInstance: ReturnType<typeof createBrowserClient> | null = null;
@@ -35,19 +36,7 @@ export function createClient() {
           detectSessionInUrl: true,
           storageKey: 'vendra-auth-token',
           flowType: 'pkce',
-          debug: process.env.NODE_ENV === 'development',
-          // Add error handling for session issues
-          onAuthStateChange: (event, session) => {
-            console.log('🔄 Auth state change:', event, session?.user?.id || 'no user');
-            
-            if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
-              console.log(`🔄 Auth event: ${event}`);
-            }
-            
-            if (event === 'SIGNED_IN' && session) {
-              console.log('✅ User signed in:', session.user.id);
-            }
-          }
+          debug: process.env.NODE_ENV === 'development'
         },
         global: {
           headers: {
@@ -61,6 +50,19 @@ export function createClient() {
         }
       }
     );
+    
+    // Add auth state change listener after creating the client
+    supabaseInstance.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+      console.log('🔄 Auth state change:', event, session?.user?.id || 'no user');
+      
+      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        console.log(`🔄 Auth event: ${event}`);
+      }
+      
+      if (event === 'SIGNED_IN' && session) {
+        console.log('✅ User signed in:', session.user.id);
+      }
+    });
     
     console.log('✅ Supabase client created successfully');
     return supabaseInstance;
