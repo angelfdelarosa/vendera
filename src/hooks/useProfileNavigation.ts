@@ -42,10 +42,9 @@ export function useProfileNavigation() {
           // Check again
           const newPath = window.location.pathname;
           if (!newPath.includes(expectedPath)) {
-            console.log('⚠️ Service worker refresh failed, showing debug helper');
-            // Show debug helper by adding query parameter
-            const debugUrl = `/?debug_profile=${userId}`;
-            window.location.href = debugUrl;
+            console.log('⚠️ Service worker refresh failed, using direct navigation');
+            // Direct navigation as final fallback
+            window.location.href = profileUrl;
           } else {
             console.log('✅ Service worker refresh successful');
           }
