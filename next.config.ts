@@ -67,13 +67,54 @@ export default withPWA({
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development',
   runtimeCaching: [
+    // Static assets
     {
-      urlPattern: /^https?.*/,
+      urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'images',
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+        },
+      },
+    },
+    // API calls
+    {
+      urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/v1\/.*/,
       handler: 'NetworkFirst',
       options: {
-        cacheName: 'offlineCache',
+        cacheName: 'api-cache',
+        networkTimeoutSeconds: 5,
         expiration: {
-          maxEntries: 200,
+          maxEntries: 100,
+          maxAgeSeconds: 60 * 5, // 5 minutes
+        },
+      },
+    },
+    // Profile pages - always fetch from network first
+    {
+      urlPattern: /\/profile\/.*/,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'profile-pages',
+        networkTimeoutSeconds: 3,
+        expiration: {
+          maxEntries: 20,
+          maxAgeSeconds: 60 * 2, // 2 minutes
+        },
+      },
+    },
+    // Other pages
+    {
+      urlPattern: /^https:\/\/.*\//,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'pages',
+        networkTimeoutSeconds: 5,
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 60 * 10, // 10 minutes
         },
       },
     },

@@ -55,6 +55,7 @@ import { SubscriptionModal } from '../layout/SubscriptionModal';
 import { Badge } from '../ui/badge';
 import { SellerOnboardingForm } from './SellerOnboardingForm';
 import { debugAuthState, clearAllAuthData } from '@/lib/debug-auth';
+import { clearServiceWorkerCache, forcePageReload } from '@/lib/sw-utils';
 
 const BadgeCheckIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -191,6 +192,9 @@ export default function ProfilePageClient() {
   useEffect(() => {
     console.log('=== ProfilePageClient useEffect ===');
     console.log('Auth loading:', authLoading, '| Auth user ID:', authUser?.id, '| Profile ID:', profileId);
+    console.log('🌍 Environment:', process.env.NODE_ENV);
+    console.log('🔗 Current URL:', window.location.href);
+    console.log('🔗 Current pathname:', window.location.pathname);
     
     // Run detailed auth debugging only if there are issues
     if (!authLoading && !authUser && profileId) {
@@ -326,6 +330,17 @@ export default function ProfilePageClient() {
                    className="w-full text-xs"
                  >
                    🧹 Clear Auth Data
+                 </Button>
+                 <Button 
+                   onClick={async () => {
+                     await clearServiceWorkerCache();
+                     forcePageReload();
+                   }} 
+                   variant="outline" 
+                   size="sm" 
+                   className="w-full text-xs"
+                 >
+                   🧹 Clear SW Cache & Reload
                  </Button>
                  <Button 
                    onClick={() => window.location.reload()} 

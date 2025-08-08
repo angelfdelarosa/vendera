@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useState, useEffect } from 'react';
+import { useProfileNavigation } from '@/hooks/useProfileNavigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +24,7 @@ export function UserNav() {
   const { user, logout, loading } = useAuth();
   const router = useRouter();
   const { t } = useTranslation();
+  const { navigateToProfile } = useProfileNavigation();
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -107,12 +109,7 @@ export function UserNav() {
           <>
             <DropdownMenuGroup>
               {user && user.id ? (
-                <DropdownMenuItem onClick={() => {
-                  console.log('🔍 Navegando al perfil del usuario:', user.id);
-                  console.log('🔍 URL de destino:', `/profile/${user.id}`);
-                  console.log('🔍 Estado del usuario completo:', user);
-                  router.push(`/profile/${user.id}`);
-                }}>
+                <DropdownMenuItem onClick={() => navigateToProfile(user.id)}>
                   <User className="mr-2 h-4 w-4" />
                   <span>{t('userNav.profile')}</span>
                 </DropdownMenuItem>
