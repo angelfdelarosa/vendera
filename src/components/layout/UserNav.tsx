@@ -109,9 +109,11 @@ export function UserNav() {
           <>
             <DropdownMenuGroup>
               {user && user.id ? (
-                <DropdownMenuItem onClick={() => navigateToProfile(user.id)}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>{t('userNav.profile')}</span>
+                <DropdownMenuItem asChild>
+                  <Link href={`/profile/${user.id}`} className="flex items-center">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>{t('userNav.profile')}</span>
+                  </Link>
                 </DropdownMenuItem>
               ) : (
                 <DropdownMenuItem onClick={() => {

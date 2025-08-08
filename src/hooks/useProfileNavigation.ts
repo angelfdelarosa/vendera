@@ -13,53 +13,44 @@ export function useProfileNavigation() {
     console.log('🔍 useProfileNavigation: Starting navigation to:', profileUrl);
     console.log('🔍 Current environment:', process.env.NODE_ENV);
     console.log('🔍 Current URL:', window.location.href);
+    console.log('🔍 User agent:', navigator.userAgent);
     
-    try {
-      // In production, we might need to handle navigation differently
-      const isProduction = process.env.NODE_ENV === 'production';
+    // Check if we're in production
+    const isProduction = process.env.NODE_ENV === 'production' || window.location.hostname.includes('vercel.app');
+    
+    if (isProduction) {
+      console.log('🌍 Production detected - using direct navigation to avoid PWA/SW issues');
       
-      if (isProduction) {
-        console.log('🌍 Production environment detected, using enhanced navigation');
-        
-        // First attempt: Use Next.js router
-        await router.push(profileUrl);
-        
-        // Wait a bit and check if navigation was successful
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        const currentPath = window.location.pathname;
-        const expectedPath = `/profile/${userId}`;
-        
-        if (!currentPath.includes(expectedPath)) {
-          console.log('⚠️ Router navigation failed, trying service worker refresh');
-          
-          // Try refreshing service worker first
-          await refreshServiceWorker();
-          
-          // Wait a bit more
-          await new Promise(resolve => setTimeout(resolve, 200));
-          
-          // Check again
-          const newPath = window.location.pathname;
-          if (!newPath.includes(expectedPath)) {
-            console.log('⚠️ Service worker refresh failed, using direct navigation');
-            // Direct navigation as final fallback
-            window.location.href = profileUrl;
-          } else {
-            console.log('✅ Service worker refresh successful');
+      // In production, use direct navigation to bypass any PWA/Service Worker issues
+      try {
+        // Clear any existing service worker cache for this route
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          for (const cacheName of cacheNames) {
+            if (cacheName.includes('profile') || cacheName.includes('pages')) {
+              console.log('🧹 Clearing cache:', cacheName);
+              await caches.delete(cacheName);
+            }
           }
-        } else {
-          console.log('✅ Router navigation successful');
         }
-      } else {
-        // Development: Use normal router
-        console.log('🛠️ Development environment, using normal router');
-        await router.push(profileUrl);
+      } catch (error) {
+        console.warn('⚠️ Could not clear cache:', error);
       }
-    } catch (error) {
-      console.error('❌ Navigation error, using fallback:', error);
-      // Ultimate fallback
+      
+      // Force direct navigation
+      console.log('🚀 Using window.location.href for direct navigation');
       window.location.href = profileUrl;
+      
+    } else {
+      // Development: Use normal router
+      console.log('🛠️ Development environment, using Next.js router');
+      try {
+        await router.push(profileUrl);
+        console.log('✅ Router navigation completed');
+      } catch (error) {
+        console.error('❌ Router navigation failed:', error);
+        window.location.href = profileUrl;
+      }
     }
   }, [router]);
 

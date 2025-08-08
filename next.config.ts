@@ -65,7 +65,7 @@ export default withPWA({
   dest: 'public',
   register: true,
   skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
+  disable: process.env.NODE_ENV === 'development' || process.env.DISABLE_PWA === 'true',
   runtimeCaching: [
     // Static assets
     {
