@@ -37,7 +37,7 @@ export default function MainLayout({
     <AutoLogoutProvider
       idleTime={idleTime}
       warningTime={warningTime}
-      enabled={true}
+      enabled={false}
     >
       <AuthRedirect>
         <MainLayoutContent>
