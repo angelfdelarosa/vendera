@@ -30,6 +30,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { Logo } from '@/components/layout/Logo';
 import Image from 'next/image';
 import { useEffect, useState, Suspense } from 'react';
+import { getPostLoginRedirectUrl } from '@/lib/navigation-helpers';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -64,8 +65,9 @@ function LoginForm() {
 
   useEffect(() => {
     if (user) {
-      const redirectTo = searchParams.get('redirectTo') || '/';
-      router.push(redirectTo);
+      const redirectTo = searchParams.get('redirectTo');
+      const targetUrl = redirectTo || getPostLoginRedirectUrl(user.profile, '/');
+      router.push(targetUrl);
     }
   }, [user, router, searchParams]);
 
@@ -79,8 +81,7 @@ function LoginForm() {
         description: t('auth.login.success.description'),
       });
 
-      // 🔄 Redirección automática al perfil
-      router.push('/perfil');
+      // La redirección se maneja en el useEffect cuando el usuario se actualiza
     } catch (error: any) {
       console.error('Login error:', error);
       toast({

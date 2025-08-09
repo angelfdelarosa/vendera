@@ -34,6 +34,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Badge } from '@/components/ui/badge';
 import { Building2, Users, UserCheck } from 'lucide-react';
 import type { UserRole } from '@/types';
+import { getPostLoginRedirectUrl } from '@/lib/navigation-helpers';
 
 const signupSchema = z
   .object({
@@ -92,14 +93,20 @@ export default function SignupPage() {
       if (values.role === 'developer') {
         router.push('/developer/register');
       } else {
-        // Redirect to profile page after signup
+        // Redirect to appropriate page after signup
         setTimeout(async () => {
           const { data: { session } } = await import('@/lib/supabase/client').then(({ createClient }) => {
             const supabase = createClient();
             return supabase.auth.getSession();
           });
           if (session?.user?.id) {
-            router.push(`/profile/${session.user.id}`);
+            // Get user profile to determine redirect
+            const { data: profile } = await import('@/lib/supabase/client').then(({ createClient }) => {
+              const supabase = createClient();
+              return supabase.from('profiles').select('role').eq('id', session.user.id).single();
+            });
+            const targetUrl = getPostLoginRedirectUrl(profile, `/profile/${session.user.id}`);
+            router.push(targetUrl);
           } else {
             router.push('/');
           }

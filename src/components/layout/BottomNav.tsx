@@ -6,6 +6,7 @@ import { Home, Heart, Plus, MessageCircle, User, Building2 } from 'lucide-react'
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
+import { getProfileUrl, isProfileRouteActive } from '@/lib/navigation-helpers';
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -18,8 +19,9 @@ export function BottomNav() {
     
     // Verificar si el usuario está autenticado y tiene un ID
     if (user && user.id) {
-      console.log('Navegando al perfil del usuario:', user.id);
-      router.push(`/profile/${user.id}`);
+      const targetUrl = getProfileUrl(user.id, user.profile);
+      console.log('Navegando a:', targetUrl);
+      router.push(targetUrl);
     } else {
       console.log('Usuario no autenticado, redirigiendo a login');
       router.push('/login');
@@ -59,7 +61,7 @@ export function BottomNav() {
       href: '#',
       icon: User,
       label: t('header.profile'),
-      isActive: pathname.startsWith('/profile'),
+      isActive: isProfileRouteActive(pathname, user?.profile),
       type: 'button' as const,
       onClick: handleProfileClick,
     },

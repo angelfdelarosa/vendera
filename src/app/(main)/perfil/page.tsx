@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { User, Mail, Calendar, Shield } from 'lucide-react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 export default async function PerfilPage() {
   // ✅ Verificar autenticación y obtener datos del usuario
@@ -15,6 +16,11 @@ export default async function PerfilPage() {
     .select('*')
     .eq('id', user.id)
     .single();
+
+  // Si el usuario es desarrollador, redirigir al dashboard
+  if (profile?.role === 'developer') {
+    redirect('/developer/dashboard');
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

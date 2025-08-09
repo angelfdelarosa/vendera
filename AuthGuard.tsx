@@ -8,12 +8,14 @@ interface AuthGuardProps {
   children: React.ReactNode;
   requireAuth?: boolean;
   redirectTo?: string;
+  redirectDevelopersTo?: string; // Nueva prop para redirigir desarrolladores
 }
 
 export default function AuthGuard({ 
   children, 
   requireAuth = true, 
-  redirectTo = '/login' 
+  redirectTo = '/login',
+  redirectDevelopersTo
 }: AuthGuardProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -32,8 +34,14 @@ export default function AuthGuard({
       return;
     }
 
+    // Si el usuario es desarrollador y se especifica una redirección para desarrolladores
+    if (user && user.profile?.role === 'developer' && redirectDevelopersTo) {
+      router.push(redirectDevelopersTo);
+      return;
+    }
+
     setIsAuthorized(true);
-  }, [user, loading, requireAuth, redirectTo, router]);
+  }, [user, loading, requireAuth, redirectTo, redirectDevelopersTo, router]);
 
   if (loading) {
     return (
