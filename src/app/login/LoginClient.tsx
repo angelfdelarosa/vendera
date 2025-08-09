@@ -79,8 +79,8 @@ function LoginForm() {
         description: t('auth.login.success.description'),
       });
 
-      const redirectTo = searchParams.get('redirectTo') || '/';
-      router.push(redirectTo);
+      // 🔄 Redirección automática al perfil
+      router.push('/perfil');
     } catch (error: any) {
       console.error('Login error:', error);
       toast({

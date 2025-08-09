@@ -40,6 +40,22 @@ export interface UserProfile {
   } | null;
 }
 
+// Public profile type (subset of UserProfile for public viewing)
+export interface PublicUserProfile {
+  id: string;
+  full_name: string | null;
+  username: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+  role: UserRole;
+  phone_number: string | null;
+  full_address: string | null;
+  is_verified: boolean | null;
+  subscription_status: 'active' | 'inactive' | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
 // User type for authentication context
 export interface User {
   id: string;

@@ -5,7 +5,7 @@ import type { Property } from '@/types';
 import { notFound } from 'next/navigation';
 
 async function getPropertyForEdit(id: string): Promise<Property | null> {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data, error } = await supabase
         .from('properties')
         .select(`*, realtor:realtor_id(id, full_name, avatar_url, username)`)

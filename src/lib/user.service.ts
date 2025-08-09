@@ -2,7 +2,7 @@
 'use client';
 
 import { createClient } from '@/lib/supabase/client';
-import type { UserProfile, UserRole } from '@/types';
+import type { UserProfile, UserRole, PublicUserProfile } from '@/types';
 
 // User Creation and Profile Management Service
 class UserService {
@@ -152,8 +152,10 @@ class UserService {
           console.log('🔐 GetProfile: Session check result:', session ? 'Authenticated' : 'Not authenticated');
           
           // Si estamos buscando el perfil del usuario actual pero no hay sesión, es un problema
-          if (!session && session?.user?.id === userId) {
-            console.error('❌ GetProfile: Trying to get current user profile but no active session');
+          if (!session) {
+            console.error('❌ GetProfile: No active session found');
+          } else if (session.user?.id === userId) {
+            console.log('✅ GetProfile: Fetching profile for authenticated user');
           }
         }
       } catch (sessionCheckError) {
@@ -368,7 +370,7 @@ class UserService {
   }
 
   // Get public profile (for viewing other users' profiles)
-  async getPublicProfile(userId: string): Promise<UserProfile | null> {
+  async getPublicProfile(userId: string): Promise<PublicUserProfile | null> {
     try {
       console.log('🔍 GetPublicProfile: Fetching public profile for user:', userId);
       console.log('🔍 GetPublicProfile: Current session check...');
@@ -417,7 +419,7 @@ class UserService {
       }
 
       console.log('✅ GetPublicProfile: Public profile fetched successfully:', data?.full_name);
-      return data as UserProfile;
+      return data as PublicUserProfile;
     } catch (error) {
       console.error('❌ GetPublicProfile: Unexpected error:', error);
       return null;

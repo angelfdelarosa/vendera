@@ -280,6 +280,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       email,
       password: pass,
     });
+    
+    if (error) {
+      throw error;
+    }
+    
     return { error };
   };
 

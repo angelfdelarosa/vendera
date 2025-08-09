@@ -10,7 +10,7 @@ import type { User } from '@supabase/supabase-js';
  * @returns El usuario autenticado y el cliente de Supabase
  */
 export async function requireAuth(redirectTo: string = '/login') {
-  const supabase = await createServerClient();
+  const supabase = createServerClient();
   
   const {
     data: { session },
@@ -34,7 +34,7 @@ export async function requireAuth(redirectTo: string = '/login') {
  * @returns La sesión del usuario (puede ser null) y el cliente de Supabase
  */
 export async function getSession() {
-  const supabase = await createServerClient();
+  const supabase = createServerClient();
   
   const {
     data: { session },
@@ -56,7 +56,7 @@ export async function getSession() {
  * @returns El cliente de Supabase
  */
 export async function requireGuest(redirectTo: string = '/') {
-  const supabase = await createServerClient();
+  const supabase = createServerClient();
   
   const {
     data: { session },
