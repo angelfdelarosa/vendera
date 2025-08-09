@@ -1,5 +1,5 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient as createSSRClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 /**
@@ -30,7 +30,7 @@ export const createAdminClient = () => {
 export const createClient = async () => {
   const cookieStore = await cookies();
 
-  return createServerClient(
+  return createSSRClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -53,3 +53,9 @@ export const createClient = async () => {
     }
   );
 };
+
+/**
+ * Alias for createClient to match your proposed naming convention
+ * Creates a Supabase client for server-side operations with user context.
+ */
+export const createServerClient = createClient;

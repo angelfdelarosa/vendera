@@ -201,6 +201,10 @@ export default function ProjectDetailPage() {
         message: interestForm.message || null,
         contact_preference: interestForm.contactPreference as 'email' | 'phone' | 'whatsapp',
         status: 'pending' as const,
+        // Client information from user profile
+        client_name: user.profile?.full_name || user.user_metadata?.full_name || user.email || 'Usuario',
+        client_email: user.email ?? '',
+        client_phone: user.profile?.phone_number || user.user_metadata?.phone || null,
       };
 
       await developerService.createProjectInterest(interestData);

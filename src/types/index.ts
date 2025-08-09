@@ -178,6 +178,10 @@ export interface ProjectInterest {
   message: string | null;
   contact_preference: 'email' | 'phone' | 'whatsapp';
   status: 'pending' | 'contacted' | 'closed';
+  // Client information (populated from user profile or form)
+  client_name: string;
+  client_email: string;
+  client_phone: string | null;
   created_at: string;
   updated_at: string;
 }
